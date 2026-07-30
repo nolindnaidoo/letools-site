@@ -14,6 +14,7 @@ One static page, built with [HeroUI v3](https://heroui.com) on Next.js 16
 | The tools | 10 cards, filterable by category (Extract / Check / Guard), each linking to VS Code Marketplace, Open VSX, and GitHub |
 | Why LE | The four family promises |
 | Install | Per-editor install commands with copy buttons |
+| Beyond the editor | The two Rust desktop tools (pixelcoords, pixelactions) with links to their sites |
 | FAQ | Accordion |
 
 The tool list lives in `lib/tools.ts` — the grid, tabs, and links all render

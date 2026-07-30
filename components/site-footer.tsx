@@ -1,3 +1,4 @@
+import { RUST_TOOLS } from '@/lib/rust-tools'
 import { GITHUB_URL, PUBLISHER, SITE_NAME, TAGLINE } from '@/lib/site'
 import { Link } from '@/ui/link'
 import { Separator } from '@/ui/separator'
@@ -10,6 +11,13 @@ export function SiteFooter() {
         <p>
           {SITE_NAME} — {TAGLINE}
         </p>
+        <nav aria-label="More tools" className="flex items-center gap-4">
+          {RUST_TOOLS.map(tool => (
+            <Link key={tool.id} href={tool.siteUrl} target="_blank" rel="noreferrer">
+              {tool.id}.dev
+            </Link>
+          ))}
+        </nav>
         <p className="flex items-center gap-1">
           MIT ©{' '}
           <Link href={GITHUB_URL} target="_blank" rel="noreferrer">
