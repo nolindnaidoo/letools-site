@@ -85,8 +85,10 @@ screenshots in light, dark, and mobile before shipping visual changes.
 bun run verify   # lint + typecheck + build (static export to out/)
 ```
 
-After `build`, `out/` must contain the page HTML plus `robots.txt` and
-`sitemap.xml` (both static in `public/`). Serve `out/` and click through:
+After `build`, `out/` must contain the page HTML, `robots.txt` and
+`sitemap.xml` (both static in `public/`), and the build-time PNGs from
+`app/icon.tsx` / `apple-icon.tsx` / `opengraph-image.tsx` (Satori —
+literal hexes only in those files). Serve `out/` and click through:
 category tabs filter, FAQ expands, the copy button writes the clipboard,
 theme toggle flips. Security headers live in `vercel.json`.
 
