@@ -113,3 +113,7 @@ export function iconSrc(tool: Tool): string {
 export function demoSrc(tool: Tool): string {
   return `/demos/${tool.id}.gif`
 }
+
+export function posterSrc(tool: Tool): string {
+  return `/posters/${tool.id}.jpg`
+}

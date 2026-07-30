@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import {
   CATEGORIES,
   type CategoryId,
@@ -8,6 +9,7 @@ import {
   iconSrc,
   marketplaceUrl,
   openVsxUrl,
+  posterSrc,
   TOOLS,
   type Tool,
 } from '@/lib/tools'
@@ -15,7 +17,6 @@ import { Card } from '@/ui/card'
 import { Chip } from '@/ui/chip'
 import { Link } from '@/ui/link'
 import { Tabs } from '@/ui/tabs'
-import { Tooltip } from '@/ui/tooltip'
 
 // Chip color per category — HeroUI semantic colors, not custom hexes.
 const CATEGORY_CHIP = {
@@ -29,57 +30,64 @@ function categoryLabel(id: CategoryId): string {
 }
 
 function ToolCard({ tool }: { readonly tool: Tool }) {
+  // The demo IS the card face: a static first frame by default, swapped
+  // for the animated gif while the card is hovered or focused — so the
+  // heavy gifs only download for tools someone actually looks at.
+  const [isActive, setIsActive] = useState(false)
+
   return (
-    // The whole card is the tooltip trigger: hover (or focus) pops the
-    // tool's demo gif. Content mounts on first open, so the gif is not
-    // fetched until someone actually hovers.
-    <Tooltip delay={350} closeDelay={100}>
-      <Tooltip.Trigger className="h-full">
-        <Card
-          variant="secondary"
-          className="flex h-full flex-col gap-1 transition-shadow hover:shadow-md"
-        >
-          <Card.Header className="flex-row items-center gap-3">
-            <img
-              src={iconSrc(tool)}
-              alt=""
-              width={40}
-              height={40}
-              loading="lazy"
-              className="size-10 shrink-0 rounded-xl"
-            />
-            <div className="flex flex-1 items-center justify-between gap-2">
-              <Card.Title>{tool.name}</Card.Title>
-              <Chip size="sm" variant="soft" color={CATEGORY_CHIP[tool.category]}>
-                {categoryLabel(tool.category)}
-              </Chip>
-            </div>
-          </Card.Header>
-          <Card.Content>
-            <Card.Description className="text-pretty">{tool.summary}</Card.Description>
-          </Card.Content>
-          <Card.Footer className="mt-auto gap-4 text-sm">
-            <Link href={marketplaceUrl(tool)} target="_blank" rel="noreferrer">
-              VS Code
-            </Link>
-            <Link href={openVsxUrl(tool)} target="_blank" rel="noreferrer">
-              Open VSX
-            </Link>
-            <Link href={githubUrl(tool)} target="_blank" rel="noreferrer">
-              GitHub
-            </Link>
-          </Card.Footer>
-        </Card>
-      </Tooltip.Trigger>
-      <Tooltip.Content className="max-w-none p-2">
+    <Card
+      variant="secondary"
+      className="group flex h-full flex-col gap-1 transition-shadow hover:shadow-lg"
+      onMouseEnter={() => setIsActive(true)}
+      onMouseLeave={() => setIsActive(false)}
+      onFocus={() => setIsActive(true)}
+      onBlur={() => setIsActive(false)}
+    >
+      <div className="relative overflow-hidden rounded-xl border border-border">
         <img
-          src={demoSrc(tool)}
+          src={isActive ? demoSrc(tool) : posterSrc(tool)}
           alt={`${tool.name} demo`}
-          width={480}
-          className="h-auto w-[min(480px,80vw)] rounded-lg"
+          width={800}
+          loading="lazy"
+          className="aspect-video w-full object-cover object-top"
         />
-      </Tooltip.Content>
-    </Tooltip>
+        <Chip
+          size="sm"
+          variant="soft"
+          color={CATEGORY_CHIP[tool.category]}
+          className="absolute right-2 top-2 backdrop-blur"
+        >
+          {categoryLabel(tool.category)}
+        </Chip>
+      </div>
+
+      <Card.Header className="flex-row items-center gap-3 pt-3">
+        <img
+          src={iconSrc(tool)}
+          alt=""
+          width={36}
+          height={36}
+          loading="lazy"
+          className="size-9 shrink-0 rounded-lg"
+        />
+        <Card.Title>{tool.name}</Card.Title>
+      </Card.Header>
+      <Card.Content>
+        <Card.Description className="text-pretty">{tool.summary}</Card.Description>
+      </Card.Content>
+      <Card.Footer className="mt-auto gap-4 text-sm">
+        <Link href={marketplaceUrl(tool)} target="_blank" rel="noreferrer">
+          VS Code
+        </Link>
+        <Link href={openVsxUrl(tool)} target="_blank" rel="noreferrer">
+          Open VSX
+        </Link>
+        <Link href={githubUrl(tool)} target="_blank" rel="noreferrer">
+          GitHub
+        </Link>
+      </Card.Footer>
+    </Card>
   )
 }
 
