@@ -21,7 +21,9 @@ product decision, not a PR.
   based) — and unlike the pixel sites, **the primitives are actually in use**:
   Button, Card, Chip, Tabs, Accordion, Link, Separator. Compound API
   (`Card.Header`, `Tabs.Panel`, `Accordion.Trigger`, …). The default HeroUI
-  theme is kept wholesale; `globals.css` adds only font wiring.
+  theme is kept except for contrast-tuned token overrides in `globals.css`
+  (accent/muted — every value clears WCAG AA, axe-verified both schemes);
+  otherwise only font wiring.
 - **Styling:** Tailwind v4 via PostCSS. HeroUI semantic tokens only
   (`bg-background`, `bg-surface`, `text-muted`, `border-border`,
   `*-soft` washes) — never hardcode a hex in a component.

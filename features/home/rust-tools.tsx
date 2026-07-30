@@ -35,10 +35,22 @@ export function RustTools() {
               <Card.Description className="text-pretty">{tool.tagline}</Card.Description>
             </Card.Content>
             <Card.Footer className="mt-auto gap-4 text-sm">
-              <Link href={tool.siteUrl} target="_blank" rel="noreferrer">
+              <Link
+                href={tool.siteUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`${tool.name} website (opens in new tab)`}
+                className="py-2"
+              >
                 {tool.id}.dev
               </Link>
-              <Link href={tool.githubUrl} target="_blank" rel="noreferrer">
+              <Link
+                href={tool.githubUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`${tool.name} on GitHub (opens in new tab)`}
+                className="py-2"
+              >
                 GitHub
               </Link>
             </Card.Footer>

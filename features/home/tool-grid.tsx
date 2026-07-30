@@ -13,6 +13,7 @@ import {
   TOOLS,
   type Tool,
 } from '@/lib/tools'
+import { usePrefersReducedMotion } from '@/lib/use-prefers-reduced-motion'
 import { Card } from '@/ui/card'
 import { Chip } from '@/ui/chip'
 import { Link } from '@/ui/link'
@@ -34,6 +35,8 @@ function ToolCard({ tool }: { readonly tool: Tool }) {
   // for the animated gif while the card is hovered or focused — so the
   // heavy gifs only download for tools someone actually looks at.
   const [isActive, setIsActive] = useState(false)
+  const prefersReducedMotion = usePrefersReducedMotion()
+  const shouldAnimate = isActive && !prefersReducedMotion
 
   return (
     <Card
@@ -46,10 +49,11 @@ function ToolCard({ tool }: { readonly tool: Tool }) {
     >
       <div className="relative overflow-hidden rounded-xl border border-border">
         <img
-          src={isActive ? demoSrc(tool) : posterSrc(tool)}
+          src={shouldAnimate ? demoSrc(tool) : posterSrc(tool)}
           alt={`${tool.name} demo`}
           width={800}
           loading="lazy"
+          decoding="async"
           className="aspect-video w-full object-cover object-top"
         />
         <Chip
@@ -69,6 +73,7 @@ function ToolCard({ tool }: { readonly tool: Tool }) {
           width={36}
           height={36}
           loading="lazy"
+          decoding="async"
           className="size-9 shrink-0 rounded-lg"
         />
         <Card.Title>{tool.name}</Card.Title>
@@ -77,13 +82,31 @@ function ToolCard({ tool }: { readonly tool: Tool }) {
         <Card.Description className="text-pretty">{tool.summary}</Card.Description>
       </Card.Content>
       <Card.Footer className="mt-auto gap-4 text-sm">
-        <Link href={marketplaceUrl(tool)} target="_blank" rel="noreferrer">
+        <Link
+          href={marketplaceUrl(tool)}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`${tool.name} on the VS Code Marketplace (opens in new tab)`}
+          className="py-2"
+        >
           VS Code
         </Link>
-        <Link href={openVsxUrl(tool)} target="_blank" rel="noreferrer">
+        <Link
+          href={openVsxUrl(tool)}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`${tool.name} on Open VSX (opens in new tab)`}
+          className="py-2"
+        >
           Open VSX
         </Link>
-        <Link href={githubUrl(tool)} target="_blank" rel="noreferrer">
+        <Link
+          href={githubUrl(tool)}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`${tool.name} on GitHub (opens in new tab)`}
+          className="py-2"
+        >
           GitHub
         </Link>
       </Card.Footer>

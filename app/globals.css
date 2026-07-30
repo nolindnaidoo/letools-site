@@ -1,15 +1,32 @@
 @import "tailwindcss";
 @import "@heroui/styles";
 
-/* The site rides HeroUI's default theme wholesale — components look the way
- * the design system intends in both schemes. The only local additions are
- * the font wiring and a soft page wash behind the hero. Tokens the site
- * styles against (all defined by @heroui/styles):
- *   bg-background / bg-surface / bg-surface-secondary
- *   text-foreground / text-muted
- *   border-border
- *   accent / accent-soft (chips, highlights)
+/* The site rides HeroUI's default theme, with contrast-tuned overrides of
+ * a few semantic tokens (unlayered, so they beat HeroUI's @layer'd
+ * definitions). Every value clears WCAG AA 4.5:1 against the surfaces it
+ * sits on — verified by axe in both schemes:
+ *   --accent        white button/tile text was 3.58:1 on the stock accent
+ *   --muted (light) body-muted text was 4.05–4.43:1 on tinted surfaces
+ *   --accent-soft-foreground (light) was 4.46:1 on the soft wash
  */
+
+/* Being unlayered, these beat BOTH schemes' layered definitions — so any
+ * token set for light here must also be restated for dark (verbatim HeroUI
+ * dark values where no override is needed), or dark inherits light's. */
+:root,
+.light {
+  --accent: #1d6bd8;
+  --accent-hover: #1a60c2;
+  --muted: #52525b;
+  --accent-soft-foreground: #15599c;
+}
+
+.dark {
+  --accent: #1d6bd8;
+  --accent-hover: #2f7ae4;
+  --muted: oklch(70.5% 0.015 286.067);
+  --accent-soft-foreground: color-mix(in oklab, var(--accent) 80%, var(--foreground) 30%);
+}
 
 @theme inline {
   --font-sans: var(--font-geist-sans);

@@ -13,7 +13,14 @@ export function SiteFooter() {
         </p>
         <nav aria-label="More tools" className="flex items-center gap-4">
           {RUST_TOOLS.map(tool => (
-            <Link key={tool.id} href={tool.siteUrl} target="_blank" rel="noreferrer">
+            <Link
+              key={tool.id}
+              href={tool.siteUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`${tool.name} website (opens in new tab)`}
+              className="py-2"
+            >
               {tool.id}.dev
             </Link>
           ))}
