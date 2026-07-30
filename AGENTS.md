@@ -59,6 +59,9 @@ Every claim must stay provable against the extension repos: local-only /
 no network access, MIT, 13 locales, the 3-OS CI + test bar, publisher ids.
 Tool summaries come from each tool's manifest — keep them in step, never
 embellish. No invented download counts, stars, or testimonials.
+Card icons (`public/icons/`, downscaled to 128px) and hover demos
+(`public/demos/`) are copied from each tool repo's `src/assets/images/` —
+refresh them when a tool's branding or demo changes.
 
 ## Code principles
 

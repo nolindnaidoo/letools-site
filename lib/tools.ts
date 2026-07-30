@@ -16,7 +16,6 @@ export type CategoryId = (typeof CATEGORIES)[number]['id']
 export interface Tool {
   readonly id: string
   readonly name: string
-  readonly monogram: string
   readonly category: CategoryId
   readonly summary: string
 }
@@ -25,7 +24,6 @@ export const TOOLS: readonly Tool[] = [
   {
     id: 'string-le',
     name: 'String-LE',
-    monogram: 'St',
     category: 'extract',
     summary:
       'Extract user-visible strings from JSON, YAML, CSV, TOML, INI, and .env — for i18n and validation.',
@@ -33,14 +31,12 @@ export const TOOLS: readonly Tool[] = [
   {
     id: 'numbers-le',
     name: 'Numbers-LE',
-    monogram: 'Nu',
     category: 'extract',
     summary: 'Extract and analyze numeric data with statistics.',
   },
   {
     id: 'paths-le',
     name: 'Paths-LE',
-    monogram: 'Pa',
     category: 'extract',
     summary:
       'Pull every file path out of JS/TS imports, JSON, HTML, CSS, TOML, CSV, and .env files.',
@@ -48,28 +44,24 @@ export const TOOLS: readonly Tool[] = [
   {
     id: 'colors-le',
     name: 'Colors-LE',
-    monogram: 'Co',
     category: 'extract',
     summary: 'Extract and analyze colors from CSS, SCSS, LESS, Stylus, HTML, JS/TS, and SVG.',
   },
   {
     id: 'urls-le',
     name: 'URLs-LE',
-    monogram: 'Ur',
     category: 'extract',
     summary: 'Extract URLs from documentation, configs, and code.',
   },
   {
     id: 'dates-le',
     name: 'Dates-LE',
-    monogram: 'Da',
     category: 'extract',
     summary: 'Extract date and time data from logs, configs, and code.',
   },
   {
     id: 'regex-le',
     name: 'Regex-LE',
-    monogram: 'Re',
     category: 'check',
     summary:
       'Find, test, and validate the regular expressions in any file — match reports and built-in ReDoS screening.',
@@ -77,14 +69,12 @@ export const TOOLS: readonly Tool[] = [
   {
     id: 'scrape-le',
     name: 'Scrape-LE',
-    monogram: 'Sc',
     category: 'check',
     summary: 'Check whether a page is actually scrapeable before you burn hours debugging.',
   },
   {
     id: 'secrets-le',
     name: 'Secrets-LE',
-    monogram: 'Se',
     category: 'guard',
     summary:
       'Detect and sanitize credentials, tokens, API keys, and private keys locally — before you commit.',
@@ -92,7 +82,6 @@ export const TOOLS: readonly Tool[] = [
   {
     id: 'envsync-le',
     name: 'EnvSync-LE',
-    monogram: 'En',
     category: 'guard',
     summary:
       'Spot missing keys across your .env files — automatic checks, a status bar counter, and a markdown report.',
@@ -113,4 +102,14 @@ export function githubUrl(tool: Tool): string {
 
 export function installCommand(tool: Tool): string {
   return `ext install ${PUBLISHER}.${tool.id}`
+}
+
+// Assets are copied from each tool repo's src/assets/images (icons
+// downscaled to 128px); refresh them when a tool's branding changes.
+export function iconSrc(tool: Tool): string {
+  return `/icons/${tool.id}.png`
+}
+
+export function demoSrc(tool: Tool): string {
+  return `/demos/${tool.id}.gif`
 }
