@@ -1,0 +1,49 @@
+{
+  "name": "letools-site",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The hub site for the LE family of VS Code extensions — ten single-purpose devtools at letools.dev.",
+  "author": {
+    "name": "Nolin Naidoo",
+    "email": "nolin.naidoo@me.com",
+    "url": "https://github.com/nolindnaidoo"
+  },
+  "license": "MIT",
+  "homepage": "https://letools.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nolindnaidoo/letools-site.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nolindnaidoo/letools-site/issues"
+  },
+  "scripts": {
+    "preinstall": "npx only-allow bun",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "serve out -l 3000",
+    "lint": "biome check",
+    "format": "biome check --write",
+    "typecheck": "tsc --noEmit",
+    "verify": "bun run lint && bun run typecheck && bun run build"
+  },
+  "dependencies": {
+    "@heroui/react": "^3.2.2",
+    "@heroui/styles": "^3.2.2",
+    "@vercel/analytics": "^2.0.1",
+    "next": "16.2.12",
+    "next-themes": "^0.4.6",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.6",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "serve": "^14.2.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

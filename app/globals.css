@@ -1,0 +1,33 @@
+@import "tailwindcss";
+@import "@heroui/styles";
+
+/* The site rides HeroUI's default theme wholesale — components look the way
+ * the design system intends in both schemes. The only local additions are
+ * the font wiring and a soft page wash behind the hero. Tokens the site
+ * styles against (all defined by @heroui/styles):
+ *   bg-background / bg-surface / bg-surface-secondary
+ *   text-foreground / text-muted
+ *   border-border
+ *   accent / accent-soft (chips, highlights)
+ */
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--background);
+  color: var(--foreground);
+}
