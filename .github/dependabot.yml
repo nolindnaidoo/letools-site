@@ -1,0 +1,33 @@
+# Weekly grouped dependency PRs. No auto-merge here: this repo has no
+# required checks (push-to-main IS the deploy flow), so auto-merge would
+# land before CI finishes — updates are low-volume and reviewed by hand.
+#
+# The ecosystem is "bun", not "npm": the npm updater edits package.json
+# without regenerating bun.lock, so its PRs can never pass the CI
+# frozen-lockfile gate. The bun updater maintains the lockfile.
+version: 2
+updates:
+  - package-ecosystem: "bun"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      npm-minor-patch:
+        applies-to: version-updates
+        update-types: ["minor", "patch"]
+    ignore:
+      # Majors for the toolchain are deliberate migrations, not Dependabot
+      # merges. Remove an entry here to take one on purpose.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      # Types track the actual runtime major; bump when the runtime moves.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns: ["*"]
