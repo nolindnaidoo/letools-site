@@ -18,12 +18,16 @@ export interface Tool {
   readonly name: string
   readonly category: CategoryId
   readonly summary: string
+  /** GitHub repo name, when it differs from the extension id (String-LE
+   *  publishes as `string-le` but lives in the `strings-le` repo). */
+  readonly repo?: string
 }
 
 export const TOOLS: readonly Tool[] = [
   {
     id: 'string-le',
     name: 'String-LE',
+    repo: 'strings-le',
     category: 'extract',
     summary:
       'Extract user-visible strings from JSON, YAML, CSV, TOML, INI, and .env — for i18n and validation.',
@@ -97,7 +101,7 @@ export function openVsxUrl(tool: Tool): string {
 }
 
 export function githubUrl(tool: Tool): string {
-  return `https://github.com/${PUBLISHER}/${tool.id}`
+  return `https://github.com/${PUBLISHER}/${tool.repo ?? tool.id}`
 }
 
 export function installCommand(tool: Tool): string {
