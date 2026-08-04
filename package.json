@@ -24,6 +24,7 @@
     "start": "serve out -l 3000",
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
+    "check:demos": "bun scripts/check-demos.ts",
     "lint": "biome check",
     "format": "biome check --write",
     "typecheck": "tsc --noEmit",
