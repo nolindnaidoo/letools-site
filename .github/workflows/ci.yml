@@ -27,6 +27,12 @@ jobs:
           path: ~/.bun/install/cache
           key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
       - run: bun install --frozen-lockfile
+
+      - name: Dependency review
+        if: github.event_name == 'pull_request'
+        uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0
+        with:
+          fail-on-severity: high
       - run: bun run lint
       - run: bun run typecheck
 
@@ -37,6 +43,12 @@ jobs:
       - run: bun run check:demos
 
       - run: bun run build
+
+      # The site builds its Open VSX links from OPENVSX_NAMESPACE; a status
+      # check cannot validate them because open-vsx.org answers 200 for
+      # extensions that do not exist. This asks the API instead.
+      - name: Open VSX links resolve
+        run: bun scripts/check-openvsx-links.ts out
 
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:

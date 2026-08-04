@@ -1,0 +1,87 @@
+# Checks that span the whole LE family and therefore cannot live in any single
+# extension repo: shared-config drift, and the links in all ten READMEs.
+#
+# Runs weekly rather than per-push because nothing here depends on this repo's
+# code — it watches the other ten. Dispatchable when you have just copied a
+# config change around and want to confirm it landed everywhere.
+name: Fleet
+
+on:
+  schedule:
+    # Mondays, a few hours after the Dependabot window so its PRs are visible.
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fleet-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  drift:
+    name: Shared config drift
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.3.13
+
+      # Shallow, no history — only the working tree is compared.
+      - name: Clone the ten extension repos
+        run: |
+          mkdir -p /tmp/fleet
+          for r in colors-le dates-le envsync-le numbers-le paths-le \
+                   regex-le scrape-le secrets-le string-le urls-le; do
+            git clone --depth 1 --quiet \
+              "https://github.com/${{ github.repository_owner }}/$r.git" "/tmp/fleet/$r"
+          done
+
+      - name: Compare shared config
+        run: bun scripts/check-fleet.ts /tmp/fleet
+
+  readme-links:
+    name: README links
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.3.13
+
+      - name: Collect the ten READMEs
+        run: |
+          mkdir -p /tmp/readmes
+          for r in colors-le dates-le envsync-le numbers-le paths-le \
+                   regex-le scrape-le secrets-le string-le urls-le; do
+            curl -sSfL \
+              "https://raw.githubusercontent.com/${{ github.repository_owner }}/$r/main/README.md" \
+              -o "/tmp/readmes/$r.md"
+          done
+
+      # These READMEs are also the Marketplace listing bodies, so a dead link
+      # here is a dead link on a public product page.
+      #
+      # open-vsx.org is excluded here on purpose: it is a single-page app that
+      # answers 200 for extensions that do not exist, so a status-code checker
+      # cannot judge it. The next step checks those against the API instead.
+      # linkedin.com answers 999 to non-browser clients and is never broken.
+      - uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          args: >-
+            --no-progress
+            --max-concurrency 4
+            --accept 200,206,301,302
+            --exclude open-vsx\.org
+            --exclude linkedin\.com
+            /tmp/readmes/*.md
+          fail: true
+
+      - name: Open VSX links (API, not status code)
+        run: bun scripts/check-openvsx-links.ts /tmp/readmes
