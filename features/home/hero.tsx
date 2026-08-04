@@ -1,9 +1,15 @@
-import { GITHUB_URL, TAGLINE } from '@/lib/site'
+import { GITHUB_URL, INSTALL_COUNT, TAGLINE } from '@/lib/site'
 import { buttonVariants } from '@/ui/button'
 import { Chip } from '@/ui/chip'
 import { Link } from '@/ui/link'
 
-const BADGES = ['Free', 'Open source', 'MIT', 'No network access'] as const
+const BADGES = [
+  `${INSTALL_COUNT} installs`,
+  'Free',
+  'Open source',
+  'MIT',
+  'No network access',
+] as const
 
 export function Hero() {
   return (

@@ -29,14 +29,13 @@ export const TOOLS: readonly Tool[] = [
     name: 'String-LE',
     repo: 'strings-le',
     category: 'extract',
-    summary:
-      'Extract user-visible strings from JSON, YAML, CSV, TOML, INI, and .env — for i18n and validation.',
+    summary: 'Extract string values from JSON, YAML, CSV, TOML, INI, and .env — for i18n.',
   },
   {
     id: 'numbers-le',
     name: 'Numbers-LE',
     category: 'extract',
-    summary: 'Extract and analyze numeric data with statistics.',
+    summary: 'Extract numeric values from JSON, YAML, CSV, TOML, INI, and .env.',
   },
   {
     id: 'paths-le',
