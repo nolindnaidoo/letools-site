@@ -1,4 +1,4 @@
-import { PUBLISHER } from '@/lib/site'
+import { OPENVSX_NAMESPACE, PUBLISHER } from '@/lib/site'
 
 // THE tool registry. The grid, the category tabs, the install examples,
 // and every per-tool link render from this list — a new tool is one entry
@@ -92,7 +92,7 @@ export function marketplaceUrl(tool: Tool): string {
 }
 
 export function openVsxUrl(tool: Tool): string {
-  return `https://open-vsx.org/extension/${PUBLISHER}/${tool.id}`
+  return `https://open-vsx.org/extension/${OPENVSX_NAMESPACE}/${tool.id}`
 }
 
 export function githubUrl(tool: Tool): string {

@@ -5,7 +5,7 @@ import { Card } from '@/ui/card'
 const PRINCIPLES = [
   {
     title: 'Local by design',
-    body: 'No network access, ever. File contents never leave your machine. Telemetry is off by default and only ever writes to a local output channel you can read.',
+    body: 'File contents never leave your machine. Nine of the ten tools make no network requests at all; Scrape-LE is the exception by design, since checking whether a page is scrapeable means fetching that page. Telemetry is off by default and only ever writes to a local output channel you can read.',
   },
   {
     title: 'One job each',
@@ -13,11 +13,11 @@ const PRINCIPLES = [
   },
   {
     title: 'Held to the same bar',
-    body: 'Every tool ships a self-contained bundle, runs CI on Linux, macOS, and Windows, and passes real unit, extension-host, and installed-VSIX tests before release.',
+    body: 'Every tool ships a single bundled file with no runtime dependencies — except Scrape-LE, which ships the browser driver it needs. All ten run CI on Linux, macOS, and Windows and pass real unit, extension-host, and installed-VSIX tests before release.',
   },
   {
     title: 'Yours to read',
-    body: 'MIT licensed with every repo public. The settings UI is translated into 13 languages.',
+    body: 'MIT licensed with every repo public. Most tools ship a settings UI translated into 12 languages; Regex-LE and Secrets-LE are English-only.',
   },
 ] as const
 

@@ -11,6 +11,13 @@ export const INSTALL_COUNT = '75,000+'
 export const PUBLISHER = 'nolindnaidoo'
 export const GITHUB_URL = `https://github.com/${PUBLISHER}`
 
+// Open VSX still publishes under the old namespace. On that registry the
+// namespace IS the extension id, so these links cannot move until the rename
+// (EclipseFdn/open-vsx.org#12345) is actioned — pointing them at
+// `nolindnaidoo` early gives ten dead links, because that namespace is empty.
+// Change this to PUBLISHER on the day the rename lands.
+export const OPENVSX_NAMESPACE = 'OffensiveEdge'
+
 // Mirrors of @heroui/styles `--background` in each scheme, as literals —
 // the browser-chrome theme-color meta cannot read CSS custom properties.
 export const THEME_COLORS = {

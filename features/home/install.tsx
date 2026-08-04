@@ -1,30 +1,36 @@
 'use client'
 
 import { CommandSnippet } from '@/components/command-snippet'
-import { PUBLISHER } from '@/lib/site'
+import { OPENVSX_NAMESPACE, PUBLISHER } from '@/lib/site'
 import { Tabs } from '@/ui/tabs'
 
 // One representative command per surface; the placeholder id is swappable
 // for any tool id from the grid above.
-const EXAMPLE_ID = `${PUBLISHER}.paths-le`
+//
+// The two registries use different namespaces, so the ids are NOT
+// interchangeable: VS Code resolves nolindnaidoo.*, while Cursor and VSCodium
+// pull from Open VSX and resolve OffensiveEdge.*. Using one id for both is a
+// command that simply fails for half the audience.
+const MARKETPLACE_ID = `${PUBLISHER}.paths-le`
+const OPENVSX_ID = `${OPENVSX_NAMESPACE}.paths-le`
 
 const SURFACES = [
   {
     id: 'vscode',
     label: 'VS Code',
-    command: `ext install ${EXAMPLE_ID}`,
+    command: `ext install ${MARKETPLACE_ID}`,
     note: 'Open the Quick Open bar (Cmd/Ctrl+P) and paste. Works for any tool — swap the id.',
   },
   {
     id: 'cursor',
     label: 'Cursor / VSCodium',
-    command: `cursor --install-extension ${EXAMPLE_ID}`,
-    note: 'VS Code forks install from Open VSX; every tool is published there under the same ids.',
+    command: `cursor --install-extension ${OPENVSX_ID}`,
+    note: 'VS Code forks pull from Open VSX, where the namespace is OffensiveEdge rather than nolindnaidoo.',
   },
   {
     id: 'cli',
     label: 'CLI',
-    command: `code --install-extension ${EXAMPLE_ID}`,
+    command: `code --install-extension ${MARKETPLACE_ID}`,
     note: 'Scriptable installs for dotfiles and machine setup.',
   },
 ] as const

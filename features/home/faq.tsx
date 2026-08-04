@@ -10,13 +10,13 @@ const FAQ_ITEMS = [
     id: 'privacy',
     question: 'Do they send my code anywhere?',
     answer:
-      'No. None of the tools have network access. The optional telemetry setting only writes to a local output channel inside your editor, and it is off by default.',
+      'No. Your file contents are never transmitted. Nine of the ten tools make no network requests at all; Scrape-LE fetches the page you point it at, because that is what checking scrapeability means — it still never uploads your files. The optional telemetry setting only writes to a local output channel inside your editor, and it is off by default.',
   },
   {
     id: 'forks',
     question: 'I use Cursor or VSCodium — where do I install from?',
     answer:
-      'Open VSX. Every tool is published there under the same publisher and ids as the VS Code Marketplace.',
+      'Open VSX. The ids there currently use the OffensiveEdge namespace rather than nolindnaidoo — the install commands above use the right one for each editor.',
   },
   {
     id: 'split',
