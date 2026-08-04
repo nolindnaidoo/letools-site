@@ -30,3 +30,30 @@ jobs:
       - run: bun run lint
       - run: bun run typecheck
       - run: bun run build
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+
+      - name: Install Playwright browser
+        run: bunx playwright install --with-deps chromium
+
+      # Matches pixelcoords-site and pixelactions-site: axe over every page in
+      # both colour schemes, mobile viewport first. The first run of this gate
+      # caught a real one — the install command overflowed into a scrollable
+      # region that could not take focus, so keyboard users could not read past
+      # the visible portion.
+      - name: E2E + a11y (mobile first, both schemes)
+        run: bun run e2e
+
+      - name: Upload Playwright evidence
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: playwright-evidence
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore

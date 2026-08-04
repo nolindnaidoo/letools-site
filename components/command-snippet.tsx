@@ -32,7 +32,22 @@ export function CommandSnippet({ command }: { readonly command: string }) {
 
   return (
     <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface px-4 py-2.5">
-      <code className="overflow-x-auto whitespace-nowrap font-mono text-sm">{command}</code>
+      {/*
+        The command overflows on narrow viewports, making this a scrollable
+        region — and a scrollable region that cannot take focus is unreachable
+        by keyboard, so the rest of the command is unreadable without a
+        pointer (axe: scrollable-region-focusable, WCAG 2.1.1). A named
+        <section> is the semantic form of that region; the tabIndex is what
+        makes it scrollable by keyboard.
+      */}
+      <section
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region is only keyboard-scrollable if it can take focus
+        tabIndex={0}
+        aria-label={`Command: ${command}`}
+        className="overflow-x-auto"
+      >
+        <code className="whitespace-nowrap font-mono text-sm">{command}</code>
+      </section>
       <Button
         variant="ghost"
         size="sm"
