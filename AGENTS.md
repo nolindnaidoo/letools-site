@@ -57,8 +57,25 @@ lib/          tools.ts (THE tool registry) · site.ts (urls/name/theme colors) �
 
 ## Content truth
 
-Every claim must stay provable against the extension repos: local-only /
-no network access, MIT, 13 locales, the 3-OS CI + test bar, publisher ids.
+Every claim must stay provable against the extension repos. Verify before
+writing, because these have each been wrong on this site before:
+
+- **Network access.** Nine tools make none. **Scrape-LE does** — it fetches the
+  page it is checking. "No network access, ever" was false and is now scoped.
+- **Locales.** Eight tools ship 12, Scrape-LE 13, and Regex-LE and Secrets-LE
+  are English-only. There is no single number.
+- **Bundling.** Nine ship a self-contained bundle; Scrape-LE ships
+  `playwright-core` alongside it.
+- **Registry ids are NOT interchangeable.** VS Code resolves
+  `nolindnaidoo.<id>`; Cursor and VSCodium resolve Open VSX, currently
+  `OffensiveEdge.<id>`. An install command that uses one id for both simply
+  fails for half the audience. `OPENVSX_NAMESPACE` in `lib/site.ts` exists for
+  exactly this and flips to `PUBLISHER` when the rename lands.
+- **Install count** (`INSTALL_COUNT`) is hardcoded and rounded down, because
+  Marketplace acquisitions are dashboard-only and cannot be fetched at build
+  time. The comment records the measurement and date — re-measure before
+  raising it.
+
 Tool summaries come from each tool's manifest — keep them in step, never
 embellish. No invented download counts, stars, or testimonials.
 Card icons (`public/icons/`, downscaled to 128px) and hover demos
@@ -85,7 +102,13 @@ screenshots in light, dark, and mobile before shipping visual changes.
 
 ```bash
 bun run verify   # lint + typecheck + build (static export to out/)
+bun run e2e      # axe on every page in both schemes, mobile viewport first
 ```
+
+`e2e` runs in CI and is a hard gate. It serves the real static export rather
+than a dev server, so what is audited is what ships. Its first run caught a
+real defect: the install command overflowed into a scrollable region that
+could not take focus, leaving it unreadable by keyboard on a narrow viewport.
 
 After `build`, `out/` must contain the page HTML, `robots.txt` and
 `sitemap.xml` (both static in `public/`), and the build-time PNGs from
