@@ -9,6 +9,11 @@ export const TAGLINE = 'Ten tools. One job each. Zero hassle.'
 // 4,564 Marketplace = 75,616. Re-measure before raising it.
 export const INSTALL_COUNT = '75,000+'
 export const PUBLISHER = 'nolindnaidoo'
+/** The author's own site. Kept alongside GITHUB_URL, never in place of it —
+ * both are properties in the same identity network, and swapping one for the
+ * other trades a backlink rather than adding one. */
+export const AUTHOR_URL = 'https://nolindnaidoo.com'
+
 export const GITHUB_URL = `https://github.com/${PUBLISHER}`
 
 // Open VSX still publishes under the old namespace. On that registry the

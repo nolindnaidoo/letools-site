@@ -1,5 +1,5 @@
 import { RUST_TOOLS } from '@/lib/rust-tools'
-import { GITHUB_URL, PUBLISHER, SITE_NAME, TAGLINE } from '@/lib/site'
+import { AUTHOR_URL, GITHUB_URL, PUBLISHER, SITE_NAME, TAGLINE } from '@/lib/site'
 import { Link } from '@/ui/link'
 import { Separator } from '@/ui/separator'
 
@@ -27,8 +27,11 @@ export function SiteFooter() {
         </nav>
         <p className="flex items-center gap-1">
           MIT ©{' '}
+          <Link href={AUTHOR_URL} target="_blank" rel="noreferrer">
+            Nolin Naidoo
+          </Link>{' '}
           <Link href={GITHUB_URL} target="_blank" rel="noreferrer">
-            {PUBLISHER}
+            ({PUBLISHER})
           </Link>
         </p>
       </div>
