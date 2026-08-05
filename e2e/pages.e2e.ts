@@ -1,12 +1,16 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import { TAGLINE } from '@/lib/site'
+import { TOOLS, toolPath } from '@/lib/tools'
 
-// Every page: renders its h1 and is axe-clean in both schemes. The site is
-// single-page, so the registry is short — but the loop is the same one the
-// sibling sites use, so adding a page means adding an entry here and nothing
-// else.
-const PAGES = [{ path: '/', headline: TAGLINE }] as const
+// Every page: renders its h1 and is axe-clean in both schemes. The tool pages
+// come from the registry rather than being listed by hand, so a new tool is
+// still one entry in lib/tools.ts and it is audited automatically — the
+// alternative is ten pages that ship without ever being checked.
+const PAGES = [
+  { path: '/', headline: TAGLINE },
+  ...TOOLS.map(tool => ({ path: toolPath(tool), headline: tool.name })),
+] as const
 
 const SCHEMES = ['light', 'dark'] as const
 

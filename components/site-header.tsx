@@ -3,18 +3,22 @@ import { GITHUB_URL, SITE_NAME } from '@/lib/site'
 import { buttonVariants } from '@/ui/button'
 import { Link } from '@/ui/link'
 
+// Root-relative, not bare fragments. These sections live on the home page, and
+// a bare `#tools` from /tools/urls-le resolves to an anchor on the tool page
+// that does not exist — the header silently stops navigating the moment the
+// site is more than one page.
 const NAV_ITEMS = [
-  { href: '#tools', label: 'Tools' },
-  { href: '#why', label: 'Why LE' },
-  { href: '#install', label: 'Install' },
-  { href: '#faq', label: 'FAQ' },
+  { href: '/#tools', label: 'Tools' },
+  { href: '/#why', label: 'Why LE' },
+  { href: '/#install', label: 'Install' },
+  { href: '/#faq', label: 'FAQ' },
 ] as const
 
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-        <a href="#top" className="flex items-center gap-2 font-semibold">
+        <a href="/" className="flex items-center gap-2 font-semibold">
           <span
             aria-hidden="true"
             className="flex size-7 items-center justify-center rounded-lg bg-accent font-mono text-xs font-bold text-accent-foreground"

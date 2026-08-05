@@ -18,6 +18,10 @@ export interface Tool {
   readonly name: string
   readonly category: CategoryId
   readonly summary: string
+  // The MCP tool an agent calls. Read from each repo's src/mcp/tools.ts —
+  // renaming one breaks every agent prompt that references it, so it is
+  // pinned by a golden test there and quoted verbatim here.
+  readonly mcpTool: string
 }
 
 export const TOOLS: readonly Tool[] = [
@@ -26,12 +30,14 @@ export const TOOLS: readonly Tool[] = [
     name: 'String-LE',
     category: 'extract',
     summary: 'Extract string values from JSON, YAML, CSV, TOML, INI, and .env — for i18n.',
+    mcpTool: 'extract_strings',
   },
   {
     id: 'numbers-le',
     name: 'Numbers-LE',
     category: 'extract',
     summary: 'Extract numeric values from JSON, YAML, CSV, TOML, INI, and .env.',
+    mcpTool: 'extract_numbers',
   },
   {
     id: 'paths-le',
@@ -39,24 +45,28 @@ export const TOOLS: readonly Tool[] = [
     category: 'extract',
     summary:
       'Pull every file path out of JS/TS imports, JSON, HTML, CSS, TOML, CSV, and .env files.',
+    mcpTool: 'extract_paths',
   },
   {
     id: 'colors-le',
     name: 'Colors-LE',
     category: 'extract',
     summary: 'Extract and analyze colors from CSS, SCSS, LESS, Stylus, HTML, JS/TS, and SVG.',
+    mcpTool: 'extract_colors',
   },
   {
     id: 'urls-le',
     name: 'URLs-LE',
     category: 'extract',
     summary: 'Extract URLs from documentation, configs, and code.',
+    mcpTool: 'extract_urls',
   },
   {
     id: 'dates-le',
     name: 'Dates-LE',
     category: 'extract',
     summary: 'Extract date and time data from logs, configs, and code.',
+    mcpTool: 'extract_dates',
   },
   {
     id: 'regex-le',
@@ -64,12 +74,14 @@ export const TOOLS: readonly Tool[] = [
     category: 'check',
     summary:
       'Find, test, and validate the regular expressions in any file — match reports and built-in ReDoS screening.',
+    mcpTool: 'extract_patterns',
   },
   {
     id: 'scrape-le',
     name: 'Scrape-LE',
     category: 'check',
     summary: 'Check whether a page is actually scrapeable before you burn hours debugging.',
+    mcpTool: 'analyze_robots_txt',
   },
   {
     id: 'secrets-le',
@@ -77,6 +89,7 @@ export const TOOLS: readonly Tool[] = [
     category: 'guard',
     summary:
       'Detect and sanitize credentials, tokens, API keys, and private keys locally — before you commit.',
+    mcpTool: 'detect_secrets',
   },
   {
     id: 'envsync-le',
@@ -84,8 +97,20 @@ export const TOOLS: readonly Tool[] = [
     category: 'guard',
     summary:
       'Spot missing keys across your .env files — automatic checks, a status bar counter, and a markdown report.',
+    mcpTool: 'compare_env_files',
   },
 ]
+
+export function findTool(id: string): Tool | undefined {
+  return TOOLS.find(tool => tool.id === id)
+}
+
+// The tool's own page on this site. Every other link here points off-site;
+// this is the one that keeps a visitor here, and it is what the sitemap
+// enumerates.
+export function toolPath(tool: Tool): string {
+  return `/tools/${tool.id}`
+}
 
 export function marketplaceUrl(tool: Tool): string {
   return `https://marketplace.visualstudio.com/items?itemName=${PUBLISHER}.${tool.id}`

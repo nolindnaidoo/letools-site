@@ -38,8 +38,11 @@ product decision, not a PR.
 ## Architecture
 
 ```
-app/          routes (shims), fonts, providers, globals.css, not-found
+app/          routes (shims), fonts, providers, globals.css, not-found,
+              sitemap.ts (generated from the registry), tools/[id] (one
+              static page per tool, emitted by generateStaticParams)
 features/     home/ — hero, tool-grid, principles, install, faq
+              tool/ — hero, install, links, siblings (the per-tool page)
 components/   shared UI: site-header, site-footer, theme-toggle, command-snippet
 ui/           thin @heroui/react re-exports, one file per primitive —
               feature code imports HeroUI from ui/, NEVER @heroui/react directly
@@ -48,8 +51,9 @@ lib/          tools.ts (THE tool registry) · site.ts (urls/name/theme colors) �
 ```
 
 - **`lib/tools.ts` is the single tool registry.** The grid, category tabs,
-  and every marketplace/Open VSX/GitHub link render from it. A new tool is
-  one entry there, nothing else.
+  every marketplace/Open VSX/GitHub/npm/MCP-registry link, the per-tool
+  pages, the sitemap and the e2e page list all render from it. A new tool is
+  one entry there, nothing else — including its page and its audit.
 - Server Components by default; `"use client"` only at interactive leaves
   (tool-grid and install use Tabs; theme-toggle and command-snippet own
   browser state).

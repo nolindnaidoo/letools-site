@@ -13,6 +13,7 @@ import {
   posterSrc,
   TOOLS,
   type Tool,
+  toolPath,
 } from '@/lib/tools'
 import { usePrefersReducedMotion } from '@/lib/use-prefers-reduced-motion'
 import { Card } from '@/ui/card'
@@ -77,12 +78,17 @@ function ToolCard({ tool }: { readonly tool: Tool }) {
           decoding="async"
           className="size-9 shrink-0 rounded-lg"
         />
-        <Card.Title>{tool.name}</Card.Title>
+        <Card.Title>
+          <Link href={toolPath(tool)}>{tool.name}</Link>
+        </Card.Title>
       </Card.Header>
       <Card.Content>
         <Card.Description className="text-pretty">{tool.summary}</Card.Description>
       </Card.Content>
       <Card.Footer className="mt-auto gap-4 text-sm">
+        <Link href={toolPath(tool)} aria-label={`${tool.name} details`} className="py-2">
+          Details
+        </Link>
         <Link
           href={marketplaceUrl(tool)}
           target="_blank"
