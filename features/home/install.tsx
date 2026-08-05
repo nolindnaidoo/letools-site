@@ -33,6 +33,12 @@ const SURFACES = [
     command: `code --install-extension ${MARKETPLACE_ID}`,
     note: 'Scriptable installs for dotfiles and machine setup.',
   },
+  {
+    id: 'agents',
+    label: 'AI agents',
+    command: 'npx -y paths-le-mcp',
+    note: 'Every tool also runs as an MCP server, so an agent can call the same engine with no editor involved — Claude Code, Cursor, Windsurf, Zed. In VS Code 1.101+ the extension registers it for you. Swap the id for any tool.',
+  },
 ] as const
 
 export function Install() {

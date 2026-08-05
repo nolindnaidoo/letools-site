@@ -8,6 +8,7 @@ import {
   githubUrl,
   iconSrc,
   marketplaceUrl,
+  npmUrl,
   openVsxUrl,
   posterSrc,
   TOOLS,
@@ -99,6 +100,15 @@ function ToolCard({ tool }: { readonly tool: Tool }) {
           className="py-2"
         >
           Open VSX
+        </Link>
+        <Link
+          href={npmUrl(tool)}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`${tool.name} MCP server on npm (opens in new tab)`}
+          className="py-2"
+        >
+          MCP
         </Link>
         <Link
           href={githubUrl(tool)}

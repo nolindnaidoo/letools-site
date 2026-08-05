@@ -19,6 +19,12 @@ const FAQ_ITEMS = [
       'Open VSX. The ids there currently use the OffensiveEdge namespace rather than nolindnaidoo — the install commands above use the right one for each editor.',
   },
   {
+    id: 'agents',
+    question: 'Can my AI agent use these?',
+    answer:
+      'Yes. Every tool ships its engine as an MCP server, so an agent can call it with no editor in the loop — npx -y <tool>-mcp wires it into Claude Code, Cursor, Windsurf or Zed. VS Code 1.101+ needs nothing: installing the extension registers the tool with agent mode. Each server takes content and returns structured data; it reads no files and makes no network requests of its own.',
+  },
+  {
     id: 'split',
     question: 'Why ten separate extensions instead of one?',
     answer:

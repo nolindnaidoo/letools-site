@@ -99,8 +99,27 @@ export function githubUrl(tool: Tool): string {
   return `https://github.com/${PUBLISHER}/${tool.id}`
 }
 
+// Every tool also ships its engine as an MCP server, so an agent can call it
+// without the editor in the loop. The npm package and the registry id are both
+// derived from the tool id — one naming rule, no table to keep in step.
+export function npmUrl(tool: Tool): string {
+  return `https://www.npmjs.com/package/${tool.id}-mcp`
+}
+
+export function mcpRegistryUrl(tool: Tool): string {
+  return `https://registry.modelcontextprotocol.io/v0/servers?search=${tool.id}`
+}
+
+export function mcpServerName(tool: Tool): string {
+  return `io.github.${PUBLISHER}/${tool.id}`
+}
+
 export function installCommand(tool: Tool): string {
   return `ext install ${PUBLISHER}.${tool.id}`
+}
+
+export function mcpCommand(tool: Tool): string {
+  return `npx -y ${tool.id}-mcp`
 }
 
 // Assets are copied from each tool repo's src/assets/images (icons
