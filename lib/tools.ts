@@ -22,6 +22,11 @@ export interface Tool {
   // renaming one breaks every agent prompt that references it, so it is
   // pinned by a golden test there and quoted verbatim here.
   readonly mcpTool: string
+  // Long-form copy for the tool's own page. Paraphrased from that tool's
+  // README — the content-truth rule applies here as everywhere: a claim on
+  // this site must be provable against the extension repo.
+  readonly overview: string
+  readonly useCases: readonly { readonly title: string; readonly detail: string }[]
 }
 
 export const TOOLS: readonly Tool[] = [
@@ -31,6 +36,24 @@ export const TOOLS: readonly Tool[] = [
     category: 'extract',
     summary: 'Extract string values from JSON, YAML, CSV, TOML, INI, and .env — for i18n.',
     mcpTool: 'extract_strings',
+    overview:
+      'Locale files, config files and CSV exports all bury their string values in structure. String-LE flattens that structure away: run one command and every string value in the document lands in a new editor, ready to paste into a translation tool or scan by eye. It parses JSON, YAML, CSV, TOML, INI and .env, and streams large CSVs rather than loading them whole.',
+    useCases: [
+      {
+        title: 'i18n prep',
+        detail:
+          'Flatten locale files into a clean list of translatable values, without the key hierarchy in the way.',
+      },
+      {
+        title: 'Config review',
+        detail: 'See every string value in a TOML, INI or .env file at a glance.',
+      },
+      {
+        title: 'CSV mining',
+        detail:
+          'Pull one column, several, or all of them — large files stream rather than loading whole.',
+      },
+    ],
   },
   {
     id: 'numbers-le',
@@ -38,6 +61,22 @@ export const TOOLS: readonly Tool[] = [
     category: 'extract',
     summary: 'Extract numeric values from JSON, YAML, CSV, TOML, INI, and .env.',
     mcpTool: 'extract_numbers',
+    overview:
+      'Numbers are the values most likely to be wrong and least likely to be read. Numbers-LE pulls every numeric value out of a config, fixture or data file into a plain list, so ranges and outliers are visible at a glance instead of buried in syntax. It parses JSON, YAML, CSV, TOML, INI and .env, and falls back to scanning plain text for anything else.',
+    useCases: [
+      {
+        title: 'Data validation',
+        detail: 'Pull the numbers out of a config or fixture and eyeball the ranges at a glance.',
+      },
+      {
+        title: 'Config audits',
+        detail: 'Compare ports, thresholds and limits across INI, TOML and .env files.',
+      },
+      {
+        title: 'CSV work',
+        detail: 'Extract everything, one column, or several columns into separate documents.',
+      },
+    ],
   },
   {
     id: 'paths-le',
@@ -46,6 +85,23 @@ export const TOOLS: readonly Tool[] = [
     summary:
       'Pull every file path out of JS/TS imports, JSON, HTML, CSS, TOML, CSV, and .env files.',
     mcpTool: 'extract_paths',
+    overview:
+      'A path in an import, an asset reference or a config value is a dependency you cannot see until something breaks. Paths-LE extracts every file and directory path from the active document and classifies each one, so a refactor or an asset audit starts from a list rather than a search. It reads JS/TS imports including multi-line statements, HTML and CSS references, and JSON, TOML, CSV and .env values.',
+    useCases: [
+      {
+        title: 'Import analysis',
+        detail:
+          'Extract local imports from JS/TS, including multi-line statements — npm package names are filtered out.',
+      },
+      {
+        title: 'Asset auditing',
+        detail: 'Every src, href, srcset, url() and @import in your HTML and CSS.',
+      },
+      {
+        title: 'Config review',
+        detail: 'Path-like values from JSON, JSONC, TOML, CSV and .env files.',
+      },
+    ],
   },
   {
     id: 'colors-le',
@@ -53,6 +109,23 @@ export const TOOLS: readonly Tool[] = [
     category: 'extract',
     summary: 'Extract and analyze colors from CSS, SCSS, LESS, Stylus, HTML, JS/TS, and SVG.',
     mcpTool: 'extract_colors',
+    overview:
+      'Design systems drift one hard-coded hex at a time. Colors-LE extracts every color from a stylesheet, template or component file — hex, rgb/rgba, hsl/hsla and named colors — then analyses the result: distribution, clusters of near-duplicates, and contrast ratios against WCAG AA and AAA. It reads CSS, SCSS, LESS, Stylus, HTML, JavaScript, TypeScript and SVG.',
+    useCases: [
+      {
+        title: 'Palette auditing',
+        detail:
+          'Every hex, rgb()/rgba(), hsl()/hsla() and named color across stylesheets, markup and code.',
+      },
+      {
+        title: 'Design-system review',
+        detail: 'Analyse distribution, cluster similar colors, and spot near-duplicates.',
+      },
+      {
+        title: 'Accessibility checks',
+        detail: 'Contrast ratios against WCAG AA and AAA via the Validate command.',
+      },
+    ],
   },
   {
     id: 'urls-le',
@@ -60,6 +133,24 @@ export const TOOLS: readonly Tool[] = [
     category: 'extract',
     summary: 'Extract URLs from documentation, configs, and code.',
     mcpTool: 'extract_urls',
+    overview:
+      'Links rot quietly, and the ones in your code and docs are the hardest to inventory. URLs-LE pulls every URL out of the active document with its real line and column, so a link audit is a list rather than a grep. It reads Markdown, HTML, CSS, JavaScript, TypeScript, JSON, YAML, Properties, TOML, INI and XML, and excludes code blocks and comments where the format defines them.',
+    useCases: [
+      {
+        title: 'Link auditing',
+        detail:
+          'Every link, autolink and plain URL in Markdown and HTML — code blocks and comments excluded.',
+      },
+      {
+        title: 'Source review',
+        detail:
+          'URLs in string literals, template literals and comments across JavaScript and TypeScript.',
+      },
+      {
+        title: 'Config sweep',
+        detail: 'URLs in JSON strings, YAML values, Java properties, TOML/INI values and XML.',
+      },
+    ],
   },
   {
     id: 'dates-le',
@@ -67,6 +158,23 @@ export const TOOLS: readonly Tool[] = [
     category: 'extract',
     summary: 'Extract date and time data from logs, configs, and code.',
     mcpTool: 'extract_dates',
+    overview:
+      'Timestamps arrive in a dozen notations and rarely the one you want. Dates-LE extracts every date and time value from logs, data files and code, reporting each with its format and, where resolvable, its epoch value. It recognises ISO 8601, syslog and Apache access-log formats, common regional notations and Unix timestamps.',
+    useCases: [
+      {
+        title: 'Log analysis',
+        detail: 'Timestamps from server logs — ISO, syslog and Apache access-log formats.',
+      },
+      {
+        title: 'Data review',
+        detail: 'Dates and epochs from JSON, YAML, CSV and XML.',
+      },
+      {
+        title: 'Code audit',
+        detail:
+          'Date literals and the arguments to new Date(), Date.parse(), moment(), dayjs() and DateTime.fromISO().',
+      },
+    ],
   },
   {
     id: 'regex-le',
@@ -75,6 +183,25 @@ export const TOOLS: readonly Tool[] = [
     summary:
       'Find, test, and validate the regular expressions in any file — match reports and built-in ReDoS screening.',
     mcpTool: 'extract_patterns',
+    overview:
+      'A regular expression is easy to write and hard to trust. Regex-LE finds every pattern in the current file, runs one against the document to show real matches with line and column positions and capture groups, and screens each pattern for the shapes that cause catastrophic backtracking. Three commands: extract, test, validate.',
+    useCases: [
+      {
+        title: 'Extract',
+        detail:
+          'List every regex pattern found in the document, literals and RegExp constructors alike.',
+      },
+      {
+        title: 'Test',
+        detail:
+          'Run a found — or manually entered — pattern against the file and see matches with positions and named capture groups.',
+      },
+      {
+        title: 'Validate',
+        detail:
+          'Check every pattern for syntax errors and screen it for ReDoS-prone shapes before it reaches production.',
+      },
+    ],
   },
   {
     id: 'scrape-le',
@@ -82,6 +209,25 @@ export const TOOLS: readonly Tool[] = [
     category: 'check',
     summary: 'Check whether a page is actually scrapeable before you burn hours debugging.',
     mcpTool: 'analyze_robots_txt',
+    overview:
+      'Whether a page can be scraped is a question best answered before the scraper is written. Scrape-LE loads a URL in a real headless Chromium and reports what it found: HTTP status, page title, load time, console errors, a full-page screenshot, and four detections covering anti-bot measures, authentication requirements, rate limiting and robots.txt rules.',
+    useCases: [
+      {
+        title: 'Before you write the scraper',
+        detail:
+          'Find out whether a page is reachable, gated or defended — before the work, not after.',
+      },
+      {
+        title: 'Real browser, real answer',
+        detail:
+          'The page loads in headless Chromium, so client-rendered content and bot checks behave as they actually will.',
+      },
+      {
+        title: 'Respect robots.txt',
+        detail:
+          'The origin rules are fetched and reported alongside everything else. A scrapeability report is information, not permission.',
+      },
+    ],
   },
   {
     id: 'secrets-le',
@@ -90,6 +236,25 @@ export const TOOLS: readonly Tool[] = [
     summary:
       'Detect and sanitize credentials, tokens, API keys, and private keys locally — before you commit.',
     mcpTool: 'detect_secrets',
+    overview:
+      'The cheapest place to catch a committed credential is before the commit. Secrets-LE scans your workspace for API keys, passwords, tokens and private keys, groups the findings by file with positions pointing at the value, and can replace them in place with a placeholder. Detection is regex-based over full text, so it works on code, configs, .env files, YAML, JSON and logs alike.',
+    useCases: [
+      {
+        title: 'Pre-commit safety net',
+        detail:
+          'Scan the workspace and see every detected credential grouped by file, with line and column positions.',
+      },
+      {
+        title: 'Sanitize in place',
+        detail:
+          'Replace the secrets in the active file with a placeholder, ready to share or paste into an issue.',
+      },
+      {
+        title: 'Patterns, not proof',
+        detail:
+          'A scanner built on patterns can miss secrets and can flag things that are not. Review the results — it is a net, not a guarantee.',
+      },
+    ],
   },
   {
     id: 'envsync-le',
@@ -98,6 +263,25 @@ export const TOOLS: readonly Tool[] = [
     summary:
       'Spot missing keys across your .env files — automatic checks, a status bar counter, and a markdown report.',
     mcpTool: 'compare_env_files',
+    overview:
+      'Environment files drift the moment one of them gains a key. EnvSync-LE compares the variable names across the .env files in your workspace and tells you which file is missing which key — names only, never values. Checks run automatically when a watched file changes, and the current issue count sits in the status bar.',
+    useCases: [
+      {
+        title: 'Automatic checks',
+        detail:
+          'A debounced sync check runs whenever a watched .env file changes — no command to remember.',
+      },
+      {
+        title: 'Three comparison modes',
+        detail:
+          'auto compares against the union of all keys, manual only the files you list, template validates everything against one reference file.',
+      },
+      {
+        title: 'Names, never values',
+        detail:
+          'The report lists missing keys by name. The values in a .env file are exactly what should not be copied around.',
+      },
+    ],
   },
 ]
 

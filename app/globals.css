@@ -33,6 +33,25 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Corner radius, tightened.
+ *
+ * HeroUI derives its whole scale from a single `--radius` (.5rem stock) and
+ * Tailwind reads the same `--radius-*` namespace, so both move from here — no
+ * component markup changes. At the stock value the tiles, chips and buttons
+ * read soft to the point of looking consumer-toy rather than developer-tool,
+ * which is the wrong signal for a page selling auditable extensions.
+ *
+ * Small but non-zero: square corners read as unfinished, and the demo tiles
+ * still need to clip their GIFs. These land near a 3–6px band, which is where
+ * technical products sit. */
+:root {
+  --radius: 0.1875rem;
+  --radius-sm: 0.125rem;
+  --radius-md: 0.1875rem;
+  --radius-lg: 0.25rem;
+  --radius-2xl: 0.375rem;
+}
+
 html {
   scroll-behavior: smooth;
 }

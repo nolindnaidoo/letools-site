@@ -1,4 +1,5 @@
 import { ThemeToggle } from '@/components/theme-toggle'
+import { ToolsMenu } from '@/components/tools-menu'
 import { GITHUB_URL, SITE_NAME } from '@/lib/site'
 import { buttonVariants } from '@/ui/button'
 import { Link } from '@/ui/link'
@@ -8,7 +9,6 @@ import { Link } from '@/ui/link'
 // that does not exist — the header silently stops navigating the moment the
 // site is more than one page.
 const NAV_ITEMS = [
-  { href: '/#tools', label: 'Tools' },
   { href: '/#why', label: 'Why LE' },
   { href: '/#install', label: 'Install' },
   { href: '/#faq', label: 'FAQ' },
@@ -29,6 +29,7 @@ export function SiteHeader() {
         </a>
 
         <nav aria-label="Site" className="hidden items-center gap-6 text-sm sm:flex">
+          <ToolsMenu />
           {NAV_ITEMS.map(item => (
             <a
               key={item.href}
