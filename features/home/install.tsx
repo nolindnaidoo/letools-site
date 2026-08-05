@@ -11,8 +11,9 @@ import { Tabs } from '@/ui/tabs'
 // interchangeable: VS Code resolves nolindnaidoo.*, while Cursor and VSCodium
 // pull from Open VSX and resolve OffensiveEdge.*. Using one id for both is a
 // command that simply fails for half the audience.
-const MARKETPLACE_ID = `${PUBLISHER}.paths-le`
-const OPENVSX_ID = `${OPENVSX_NAMESPACE}.paths-le`
+const EXAMPLE_ID = 'paths-le'
+const MARKETPLACE_ID = `${PUBLISHER}.${EXAMPLE_ID}`
+const OPENVSX_ID = `${OPENVSX_NAMESPACE}.${EXAMPLE_ID}`
 
 const SURFACES = [
   {
@@ -34,9 +35,15 @@ const SURFACES = [
     note: 'Scriptable installs for dotfiles and machine setup.',
   },
   {
+    id: 'zed',
+    label: 'Zed',
+    command: `npx -y ${EXAMPLE_ID}-mcp`,
+    note: "Works in Zed today: add the command above as a custom MCP server from the agent panel and the tool appears in its list. The one-click listings are pull requests awaiting review in Zed's extension registry — each tool page links its own.",
+  },
+  {
     id: 'agents',
     label: 'AI agents',
-    command: 'npx -y paths-le-mcp',
+    command: `npx -y ${EXAMPLE_ID}-mcp`,
     note: 'Every tool also runs as an MCP server, so an agent can call the same engine with no editor involved — Claude Code, Cursor, Windsurf, Zed. In VS Code 1.101+ the extension registers it for you. Swap the id for any tool.',
   },
 ] as const
@@ -63,7 +70,7 @@ export function Install() {
 
         {SURFACES.map(surface => (
           <Tabs.Panel key={surface.id} id={surface.id} className="flex flex-col gap-3">
-            <CommandSnippet command={surface.command} />
+            <CommandSnippet command={surface.command} label={surface.label} />
             <p className="text-sm text-muted">{surface.note}</p>
           </Tabs.Panel>
         ))}

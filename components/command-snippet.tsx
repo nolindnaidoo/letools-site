@@ -7,7 +7,16 @@ import { Button } from '@/ui/button'
 // A copyable one-line command. HeroUI v3 has no Snippet primitive; this is
 // the house version: mono text in a field-styled row plus a copy Button.
 // The status change is announced to screen readers via the live region.
-export function CommandSnippet({ command }: { readonly command: string }) {
+export function CommandSnippet({
+  command,
+  label,
+}: {
+  readonly command: string
+  // Disambiguates the region when a page shows the same command twice — Zed
+  // and the agent surfaces both run `npx -y <tool>-mcp`, and two landmarks
+  // with one accessible name is an axe landmark-unique failure.
+  readonly label?: string
+}) {
   const [hasCopied, setHasCopied] = useState(false)
   const resetTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
@@ -43,7 +52,7 @@ export function CommandSnippet({ command }: { readonly command: string }) {
       <section
         // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region is only keyboard-scrollable if it can take focus
         tabIndex={0}
-        aria-label={`Command: ${command}`}
+        aria-label={label ? `${label} command: ${command}` : `Command: ${command}`}
         className="overflow-x-auto"
       >
         <code className="whitespace-nowrap font-mono text-sm">{command}</code>

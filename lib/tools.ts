@@ -22,6 +22,10 @@ export interface Tool {
   // renaming one breaks every agent prompt that references it, so it is
   // pinned by a golden test there and quoted verbatim here.
   readonly mcpTool: string
+  // The open PR adding this tool to Zed's extension registry. Submitted, not
+  // merged — the site says so rather than implying a listing that does not
+  // exist yet. Delete this field once they land and link the listing instead.
+  readonly zedPr: number
   // Long-form copy for the tool's own page. Paraphrased from that tool's
   // README — the content-truth rule applies here as everywhere: a claim on
   // this site must be provable against the extension repo.
@@ -36,6 +40,7 @@ export const TOOLS: readonly Tool[] = [
     category: 'extract',
     summary: 'Extract string values from JSON, YAML, CSV, TOML, INI, and .env — for i18n.',
     mcpTool: 'extract_strings',
+    zedPr: 7082,
     overview:
       'Locale files, config files and CSV exports all bury their string values in structure. String-LE flattens that structure away: run one command and every string value in the document lands in a new editor, ready to paste into a translation tool or scan by eye. It parses JSON, YAML, CSV, TOML, INI and .env, and streams large CSVs rather than loading them whole.',
     useCases: [
@@ -61,6 +66,7 @@ export const TOOLS: readonly Tool[] = [
     category: 'extract',
     summary: 'Extract numeric values from JSON, YAML, CSV, TOML, INI, and .env.',
     mcpTool: 'extract_numbers',
+    zedPr: 7080,
     overview:
       'Numbers are the values most likely to be wrong and least likely to be read. Numbers-LE pulls every numeric value out of a config, fixture or data file into a plain list, so ranges and outliers are visible at a glance instead of buried in syntax. It parses JSON, YAML, CSV, TOML, INI and .env, and falls back to scanning plain text for anything else.',
     useCases: [
@@ -85,6 +91,7 @@ export const TOOLS: readonly Tool[] = [
     summary:
       'Pull every file path out of JS/TS imports, JSON, HTML, CSS, TOML, CSV, and .env files.',
     mcpTool: 'extract_paths',
+    zedPr: 7081,
     overview:
       'A path in an import, an asset reference or a config value is a dependency you cannot see until something breaks. Paths-LE extracts every file and directory path from the active document and classifies each one, so a refactor or an asset audit starts from a list rather than a search. It reads JS/TS imports including multi-line statements, HTML and CSS references, and JSON, TOML, CSV and .env values.',
     useCases: [
@@ -109,6 +116,7 @@ export const TOOLS: readonly Tool[] = [
     category: 'extract',
     summary: 'Extract and analyze colors from CSS, SCSS, LESS, Stylus, HTML, JS/TS, and SVG.',
     mcpTool: 'extract_colors',
+    zedPr: 7078,
     overview:
       'Design systems drift one hard-coded hex at a time. Colors-LE extracts every color from a stylesheet, template or component file — hex, rgb/rgba, hsl/hsla and named colors — then analyses the result: distribution, clusters of near-duplicates, and contrast ratios against WCAG AA and AAA. It reads CSS, SCSS, LESS, Stylus, HTML, JavaScript, TypeScript and SVG.',
     useCases: [
@@ -133,6 +141,7 @@ export const TOOLS: readonly Tool[] = [
     category: 'extract',
     summary: 'Extract URLs from documentation, configs, and code.',
     mcpTool: 'extract_urls',
+    zedPr: 7077,
     overview:
       'Links rot quietly, and the ones in your code and docs are the hardest to inventory. URLs-LE pulls every URL out of the active document with its real line and column, so a link audit is a list rather than a grep. It reads Markdown, HTML, CSS, JavaScript, TypeScript, JSON, YAML, Properties, TOML, INI and XML, and excludes code blocks and comments where the format defines them.',
     useCases: [
@@ -158,6 +167,7 @@ export const TOOLS: readonly Tool[] = [
     category: 'extract',
     summary: 'Extract date and time data from logs, configs, and code.',
     mcpTool: 'extract_dates',
+    zedPr: 7079,
     overview:
       'Timestamps arrive in a dozen notations and rarely the one you want. Dates-LE extracts every date and time value from logs, data files and code, reporting each with its format and, where resolvable, its epoch value. It recognises ISO 8601, syslog and Apache access-log formats, common regional notations and Unix timestamps.',
     useCases: [
@@ -183,6 +193,7 @@ export const TOOLS: readonly Tool[] = [
     summary:
       'Find, test, and validate the regular expressions in any file — match reports and built-in ReDoS screening.',
     mcpTool: 'extract_patterns',
+    zedPr: 7083,
     overview:
       'A regular expression is easy to write and hard to trust. Regex-LE finds every pattern in the current file, runs one against the document to show real matches with line and column positions and capture groups, and screens each pattern for the shapes that cause catastrophic backtracking. Three commands: extract, test, validate.',
     useCases: [
@@ -209,6 +220,7 @@ export const TOOLS: readonly Tool[] = [
     category: 'check',
     summary: 'Check whether a page is actually scrapeable before you burn hours debugging.',
     mcpTool: 'analyze_robots_txt',
+    zedPr: 7086,
     overview:
       'Whether a page can be scraped is a question best answered before the scraper is written. Scrape-LE loads a URL in a real headless Chromium and reports what it found: HTTP status, page title, load time, console errors, a full-page screenshot, and four detections covering anti-bot measures, authentication requirements, rate limiting and robots.txt rules.',
     useCases: [
@@ -236,6 +248,7 @@ export const TOOLS: readonly Tool[] = [
     summary:
       'Detect and sanitize credentials, tokens, API keys, and private keys locally — before you commit.',
     mcpTool: 'detect_secrets',
+    zedPr: 7085,
     overview:
       'The cheapest place to catch a committed credential is before the commit. Secrets-LE scans your workspace for API keys, passwords, tokens and private keys, groups the findings by file with positions pointing at the value, and can replace them in place with a placeholder. Detection is regex-based over full text, so it works on code, configs, .env files, YAML, JSON and logs alike.',
     useCases: [
@@ -263,6 +276,7 @@ export const TOOLS: readonly Tool[] = [
     summary:
       'Spot missing keys across your .env files — automatic checks, a status bar counter, and a markdown report.',
     mcpTool: 'compare_env_files',
+    zedPr: 7084,
     overview:
       'Environment files drift the moment one of them gains a key. EnvSync-LE compares the variable names across the .env files in your workspace and tells you which file is missing which key — names only, never values. Checks run automatically when a watched file changes, and the current issue count sits in the status bar.',
     useCases: [
@@ -313,6 +327,10 @@ export function githubUrl(tool: Tool): string {
 // derived from the tool id — one naming rule, no table to keep in step.
 export function npmUrl(tool: Tool): string {
   return `https://www.npmjs.com/package/${tool.id}-mcp`
+}
+
+export function zedPrUrl(tool: Tool): string {
+  return `https://github.com/zed-industries/extensions/pull/${tool.zedPr}`
 }
 
 export function mcpRegistryUrl(tool: Tool): string {

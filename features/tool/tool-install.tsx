@@ -1,6 +1,8 @@
 import { CommandSnippet } from '@/components/command-snippet'
 import { OPENVSX_NAMESPACE, PUBLISHER } from '@/lib/site'
-import { mcpCommand, type Tool } from '@/lib/tools'
+import { mcpCommand, type Tool, zedPrUrl } from '@/lib/tools'
+import { Chip } from '@/ui/chip'
+import { Link } from '@/ui/link'
 
 // The two registries use different namespaces, so the ids are NOT
 // interchangeable: VS Code resolves nolindnaidoo.*, while Cursor and VSCodium
@@ -21,6 +23,13 @@ export function ToolInstall({ tool }: { readonly tool: Tool }) {
       note: 'VS Code forks pull from Open VSX, where the namespace is OffensiveEdge.',
     },
     {
+      id: 'zed',
+      label: 'Zed',
+      command: mcpCommand(tool),
+      pending: true,
+      note: `Works in Zed today — add the command above as a custom MCP server from the agent panel, and ${tool.mcpTool} appears in its tool list. The one-click listing in Zed's extension registry is a pull request awaiting review.`,
+    },
+    {
       id: 'agents',
       label: 'AI agents',
       command: mcpCommand(tool),
@@ -35,9 +44,28 @@ export function ToolInstall({ tool }: { readonly tool: Tool }) {
       <div className="flex flex-col gap-6">
         {surfaces.map(surface => (
           <div key={surface.id} className="flex flex-col gap-2">
-            <h3 className="text-sm font-semibold">{surface.label}</h3>
-            <CommandSnippet command={surface.command} />
-            <p className="text-sm text-muted">{surface.note}</p>
+            <h3 className="flex items-center gap-2 text-sm font-semibold">
+              {surface.label}
+              {'pending' in surface && surface.pending ? (
+                <Chip size="sm" variant="soft">
+                  Coming soon
+                </Chip>
+              ) : null}
+            </h3>
+            <CommandSnippet command={surface.command} label={surface.label} />
+            <p className="text-sm text-muted">
+              {surface.note}
+              {'pending' in surface && surface.pending ? (
+                <>
+                  {' '}
+                  {/* No newline before the period, or JSX renders "review ." */}
+                  <Link href={zedPrUrl(tool)} target="_blank" rel="noreferrer">
+                    Track the review
+                  </Link>
+                  {'.'}
+                </>
+              ) : null}
+            </p>
           </div>
         ))}
       </div>
