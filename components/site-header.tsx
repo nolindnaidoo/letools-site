@@ -1,5 +1,6 @@
 import { ThemeToggle } from '@/components/theme-toggle'
 import { ToolsMenu } from '@/components/tools-menu'
+import { CommandPalette } from '@/features/search/command-palette'
 import { GITHUB_URL, SITE_NAME } from '@/lib/site'
 import { buttonVariants } from '@/ui/button'
 import { Link } from '@/ui/link'
@@ -42,6 +43,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <CommandPalette />
           <ThemeToggle />
           <Link
             href={GITHUB_URL}
