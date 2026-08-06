@@ -1,6 +1,6 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
 import { factsFor, LOCALE_COUNT, TOOLS } from '../lib/tools'
 import { BUDGETS, main as budgetMain, kb, walk } from './check-budget'
@@ -426,16 +426,47 @@ describe('the derived registry facts', () => {
     expect(registryMain(false, join(scratch, 'no-fleet'))).toBe(2)
   })
 
+  /**
+   * A stand-in fleet. These used to point at `..`, which passes on a dev
+   * machine and fails everywhere else — the Vercel build has no sibling
+   * checkouts, so the tests asserted the skip path while claiming to assert
+   * the real one.
+   */
+  function fakeFleet(): string {
+    const root = mkdtempSync(join(scratch, 'fleet-repos-'))
+    for (const tool of TOOLS) {
+      const files: Record<string, string> = {
+        'package.json': JSON.stringify({
+          version: '9.9.9',
+          contributes: { commands: [{ command: `${tool.id}.run`, title: 'Run' }] },
+        }),
+        'package.nls.json': '{}',
+        'mcp/package.json': JSON.stringify({ name: `${tool.id}-mcp` }),
+        'zed/extension.toml': `id = "${tool.id}"\n`,
+        'l10n/bundle.l10n.json': '{}',
+        'l10n/bundle.l10n.de.json': '{}',
+      }
+      for (const [relative, content] of Object.entries(files)) {
+        const full = join(root, tool.id, relative)
+        mkdirSync(join(full, '..'), { recursive: true })
+        writeFileSync(full, content)
+      }
+    }
+    return root
+  }
+
   it('writes the generated file when asked to sync', () => {
     const output = join(mkdtempSync(join(scratch, 'gen-')), 'facts.ts')
-    expect(registryMain(false, resolve('..'), output)).toBe(0)
-    expect(readFileSync(output, 'utf8')).toContain('do not edit')
+    expect(registryMain(false, fakeFleet(), output)).toBe(0)
+    const written = readFileSync(output, 'utf8')
+    expect(written).toContain('do not edit')
+    expect(written).toContain("version: '9.9.9'")
   })
 
   it('fails the check when the committed file is stale', () => {
     const output = join(mkdtempSync(join(scratch, 'stale-')), 'facts.ts')
     writeFileSync(output, '// not what the repos say\n')
-    expect(registryMain(true, resolve('..'), output)).toBe(1)
+    expect(registryMain(true, fakeFleet(), output)).toBe(1)
   })
 
   it('agrees with the committed generated file', () => {
