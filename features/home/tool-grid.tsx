@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import {
   CATEGORIES,
   type CategoryId,
@@ -33,21 +32,28 @@ function categoryLabel(id: CategoryId): string {
 }
 
 function ToolCard({ tool }: { readonly tool: Tool }) {
-  // The demo IS the card face: a static first frame by default, swapped
-  // for the animated gif while the card is hovered or focused — so the
-  // heavy gifs only download for tools someone actually looks at.
-  const [isActive, setIsActive] = useState(false)
+  /**
+   * The demo IS the card face, and every one of them plays.
+   *
+   * They used to animate only on hover, which meant the grid read as a wall of
+   * screenshots and the thing each tool actually does was one deliberate
+   * gesture away — on a touch screen, unreachable.
+   *
+   * The cost is real: ten clips is about 8 MB. `loading="lazy"` keeps the
+   * offscreen ones off the wire until they are scrolled toward, so the first
+   * paint pays for the two or three rows that are visible, not the lot.
+   *
+   * Under `prefers-reduced-motion` every card stays on its poster. That is not
+   * a nicety — ten looping animations is precisely what the preference exists
+   * to prevent (WCAG 2.2.2), and the posters are the same first frame.
+   */
   const prefersReducedMotion = usePrefersReducedMotion()
-  const shouldAnimate = isActive && !prefersReducedMotion
+  const shouldAnimate = !prefersReducedMotion
 
   return (
     <Card
       variant="secondary"
       className="group flex h-full flex-col gap-1 transition-shadow hover:shadow-lg"
-      onMouseEnter={() => setIsActive(true)}
-      onMouseLeave={() => setIsActive(false)}
-      onFocus={() => setIsActive(true)}
-      onBlur={() => setIsActive(false)}
     >
       <div className="relative overflow-hidden rounded-xl border border-border">
         <img

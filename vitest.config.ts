@@ -28,9 +28,10 @@ export default defineConfig({
         // paths, the filter chain, the argument list — are covered.
         'scripts/sync-demos.ts',
         // A React hook: it needs a DOM and a renderer, which this project does
-        // not otherwise pull in. Its behaviour — no autoplay under reduced
-        // motion — belongs in the e2e suite, and does not have an assertion
-        // there yet. Recorded so it is a known gap rather than a silent one.
+        // not otherwise pull in. Its behaviour is asserted end-to-end instead,
+        // in `e2e/motion.e2e.ts` — every demo still under reduced motion, every
+        // demo playing without it. That matters more now that the grid plays
+        // ten clips at once.
         'lib/use-prefers-reduced-motion.ts',
       ],
       /**
