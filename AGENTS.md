@@ -109,14 +109,39 @@ screenshots in light, dark, and mobile before shipping visual changes.
 ## Verification — the definition of done
 
 ```bash
-bun run verify   # lint + typecheck + build (static export to out/)
-bun run e2e      # axe on every page in both schemes, mobile viewport first
+bun run verify:deploy   # the chain Vercel runs before it will promote a build
+bun run e2e             # axe, keyboard, and the palette, against the real export
 ```
 
-`e2e` runs in CI and is a hard gate. It serves the real static export rather
-than a dev server, so what is audited is what ships. Its first run caught a
-real defect: the install command overflowed into a scrollable region that
-could not take focus, leaving it unreadable by keyboard on a narrow viewport.
+**`verify:deploy` is the Vercel build command.** A failing gate fails the
+build, so a broken one never reaches production and the previous deployment
+keeps serving. CI runs the same steps individually, so a failure names itself
+in the job list. The two mean the same thing on purpose: they used to not, and
+a green badge told you less than it appeared to.
+
+The chain: lint → typecheck → registry drift → coverage → build → routes →
+payload budget. It deliberately omits `e2e`, which needs browsers the build
+image does not have, and the Open VSX check, which reaches a registry — an
+outage there must not be able to block a deploy. Both stay in CI.
+
+- **Coverage** is enforced over `lib/` and `scripts/`. Components are excluded:
+  a coverage number over markup measures templating, not behaviour, and their
+  assurance is the Playwright suite against the real export.
+- **`bun run check:registry`** fails when `lib/tool-facts.generated.ts` drifts
+  from the extension repos. It skips where the repos are not checked out, which
+  is normal in CI. Never hand-edit the generated file, and never let biome
+  format it — reformatting breaks the byte comparison the check depends on.
+- **`bun run routes`** asserts every registry path resolves the way a static
+  host serves this export, and that no built page is missing from the registry.
+- **`bun run budget`** is a ratchet. Raising a ceiling needs the reason in the
+  commit body.
+
+`e2e` serves the real static export rather than a dev server, so what is
+audited is what ships. Its first run caught a real defect: the install command
+overflowed into a scrollable region that could not take focus, leaving it
+unreadable by keyboard on a narrow viewport. The command palette has its own
+spec, because the per-page sweep only ever sees it closed — and that spec
+immediately caught two ARIA errors the closed state could never show.
 
 After `build`, `out/` must contain the page HTML, `robots.txt` and
 `sitemap.xml` (both static in `public/`), and the build-time PNGs from
