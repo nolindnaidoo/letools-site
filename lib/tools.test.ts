@@ -1,3 +1,5 @@
+import { statSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { OPENVSX_NAMESPACE, PUBLISHER, SITE_URL } from './site'
 import {
@@ -178,8 +180,22 @@ describe('the link builders', () => {
 
   it('builds asset paths that match what the repo ships', () => {
     expect(iconSrc(tool)).toBe(`/icons/${tool.id}.png`)
-    expect(demoSrc(tool)).toBe(`/demos/${tool.id}.gif`)
-    expect(posterSrc(tool)).toBe(`/posters/${tool.id}.jpg`)
+    // Demos and posters carry eight characters of their own hash, so that a
+    // corrected image is a new URL rather than one hidden behind a week-long
+    // cache. The icons do not change and are not fingerprinted.
+    expect(demoSrc(tool)).toMatch(new RegExp(`^/demos/${tool.id}\\.[0-9a-f]{8}\\.gif$`))
+    expect(posterSrc(tool)).toMatch(new RegExp(`^/posters/${tool.id}\\.[0-9a-f]{8}\\.jpg$`))
+  })
+
+  it('gives every tool a fingerprinted demo and poster that exist on disk', () => {
+    for (const current of TOOLS) {
+      for (const path of [demoSrc(current), posterSrc(current)]) {
+        expect(
+          statSync(resolve('public', path.replace(/^\//, '')), { throwIfNoEntry: false })?.isFile(),
+          `${path} is referenced but not in public/`,
+        ).toBe(true)
+      }
+    }
   })
 
   it('produces a parseable absolute URL for every off-site link, for every tool', () => {

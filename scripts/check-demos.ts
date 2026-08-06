@@ -31,7 +31,9 @@ export function readDemos(directory: string, extension = '.gif'): readonly Demo[
   return readdirSync(directory)
     .filter(file => file.endsWith(extension))
     .map(file => ({
-      id: file.slice(0, -extension.length),
+      // `colors-le.9999de44.gif` -> `colors-le`. The hash is part of the URL,
+      // not part of the identity.
+      id: file.slice(0, -extension.length).replace(/\.[0-9a-f]{8}$/, ''),
       sha1: sha1(readFileSync(join(directory, file))),
     }))
 }

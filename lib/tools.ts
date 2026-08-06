@@ -1,4 +1,5 @@
 import { OPENVSX_NAMESPACE, PUBLISHER } from '@/lib/site'
+import { ASSET_HASHES } from './asset-hashes.generated'
 import { TOOL_FACTS } from './tool-facts.generated'
 
 // THE tool registry. The grid, the category tabs, the install examples,
@@ -356,12 +357,28 @@ export function iconSrc(tool: Tool): string {
   return `/icons/${tool.id}.png`
 }
 
+function assetHash(tool: Tool): { demo: string; poster: string } {
+  const hash = ASSET_HASHES[tool.id]
+  if (hash === undefined) {
+    throw new Error(`${tool.id} has no asset hashes — run \`bun run sync:demos\``)
+  }
+  return hash
+}
+
+/**
+ * Both carry the file's own hash in the name.
+ *
+ * They are served with a seven-day cache, and the URL used to be stable — so a
+ * corrected image reached nobody who had already visited. The Colors-LE
+ * screenshot was fixed and returning visitors kept the wrong one. Naming by
+ * content makes a change a new URL, which is what makes the long cache safe.
+ */
 export function demoSrc(tool: Tool): string {
-  return `/demos/${tool.id}.gif`
+  return `/demos/${tool.id}.${assetHash(tool).demo}.gif`
 }
 
 export function posterSrc(tool: Tool): string {
-  return `/posters/${tool.id}.jpg`
+  return `/posters/${tool.id}.${assetHash(tool).poster}.jpg`
 }
 
 /**
