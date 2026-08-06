@@ -1,6 +1,6 @@
 export const SITE_URL = 'https://letools.dev'
 export const SITE_NAME = 'LE Tools'
-export const TAGLINE = 'Ten tools. One job each. Zero hassle.'
+export const TAGLINE = 'Get your data right before the model sees it.'
 
 // Combined Open VSX downloads + VS Code Marketplace acquisitions across all
 // ten tools. Hardcoded and rounded DOWN, because Marketplace acquisitions are

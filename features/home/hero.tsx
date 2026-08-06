@@ -3,12 +3,15 @@ import { buttonVariants } from '@/ui/button'
 import { Chip } from '@/ui/chip'
 import { Link } from '@/ui/link'
 
+// "No network access" was false as an unqualified claim: Scrape-LE fetches the
+// page it is checking, which is the whole job. The scoped version is the one
+// that survives someone checking.
 const BADGES = [
   `${INSTALL_COUNT} installs`,
   'Free',
   'Open source',
   'MIT',
-  'No network access',
+  'Local by default',
 ] as const
 
 export function Hero() {
@@ -25,9 +28,9 @@ export function Hero() {
       <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-6xl">{TAGLINE}</h1>
 
       <p className="max-w-2xl text-pretty text-lg text-muted">
-        Single-purpose VS Code extensions that extract, check, and guard the unglamorous stuff —
-        strings, numbers, paths, env keys, regexes, secrets, colors, URLs, dates — without ever
-        touching the network.
+        Ten single-purpose tools for the manual work in front of every model: pull the values out,
+        check they are what you think, and catch the secrets before they travel. In your editor, or
+        callable by an agent over MCP.
       </p>
 
       <div className="flex flex-wrap items-center justify-center gap-3">
