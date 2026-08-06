@@ -1,12 +1,14 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { ToolChannels } from '@/features/tool/tool-channels'
+import { ToolCommands } from '@/features/tool/tool-commands'
 import { ToolHero } from '@/features/tool/tool-hero'
 import { ToolInstall } from '@/features/tool/tool-install'
 import { ToolLinks } from '@/features/tool/tool-links'
 import { ToolOverview } from '@/features/tool/tool-overview'
 import { ToolSiblings } from '@/features/tool/tool-siblings'
 import { SITE_NAME, SITE_URL } from '@/lib/site'
-import { findTool, githubUrl, iconSrc, TOOLS, type Tool, toolPath } from '@/lib/tools'
+import { factsFor, findTool, githubUrl, iconSrc, TOOLS, type Tool, toolPath } from '@/lib/tools'
 
 // Static export: every tool page is emitted at build time from the registry,
 // so a new tool is still one entry in lib/tools.ts and nothing else.
@@ -58,7 +60,7 @@ function structuredData(tool: Tool) {
         url: `${SITE_URL}${toolPath(tool)}`,
         applicationCategory: 'DeveloperApplication',
         operatingSystem: 'Windows, macOS, Linux',
-        softwareVersion: '2.2.2',
+        softwareVersion: factsFor(tool).version,
         license: 'https://opensource.org/licenses/MIT',
         image: `${SITE_URL}${iconSrc(tool)}`,
         codeRepository: githubUrl(tool),
@@ -97,7 +99,9 @@ export default async function ToolPage({ params }: Params) {
       />
       <ToolHero tool={tool} />
       <ToolOverview tool={tool} />
+      <ToolCommands tool={tool} />
       <ToolInstall tool={tool} />
+      <ToolChannels tool={tool} />
       <ToolLinks tool={tool} />
       <ToolSiblings tool={tool} />
     </>

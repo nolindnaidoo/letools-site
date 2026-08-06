@@ -25,9 +25,12 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const FLEET = resolve(ROOT, '..')
 const OUTPUT = resolve(ROOT, 'lib/tool-facts.generated.ts')
 
+/** One command as the palette shows it. */
+export type ToolCommand = Readonly<{ id: string; title: string }>
+
 export type ToolFacts = Readonly<{
   version: string
-  commands: number
+  commands: readonly ToolCommand[]
   /** Translated locales, excluding the English base bundle. */
   locales: number
   mcpPackage: string
@@ -40,8 +43,20 @@ function json(path: string): Record<string, unknown> {
 
 export function factsFor(repo: string): ToolFacts {
   const manifest = json(resolve(repo, 'package.json'))
-  const contributes = (manifest.contributes ?? {}) as { commands?: unknown[] }
+  const contributes = (manifest.contributes ?? {}) as {
+    commands?: { command: string; title?: string }[]
+  }
   const mcp = json(resolve(repo, 'mcp/package.json'))
+
+  // Manifest titles are NLS placeholders (`%manifest.command.x.title%`); the
+  // English strings live in package.nls.json. Rendering the placeholder would
+  // put `%manifest.command.extract.title%` on the page.
+  const nls = json(resolve(repo, 'package.nls.json')) as Record<string, string>
+  const commands: ToolCommand[] = (contributes.commands ?? []).map(command => {
+    const raw = command.title ?? ''
+    const key = raw.startsWith('%') && raw.endsWith('%') ? raw.slice(1, -1) : ''
+    return { id: command.command, title: key === '' ? raw : (nls[key] ?? raw) }
+  })
 
   // `bundle.l10n.json` is the English source, not a translation.
   const locales = readdirSync(resolve(repo, 'l10n')).filter(file =>
@@ -54,7 +69,7 @@ export function factsFor(repo: string): ToolFacts {
 
   return {
     version: String(manifest.version),
-    commands: contributes.commands?.length ?? 0,
+    commands,
     locales,
     mcpPackage: String(mcp.name),
     zedId,
@@ -66,7 +81,7 @@ export function render(facts: ReadonlyMap<string, ToolFacts>): string {
     .map(([id, fact]) => {
       const fields = [
         `version: '${fact.version}'`,
-        `commands: ${fact.commands}`,
+        `commands: ${JSON.stringify(fact.commands)}`,
         `locales: ${fact.locales}`,
         `mcpPackage: '${fact.mcpPackage}'`,
         `zedId: '${fact.zedId}'`,
@@ -125,7 +140,7 @@ export function main(
   writeFileSync(output, rendered)
   for (const [id, fact] of facts) {
     process.stdout.write(
-      `  ${id.padEnd(12)} v${fact.version}  ${String(fact.commands).padStart(2)} commands  ` +
+      `  ${id.padEnd(12)} v${fact.version}  ${String(fact.commands.length).padStart(2)} commands  ` +
         `${fact.locales} locales\n`,
     )
   }

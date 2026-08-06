@@ -22,8 +22,13 @@ const BUILD = resolve(ROOT, 'out')
 const KB = 1024
 
 /**
- * Measured 2026-08-06 against the current build: js 871 KB, css 411 KB,
- * html 678 KB across eleven pages, fonts 143 KB, and 8.1 MB of hover demos.
+ * Measured 2026-08-06 against the current build: js 880 KB, css 413 KB,
+ * html 807 KB across eleven pages, fonts 143 KB, and 8.1 MB of hover demos.
+ *
+ * The HTML ceiling moved from 750 KB to 850 KB when the tool pages gained the
+ * command list and the distribution channels — roughly 13 KB per page of real
+ * content that was previously not on the site at all. Raised deliberately,
+ * with the reason, which is the only way this number is allowed to move up.
  *
  * The ceilings sit just above today's numbers rather than at a comfortable
  * round figure. That is the whole point of a budget: it should fail the first
@@ -37,7 +42,7 @@ const KB = 1024
 const BUDGETS = Object.freeze([
   { label: 'client JS', match: (p: string) => p.endsWith('.js'), ceiling: 900 * KB },
   { label: 'CSS', match: (p: string) => p.endsWith('.css'), ceiling: 430 * KB },
-  { label: 'HTML', match: (p: string) => p.endsWith('.html'), ceiling: 750 * KB },
+  { label: 'HTML', match: (p: string) => p.endsWith('.html'), ceiling: 850 * KB },
   { label: 'fonts', match: (p: string) => p.endsWith('.woff2'), ceiling: 160 * KB },
   { label: 'demo GIFs', match: (p: string) => p.endsWith('.gif'), ceiling: 8_600 * KB },
 ])

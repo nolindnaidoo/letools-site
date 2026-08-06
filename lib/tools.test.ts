@@ -220,7 +220,13 @@ describe('factsFor', () => {
     for (const tool of TOOLS) {
       const facts = factsFor(tool)
       expect(facts.version, tool.id).toMatch(/^\d+\.\d+\.\d+$/)
-      expect(facts.commands, tool.id).toBeGreaterThan(0)
+      expect(facts.commands.length, tool.id).toBeGreaterThan(0)
+      for (const command of facts.commands) {
+        // A title left as its NLS placeholder would render as
+        // `%manifest.command.extract.title%` on the page.
+        expect(command.title, command.id).not.toMatch(/^%.*%$/)
+        expect(command.id.startsWith(tool.id), command.id).toBe(true)
+      }
       expect(facts.mcpPackage, tool.id).toBe(`${tool.id}-mcp`)
       expect(facts.zedId, tool.id).toBe(tool.id)
     }

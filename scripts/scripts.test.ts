@@ -299,7 +299,16 @@ describe('sync-registry', () => {
     // where the tools ship 12, which is the sort of off-by-one that reaches
     // copy and stays there.
     const repo = fakeBuild({
-      'package.json': JSON.stringify({ version: '2.2.3', contributes: { commands: [1, 2] } }),
+      'package.json': JSON.stringify({
+        version: '2.2.3',
+        contributes: {
+          commands: [
+            { command: 'x-le.run', title: '%manifest.command.run.title%' },
+            { command: 'x-le.other', title: 'Already English' },
+          ],
+        },
+      }),
+      'package.nls.json': JSON.stringify({ 'manifest.command.run.title': 'Run It' }),
       'mcp/package.json': JSON.stringify({ name: 'x-le-mcp' }),
       'zed/extension.toml': 'id = "x-le"\nname = "X-LE"\n',
       'l10n/bundle.l10n.json': '{}',
@@ -309,27 +318,58 @@ describe('sync-registry', () => {
     const facts = repoFacts(repo)
     expect(facts).toEqual({
       version: '2.2.3',
-      commands: 2,
+      commands: [
+        // Resolved through package.nls.json; the raw manifest title is a
+        // placeholder and rendering it would print `%manifest.…%` on the page.
+        { id: 'x-le.run', title: 'Run It' },
+        { id: 'x-le.other', title: 'Already English' },
+      ],
       locales: 2,
       mcpPackage: 'x-le-mcp',
       zedId: 'x-le',
     })
   })
 
+  it('handles a command with no title, and one whose key is not in the catalog', () => {
+    // A missing NLS key must fall back to the raw title rather than render
+    // `undefined`; a command with no title at all must not crash the sync.
+    const repo = fakeBuild({
+      'package.json': JSON.stringify({
+        version: '1.0.0',
+        contributes: {
+          commands: [
+            { command: 'q-le.untitled' },
+            { command: 'q-le.orphan', title: '%manifest.command.missing.title%' },
+          ],
+        },
+      }),
+      'package.nls.json': '{}',
+      'mcp/package.json': JSON.stringify({ name: 'q-le-mcp' }),
+      'zed/extension.toml': 'id = "q-le"\n',
+      'l10n/bundle.l10n.json': '{}',
+    })
+    expect(repoFacts(repo).commands).toEqual([
+      { id: 'q-le.untitled', title: '' },
+      { id: 'q-le.orphan', title: '%manifest.command.missing.title%' },
+    ])
+  })
+
   it('treats a manifest with no commands as zero, not a crash', () => {
     const repo = fakeBuild({
       'package.json': JSON.stringify({ version: '1.0.0' }),
+      'package.nls.json': '{}',
       'mcp/package.json': JSON.stringify({ name: 'y-le-mcp' }),
       'zed/extension.toml': 'id = "y-le"\n',
       'l10n/bundle.l10n.json': '{}',
     })
-    expect(repoFacts(repo).commands).toBe(0)
+    expect(repoFacts(repo).commands).toEqual([])
     expect(repoFacts(repo).locales).toBe(0)
   })
 
   it('refuses a Zed manifest with no id rather than emitting undefined', () => {
     const repo = fakeBuild({
       'package.json': JSON.stringify({ version: '1.0.0' }),
+      'package.nls.json': '{}',
       'mcp/package.json': JSON.stringify({ name: 'z-le-mcp' }),
       'zed/extension.toml': 'name = "Z-LE"\n',
       'l10n/bundle.l10n.json': '{}',
@@ -342,12 +382,19 @@ describe('sync-registry', () => {
       new Map([
         [
           'a-le',
-          { version: '1.2.3', commands: 4, locales: 12, mcpPackage: 'a-le-mcp', zedId: 'a-le' },
+          {
+            version: '1.2.3',
+            commands: [{ id: 'a-le.run', title: 'Run' }],
+            locales: 12,
+            mcpPackage: 'a-le-mcp',
+            zedId: 'a-le',
+          },
         ],
       ]),
     )
     expect(rendered).toContain('do not edit')
-    expect(rendered).toContain("'a-le': { version: '1.2.3', commands: 4, locales: 12")
+    expect(rendered).toContain("version: '1.2.3'")
+    expect(rendered).toContain('"id":"a-le.run","title":"Run"')
     expect(rendered).toContain('Object.freeze')
   })
 })
