@@ -1,3 +1,4 @@
+#!/usr/bin/env bun
 /**
  * Verify every open-vsx.org extension link actually resolves.
  *
@@ -18,69 +19,109 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-const dir = process.argv[2]
-if (dir === undefined) {
-  console.error('usage: check-openvsx-links.ts <dir-of-markdown>')
-  process.exit(2)
+/**
+ * `/extension/<namespace>/<name>` with an optional trailing segment.
+ *
+ * The character class excludes HTML attribute delimiters as well as markdown
+ * ones: in built HTML the link is followed by a quote, and capturing it
+ * produces a bogus "does not exist" for an extension that is perfectly fine.
+ */
+export const LINK = /open-vsx\.org\/extension\/([^/\s)"'<>]+)\/([^/\s)#"'<>]+)/g
+
+/** Every `namespace/name` referenced by one document. */
+export function refsIn(text: string): readonly string[] {
+  return [...text.matchAll(LINK)].map(match => `${match[1]}/${match[2]}`)
 }
 
-// /extension/<namespace>/<name>  with an optional trailing segment (/reviews).
-// The character class has to exclude HTML attribute delimiters as well as
-// markdown ones — in built HTML the link is followed by a quote, and capturing
-// it produces a bogus "does not exist" for an extension that is perfectly fine.
-const LINK = /open-vsx\.org\/extension\/([^/\s)"'<>]+)\/([^/\s)#"'<>]+)/g
+/**
+ * Markdown for the READMEs, HTML for the built site — the same links appear in
+ * both and both are published surfaces.
+ */
+export function scan(root: string): ReadonlyMap<string, Set<string>> {
+  const found = new Map<string, Set<string>>()
 
-const found = new Map<string, Set<string>>()
+  const walk = (current: string): void => {
+    for (const entry of readdirSync(current, { withFileTypes: true })) {
+      const path = join(current, entry.name)
+      if (entry.isDirectory()) {
+        // Build output nests deeply; skip asset dirs that cannot contain links.
+        if (entry.name === '_next' || entry.name === 'node_modules') continue
+        walk(path)
+        continue
+      }
+      if (!/\.(md|html)$/.test(entry.name)) continue
+      for (const ref of refsIn(readFileSync(path, 'utf8'))) {
+        found.set(ref, (found.get(ref) ?? new Set()).add(entry.name))
+      }
+    }
+  }
 
-// Markdown for the READMEs, HTML for the built site — the same links appear in
-// both and both are published surfaces.
-function scan(current: string, label: string): void {
-  for (const entry of readdirSync(current, { withFileTypes: true })) {
-    const p = join(current, entry.name)
-    if (entry.isDirectory()) {
-      // Build output nests deeply; skip asset dirs that cannot contain links.
-      if (entry.name === '_next' || entry.name === 'node_modules') continue
-      scan(p, label)
+  walk(root)
+  return found
+}
+
+/** What the Open VSX API says about one extension. */
+export type ApiResult = Readonly<{ error?: string; version?: string }>
+
+/** The API returns 200 with an `error` body for a missing extension. */
+export function isMissing(body: ApiResult): boolean {
+  return body.error !== undefined || body.version === undefined
+}
+
+export async function lookUp(ref: string): Promise<ApiResult> {
+  const response = await fetch(`https://open-vsx.org/api/${ref}`, {
+    headers: { 'user-agent': 'le-tools-link-check' },
+  })
+  return (await response.json()) as ApiResult
+}
+
+export async function main(
+  root: string | undefined = process.argv[2],
+  fetchOne: (ref: string) => Promise<ApiResult> = lookUp,
+): Promise<number> {
+  if (root === undefined) {
+    process.stderr.write('usage: check-openvsx-links.ts <dir-of-markdown>\n')
+    return 2
+  }
+
+  const found = scan(root)
+  if (found.size === 0) {
+    process.stdout.write('No open-vsx.org extension links found.\n')
+    return 0
+  }
+
+  const problems: string[] = []
+  for (const [ref, files] of found) {
+    const body = await fetchOne(ref)
+    if (isMissing(body)) {
+      problems.push(`${ref} does not exist on Open VSX (referenced by ${[...files].join(', ')})`)
       continue
     }
-    if (!/\.(md|html)$/.test(entry.name)) continue
-    for (const m of readFileSync(p, 'utf8').matchAll(LINK)) {
-      const key = `${m[1]}/${m[2]}`
-      found.set(key, (found.get(key) ?? new Set()).add(entry.name))
-    }
+    process.stdout.write(`  ok  ${ref} v${body.version}\n`)
+  }
+
+  if (problems.length > 0) {
+    process.stderr.write('\nDead Open VSX links:\n')
+    for (const problem of problems) process.stderr.write(`  ${problem}\n`)
+    process.stderr.write(
+      '\nThese return HTTP 200 in a browser and in any generic link checker — ' +
+        'the page renders "Extension not found" client-side. Only the API reveals it.\n',
+    )
+    return 1
+  }
+
+  process.stdout.write(`\nAll ${found.size} Open VSX links resolve.\n`)
+  return 0
+}
+
+/* v8 ignore start -- process entry point; unreachable when imported by a test */
+if (import.meta.main) {
+  try {
+    process.exit(await main())
+  } catch (cause) {
+    const detail = cause instanceof Error ? (cause.stack ?? cause.message) : String(cause)
+    process.stderr.write(`\ncheck-openvsx-links: unexpected failure.\n${detail}\n\n`)
+    process.exit(2)
   }
 }
-
-scan(dir, dir)
-
-if (found.size === 0) {
-  console.log('No open-vsx.org extension links found.')
-  process.exit(0)
-}
-
-const problems: string[] = []
-
-for (const [ref, files] of found) {
-  const res = await fetch(`https://open-vsx.org/api/${ref}`, {
-    headers: { 'User-Agent': 'le-tools-link-check' },
-  })
-  const body = (await res.json()) as { error?: string; version?: string }
-
-  if (body.error !== undefined || body.version === undefined) {
-    problems.push(`${ref} does not exist on Open VSX (referenced by ${[...files].join(', ')})`)
-  } else {
-    console.log(`  ok  ${ref} v${body.version}`)
-  }
-}
-
-if (problems.length > 0) {
-  console.error('\nDead Open VSX links:')
-  for (const p of problems) console.error(`  ${p}`)
-  console.error(
-    '\nThese return HTTP 200 in a browser and in any generic link checker — ' +
-      'the page renders "Extension not found" client-side. Only the API reveals it.',
-  )
-  process.exit(1)
-}
-
-console.log(`\nAll ${found.size} Open VSX links resolve.`)
+/* v8 ignore stop */

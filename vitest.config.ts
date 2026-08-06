@@ -21,18 +21,29 @@ export default defineConfig({
        * Their assurance is the Playwright suite against the real export.
        */
       include: ['lib/**/*.ts', 'scripts/**/*.ts'],
-      exclude: ['**/*.test.ts'],
+      exclude: [
+        '**/*.test.ts',
+        // Its `main` spawns ffmpeg once per tool; running it under coverage
+        // would re-encode ten GIFs on every test run. The pure parts — the
+        // paths, the filter chain, the argument list — are covered.
+        'scripts/sync-demos.ts',
+        // A React hook: it needs a DOM and a renderer, which this project does
+        // not otherwise pull in. Its behaviour — no autoplay under reduced
+        // motion — belongs in the e2e suite, and does not have an assertion
+        // there yet. Recorded so it is a known gap rather than a silent one.
+        'lib/use-prefers-reduced-motion.ts',
+      ],
       /**
-       * A floor, set at where this repo actually is — not where it should be.
+       * A floor. These ratchet UP as tests land and are never lowered to make
+       * a build pass.
        *
-       * This site had no unit tests at all. A threshold of 100 here would fail
-       * every build until the whole suite exists, so it would be deleted
-       * within a day and the gate would be worth nothing. These numbers ratchet
-       * UP as tests land and are never lowered to make a build pass. The
-       * sibling repos sit at 100/100/100 with branches at 95-98; that is the
-       * destination.
+       * This site had no unit tests at all a day ago; the floor was set at 10%
+       * so the gate could exist while the suite was written, and has moved to
+       * where the suite actually reaches. The four uncovered lines are the
+       * network call in the Open VSX check and its error path — asserting them
+       * would test the stub, not the code.
        */
-      thresholds: { lines: 10, functions: 27, statements: 10, branches: 0 },
+      thresholds: { lines: 99, functions: 98, statements: 98, branches: 94 },
     },
   },
 })
