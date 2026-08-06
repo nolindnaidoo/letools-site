@@ -23,6 +23,7 @@ import { TOOLS } from '../lib/tools'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const DEMOS = resolve(ROOT, 'public/demos')
+const POSTERS = resolve(ROOT, 'public/posters')
 /** The extension repos are checked out beside this one. */
 const FLEET = resolve(ROOT, '..')
 
@@ -35,6 +36,37 @@ export function sourceFor(toolId: string): string {
 
 export function destinationFor(toolId: string): string {
   return resolve(DEMOS, `${toolId}.gif`)
+}
+
+/**
+ * The still shown before the demo plays, and under reduced motion.
+ *
+ * These were generated once by hand and never again. Two of them were the same
+ * file — the Colors-LE card showed the Dates-LE screenshot on every visit,
+ * which is the duplicate-demo bug a directory over, and the demo check never
+ * looked here. Deriving the poster from the demo means it cannot disagree with
+ * the clip it stands in for.
+ */
+export function posterFor(toolId: string): string {
+  return resolve(POSTERS, `${toolId}.jpg`)
+}
+
+/** First frame of the clip, at the width the card renders. */
+export function posterArgsFor(source: string, destination: string): readonly string[] {
+  return [
+    '-y',
+    '-loglevel',
+    'error',
+    '-i',
+    source,
+    '-frames:v',
+    '1',
+    '-vf',
+    `scale=${WIDTH}:-1:flags=lanczos`,
+    '-q:v',
+    '4',
+    destination,
+  ]
 }
 
 /**
@@ -72,12 +104,23 @@ export async function main(): Promise<number> {
       return 1
     }
 
-    const bytes = statSync(destination).size
+    const poster = posterFor(tool.id)
+    const posterResult = Bun.spawnSync(['ffmpeg', ...posterArgsFor(sourceFor(tool.id), poster)])
+    if (posterResult.exitCode !== 0) {
+      process.stderr.write(
+        `\nsync-demos: ffmpeg failed on the poster for ${tool.id}.\n${posterResult.stderr.toString()}\n`,
+      )
+      return 1
+    }
+
+    const bytes = statSync(destination).size + statSync(poster).size
     total += bytes
     process.stdout.write(`  ${tool.id.padEnd(12)} ${(bytes / 1024).toFixed(0).padStart(5)} KB\n`)
   }
 
-  process.stdout.write(`\nSynced ${TOOLS.length} demos, ${(total / 1024 / 1024).toFixed(1)} MB.\n`)
+  process.stdout.write(
+    `\nSynced ${TOOLS.length} demos and posters, ${(total / 1024 / 1024).toFixed(1)} MB.\n`,
+  )
   return 0
 }
 

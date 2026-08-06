@@ -10,13 +10,14 @@
  * Run with `bun run check:demos`.
  */
 import { createHash } from 'node:crypto'
-import { readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { TOOLS } from '../lib/tools'
 
 // import.meta.dir is Bun-only and does not typecheck; this is the portable form.
 const DEMOS = fileURLToPath(new URL('../public/demos', import.meta.url))
+const POSTERS = fileURLToPath(new URL('../public/posters', import.meta.url))
 
 /** A demo file keyed by tool id, with the bytes it contains. */
 export type Demo = Readonly<{ id: string; sha1: string }>
@@ -26,11 +27,11 @@ export function sha1(bytes: Uint8Array | string): string {
 }
 
 /** Reads `public/demos`, hashing each GIF. Split out so the rules can be tested. */
-export function readDemos(directory: string): readonly Demo[] {
+export function readDemos(directory: string, extension = '.gif'): readonly Demo[] {
   return readdirSync(directory)
-    .filter(file => file.endsWith('.gif'))
+    .filter(file => file.endsWith(extension))
     .map(file => ({
-      id: file.replace(/\.gif$/, ''),
+      id: file.slice(0, -extension.length),
       sha1: sha1(readFileSync(join(directory, file))),
     }))
 }
@@ -75,9 +76,19 @@ export function problemsWith(
   return problems
 }
 
-export function main(directory: string = DEMOS): number {
+export function main(directory: string = DEMOS, posters: string = POSTERS): number {
   const toolIds = TOOLS.map(tool => tool.id)
-  const problems = problemsWith(toolIds, readDemos(directory))
+  const problems = [...problemsWith(toolIds, readDemos(directory))]
+
+  // The posters are checked too. They were not, and two of them were the same
+  // file: the Colors-LE card showed the Dates-LE screenshot on every visit,
+  // for as long as the site has existed. The demo check found the duplicate
+  // one directory over and never looked here.
+  if (existsSync(posters)) {
+    for (const problem of problemsWith(toolIds, readDemos(posters, '.jpg'))) {
+      problems.push(problem.replace('public/demos/', 'public/posters/').replace('.gif', '.jpg'))
+    }
+  }
 
   if (problems.length > 0) {
     process.stderr.write('Demo check failed:\n')
@@ -86,7 +97,9 @@ export function main(directory: string = DEMOS): number {
     return 1
   }
 
-  process.stdout.write(`Demo check passed: ${toolIds.length} tools, all distinct.\n`)
+  process.stdout.write(
+    `Demo check passed: ${toolIds.length} tools, demos and posters all distinct.\n`,
+  )
   return 0
 }
 
