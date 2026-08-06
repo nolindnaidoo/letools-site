@@ -1,0 +1,12 @@
+name: CodeQL
+
+# Test files and fixtures are excluded on purpose. They carry inputs that are
+# meant to look wrong — fabricated SHAs, a deliberately unreachable git ref,
+# rejected commit subjects — and scanning them produces findings that can only
+# ever be dismissed. A queue of permanent false positives is how a security
+# tool stops being read.
+paths-ignore:
+  - '**/*.test.ts'
+  - 'e2e/**'
+  - 'build/**'
+  - '.svelte-kit/**'

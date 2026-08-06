@@ -36,6 +36,14 @@ jobs:
       - run: bun run lint
       - run: bun run typecheck
 
+      # The generated facts are read from the extension repos. CI has no
+      # sibling checkouts, so this skips there — it is the local and Vercel
+      # runs that catch a stale file.
+      - run: bun run check:registry
+
+      - name: Unit tests with coverage
+        run: bun run test:coverage
+
       # This repo is the only place all ten demos sit together, so it is the
       # only place a duplicate is detectable. Colors-LE shipped the Dates-LE
       # demo from its first commit all the way to a published listing because
@@ -43,6 +51,13 @@ jobs:
       - run: bun run check:demos
 
       - run: bun run build
+
+      # Every registry path resolves to a built file, and no built page is
+      # missing from the registry.
+      - run: bun run routes
+
+      - name: Payload budget
+        run: bun run budget
 
       # The site builds its Open VSX links from OPENVSX_NAMESPACE; a status
       # check cannot validate them because open-vsx.org answers 200 for
@@ -76,3 +91,22 @@ jobs:
             test-results/
           retention-days: 7
           if-no-files-found: ignore
+
+  # This repo pushes straight to `main` — there is no PR title to check, so CI
+  # validates the pushed commit message instead. It fails after the fact rather
+  # than before, which is why the hook exists too.
+  commits:
+    name: Commit messages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: .bun-version
+      - name: Commit messages
+        env:
+          BASE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: bun run lint:commits
