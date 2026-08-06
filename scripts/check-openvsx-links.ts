@@ -22,11 +22,17 @@ import { join } from 'node:path'
 /**
  * `/extension/<namespace>/<name>` with an optional trailing segment.
  *
- * The character class excludes HTML attribute delimiters as well as markdown
- * ones: in built HTML the link is followed by a quote, and capturing it
- * produces a bogus "does not exist" for an extension that is perfectly fine.
+ * The character class excludes HTML attribute delimiters, markdown ones, and
+ * the backslash. Capturing any of them produces a bogus "does not exist" for
+ * an extension that is perfectly fine.
+ *
+ * The backslash is the one that is easy to miss. The same URL appears twice in
+ * a built page: once in an `href`, ending at a plain quote, and once inside a
+ * JavaScript string in the framework's serialized payload, where the closing
+ * quote is escaped — so the raw text reads `…/colors-le\",`. Without the
+ * backslash excluded, six of ten links reported dead while every one resolved.
  */
-export const LINK = /open-vsx\.org\/extension\/([^/\s)"'<>]+)\/([^/\s)#"'<>]+)/g
+export const LINK = /open-vsx\.org\/extension\/([^/\s)"'<>\\]+)\/([^/\s)#"'<>\\]+)/g
 
 /** Every `namespace/name` referenced by one document. */
 export function refsIn(text: string): readonly string[] {

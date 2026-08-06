@@ -180,6 +180,16 @@ describe('check-openvsx-links', () => {
     ])
   })
 
+  it('stops at a backslash-escaped quote in a serialized payload', () => {
+    // The same URL appears twice in a built page: once in an href ending at a
+    // plain quote, and once inside a JS string in the framework's payload
+    // where the quote is escaped. Capturing the backslash reported six of ten
+    // links dead while every one resolved.
+    expect(
+      refsIn(String.raw`{"href":"https://open-vsx.org/extension/OffensiveEdge/colors-le\",`),
+    ).toEqual(['OffensiveEdge/colors-le'])
+  })
+
   it('treats an error body as missing, even though the API returns 200', () => {
     // This is the whole reason the script exists: open-vsx.org answers 200 for
     // an extension that does not exist and renders the failure client-side.
