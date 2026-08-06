@@ -2,7 +2,7 @@
   "name": "letools-site",
   "version": "0.1.0",
   "private": true,
-  "description": "The hub site for the LE family of VS Code extensions — ten single-purpose devtools at letools.dev.",
+  "description": "The hub site for the LE family of VS Code extensions \u2014 ten single-purpose devtools at letools.dev.",
   "author": {
     "name": "Nolin Naidoo",
     "email": "nolin.naidoo@me.com",
@@ -30,7 +30,14 @@
     "lint": "biome check",
     "format": "biome check --write",
     "typecheck": "tsc --noEmit",
-    "verify": "bun run lint && bun run typecheck && bun run build"
+    "verify": "bun run lint && bun run typecheck && bun run build",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "budget": "bun scripts/check-budget.ts",
+    "lint:commits": "node scripts/commit-lint.js --range \"${BASE_SHA:-origin/main}\" \"${HEAD_SHA:-HEAD}\"",
+    "hooks:install": "git config core.hooksPath .githooks",
+    "routes": "bun scripts/check-routes.ts",
+    "sync:demos": "bun scripts/sync-demos.ts"
   },
   "dependencies": {
     "@heroui/react": "^3.2.2",
@@ -46,11 +53,14 @@
     "@biomejs/biome": "^2.5.6",
     "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4",
+    "@types/bun": "^1.3.14",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.1.10",
     "serve": "^14.2.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }
