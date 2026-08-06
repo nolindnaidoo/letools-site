@@ -37,7 +37,8 @@
     "lint:commits": "node scripts/commit-lint.js --range \"${BASE_SHA:-origin/main}\" \"${HEAD_SHA:-HEAD}\"",
     "hooks:install": "git config core.hooksPath .githooks",
     "routes": "bun scripts/check-routes.ts",
-    "sync:demos": "bun scripts/sync-demos.ts"
+    "sync:demos": "bun scripts/sync-demos.ts",
+    "verify:deploy": "bun run lint && bun run typecheck && bun run test:coverage && bun run build && bun run routes && bun run budget"
   },
   "dependencies": {
     "@heroui/react": "^3.2.2",
