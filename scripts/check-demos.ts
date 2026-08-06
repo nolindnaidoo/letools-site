@@ -1,3 +1,4 @@
+#!/usr/bin/env bun
 /**
  * Fail if any two tools ship the same demo GIF, or if a tool is missing one.
  *
@@ -17,47 +18,86 @@ import { TOOLS } from '../lib/tools'
 // import.meta.dir is Bun-only and does not typecheck; this is the portable form.
 const DEMOS = fileURLToPath(new URL('../public/demos', import.meta.url))
 
-const problems: string[] = []
-const byHash = new Map<string, string[]>()
+/** A demo file keyed by tool id, with the bytes it contains. */
+export type Demo = Readonly<{ id: string; sha1: string }>
 
-const present = new Set(
-  readdirSync(DEMOS)
-    .filter(f => f.endsWith('.gif'))
-    .map(f => f.replace(/\.gif$/, '')),
-)
-
-for (const tool of TOOLS) {
-  if (!present.has(tool.id)) {
-    problems.push(`${tool.id}: public/demos/${tool.id}.gif is missing`)
-    continue
-  }
-  const hash = createHash('sha1')
-    .update(readFileSync(join(DEMOS, `${tool.id}.gif`)))
-    .digest('hex')
-  byHash.set(hash, [...(byHash.get(hash) ?? []), tool.id])
+export function sha1(bytes: Uint8Array | string): string {
+  return createHash('sha1').update(bytes).digest('hex')
 }
 
-for (const [hash, ids] of byHash) {
-  if (ids.length > 1) {
+/** Reads `public/demos`, hashing each GIF. Split out so the rules can be tested. */
+export function readDemos(directory: string): readonly Demo[] {
+  return readdirSync(directory)
+    .filter(file => file.endsWith('.gif'))
+    .map(file => ({
+      id: file.replace(/\.gif$/, ''),
+      sha1: sha1(readFileSync(join(directory, file))),
+    }))
+}
+
+/**
+ * The three ways this can be wrong, in one place: a tool with no demo, two
+ * tools sharing one, and a demo no tool claims.
+ */
+export function problemsWith(
+  toolIds: readonly string[],
+  demos: readonly Demo[],
+): readonly string[] {
+  const problems: string[] = []
+  const byId = new Map(demos.map(demo => [demo.id, demo]))
+
+  for (const id of toolIds) {
+    if (!byId.has(id)) problems.push(`${id}: public/demos/${id}.gif is missing`)
+  }
+
+  const byHash = new Map<string, string[]>()
+  for (const id of toolIds) {
+    const demo = byId.get(id)
+    if (demo === undefined) continue
+    byHash.set(demo.sha1, [...(byHash.get(demo.sha1) ?? []), id])
+  }
+  for (const [hash, ids] of byHash) {
+    if (ids.length < 2) continue
     problems.push(
       `${ids.join(' and ')} ship the same demo (sha1 ${hash.slice(0, 12)}) — ` +
         'at most one of them can be correct',
     )
   }
+
+  // A demo present in public/demos but not in the registry is dead weight.
+  const known = new Set(toolIds)
+  for (const demo of demos) {
+    if (!known.has(demo.id)) {
+      problems.push(`public/demos/${demo.id}.gif has no matching tool in lib/tools.ts`)
+    }
+  }
+
+  return problems
 }
 
-// A demo present in public/demos but not in the registry is dead weight.
-for (const id of present) {
-  if (!TOOLS.some(t => t.id === id)) {
-    problems.push(`public/demos/${id}.gif has no matching tool in lib/tools.ts`)
+export function main(directory: string = DEMOS): number {
+  const toolIds = TOOLS.map(tool => tool.id)
+  const problems = problemsWith(toolIds, readDemos(directory))
+
+  if (problems.length > 0) {
+    process.stderr.write('Demo check failed:\n')
+    for (const problem of problems) process.stderr.write(`  ${problem}\n`)
+    process.stderr.write('\nSee nolindnaidoo/colors-le#3.\n')
+    return 1
+  }
+
+  process.stdout.write(`Demo check passed: ${toolIds.length} tools, all distinct.\n`)
+  return 0
+}
+
+/* v8 ignore start -- process entry point; unreachable when imported by a test */
+if (import.meta.main) {
+  try {
+    process.exit(main())
+  } catch (cause) {
+    const detail = cause instanceof Error ? (cause.stack ?? cause.message) : String(cause)
+    process.stderr.write(`\ncheck-demos: unexpected failure — this is a bug.\n${detail}\n\n`)
+    process.exit(2)
   }
 }
-
-if (problems.length > 0) {
-  console.error('Demo check failed:')
-  for (const p of problems) console.error(`  ${p}`)
-  console.error('\nSee nolindnaidoo/colors-le#3.')
-  process.exit(1)
-}
-
-console.log(`Demo check passed: ${TOOLS.length} tools, all distinct.`)
+/* v8 ignore stop */

@@ -5,11 +5,11 @@ import { OPENVSX_NAMESPACE, PUBLISHER } from '@/lib/site'
 // here, nothing else. Copy comes from each tool's manifest; keep it in
 // step with the extension repos, never embellish.
 
-export const CATEGORIES = [
+export const CATEGORIES = Object.freeze([
   { id: 'extract', label: 'Extract' },
   { id: 'check', label: 'Check' },
   { id: 'guard', label: 'Guard' },
-] as const
+] as const)
 
 export type CategoryId = (typeof CATEGORIES)[number]['id']
 
@@ -33,7 +33,7 @@ export interface Tool {
   readonly useCases: readonly { readonly title: string; readonly detail: string }[]
 }
 
-export const TOOLS: readonly Tool[] = [
+export const TOOLS: readonly Tool[] = Object.freeze([
   {
     id: 'string-le',
     name: 'String-LE',
@@ -297,7 +297,7 @@ export const TOOLS: readonly Tool[] = [
       },
     ],
   },
-]
+])
 
 export function findTool(id: string): Tool | undefined {
   return TOOLS.find(tool => tool.id === id)

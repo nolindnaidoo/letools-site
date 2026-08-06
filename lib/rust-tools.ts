@@ -10,7 +10,7 @@ export interface RustTool {
   readonly githubUrl: string
 }
 
-export const RUST_TOOLS: readonly RustTool[] = [
+export const RUST_TOOLS: readonly RustTool[] = Object.freeze([
   {
     id: 'pixelcoords',
     name: 'pixelcoords',
@@ -27,4 +27,4 @@ export const RUST_TOOLS: readonly RustTool[] = [
     siteUrl: 'https://pixelactions.dev',
     githubUrl: 'https://github.com/nolindnaidoo/pixelactions',
   },
-]
+])
