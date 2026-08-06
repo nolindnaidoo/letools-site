@@ -469,6 +469,17 @@ describe('the derived registry facts', () => {
     expect(registryMain(true, fakeFleet(), output)).toBe(1)
   })
 
+  it('passes the check when the file matches the repos', () => {
+    // Sync, then check the very file that sync produced. This covers the
+    // matching path without needing the real repos on disk — the version that
+    // did depend on them left this branch uncovered wherever they are absent,
+    // which is every build image.
+    const fleet = fakeFleet()
+    const output = join(mkdtempSync(join(scratch, 'match-')), 'facts.ts')
+    expect(registryMain(false, fleet, output)).toBe(0)
+    expect(registryMain(true, fleet, output)).toBe(0)
+  })
+
   it('agrees with the committed generated file', () => {
     // The gate that catches a hand-edit of the generated file, or a repo that
     // moved on without a re-sync.
