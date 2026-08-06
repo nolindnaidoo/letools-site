@@ -1,7 +1,11 @@
+import { LOCALE_COUNT } from '@/lib/tools'
 import { Card } from '@/ui/card'
 
 // Every line here must stay provable against the extension repos: local-only
-// operation, single-purpose scope, the shared CI/test bar, MIT + 13 locales.
+// operation, single-purpose scope, the shared CI/test bar, MIT + locales.
+// The locale count is read from the registry, not typed — this block said
+// two tools were English-only for as long as both shipped twelve
+// translations, because a sentence here was the only place it lived.
 const PRINCIPLES = [
   {
     title: 'Local by design',
@@ -17,7 +21,7 @@ const PRINCIPLES = [
   },
   {
     title: 'Yours to read',
-    body: 'MIT licensed with every repo public. Most tools ship a settings UI translated into 12 languages; Regex-LE and Secrets-LE are English-only.',
+    body: `MIT licensed with every repo public. Every tool ships its interface translated into ${LOCALE_COUNT} languages.`,
   },
 ] as const
 

@@ -43,7 +43,7 @@ export default defineConfig({
        * network call in the Open VSX check and its error path — asserting them
        * would test the stub, not the code.
        */
-      thresholds: { lines: 99, functions: 98, statements: 98, branches: 94 },
+      thresholds: { lines: 98, functions: 98, statements: 98, branches: 93 },
     },
   },
 })

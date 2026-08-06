@@ -1,14 +1,15 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
-import { TOOLS } from '../lib/tools'
+import { factsFor, LOCALE_COUNT, TOOLS } from '../lib/tools'
 import { BUDGETS, main as budgetMain, kb, walk } from './check-budget'
 import { type Demo, main as demosMain, problemsWith, readDemos, sha1 } from './check-demos'
 import { fingerprint, main as fleetMain, hash, problemsIn, REPOS, SHARED } from './check-fleet'
 import { isMissing, main as linksMain, refsIn, scan } from './check-openvsx-links'
 import { expectedPaths, orphans, resolves, main as routesMain } from './check-routes'
 import { argsFor, destinationFor, FILTER, sourceFor } from './sync-demos'
+import { main as registryMain, render, factsFor as repoFacts } from './sync-registry'
 
 /**
  * The gate scripts. Run once and seen to print a tick, they prove the happy
@@ -289,5 +290,105 @@ describe('the failure paths', () => {
     // Points the reader at a directory holding two identical demos.
     const root = fakeBuild({ 'colors-le.gif': 'same', 'dates-le.gif': 'same' })
     expect(demosMain(root)).toBe(1)
+  })
+})
+
+describe('sync-registry', () => {
+  it('counts translated bundles and excludes the English source', () => {
+    // `bundle.l10n.json` is the source, not a translation. Counting it gave 13
+    // where the tools ship 12, which is the sort of off-by-one that reaches
+    // copy and stays there.
+    const repo = fakeBuild({
+      'package.json': JSON.stringify({ version: '2.2.3', contributes: { commands: [1, 2] } }),
+      'mcp/package.json': JSON.stringify({ name: 'x-le-mcp' }),
+      'zed/extension.toml': 'id = "x-le"\nname = "X-LE"\n',
+      'l10n/bundle.l10n.json': '{}',
+      'l10n/bundle.l10n.de.json': '{}',
+      'l10n/bundle.l10n.pt-br.json': '{}',
+    })
+    const facts = repoFacts(repo)
+    expect(facts).toEqual({
+      version: '2.2.3',
+      commands: 2,
+      locales: 2,
+      mcpPackage: 'x-le-mcp',
+      zedId: 'x-le',
+    })
+  })
+
+  it('treats a manifest with no commands as zero, not a crash', () => {
+    const repo = fakeBuild({
+      'package.json': JSON.stringify({ version: '1.0.0' }),
+      'mcp/package.json': JSON.stringify({ name: 'y-le-mcp' }),
+      'zed/extension.toml': 'id = "y-le"\n',
+      'l10n/bundle.l10n.json': '{}',
+    })
+    expect(repoFacts(repo).commands).toBe(0)
+    expect(repoFacts(repo).locales).toBe(0)
+  })
+
+  it('refuses a Zed manifest with no id rather than emitting undefined', () => {
+    const repo = fakeBuild({
+      'package.json': JSON.stringify({ version: '1.0.0' }),
+      'mcp/package.json': JSON.stringify({ name: 'z-le-mcp' }),
+      'zed/extension.toml': 'name = "Z-LE"\n',
+      'l10n/bundle.l10n.json': '{}',
+    })
+    expect(() => repoFacts(repo)).toThrow(/no id/)
+  })
+
+  it('renders a file that declares its own provenance', () => {
+    const rendered = render(
+      new Map([
+        [
+          'a-le',
+          { version: '1.2.3', commands: 4, locales: 12, mcpPackage: 'a-le-mcp', zedId: 'a-le' },
+        ],
+      ]),
+    )
+    expect(rendered).toContain('do not edit')
+    expect(rendered).toContain("'a-le': { version: '1.2.3', commands: 4, locales: 12")
+    expect(rendered).toContain('Object.freeze')
+  })
+})
+
+describe('the derived registry facts', () => {
+  it('gives every tool in the registry a generated entry', () => {
+    for (const tool of TOOLS) {
+      expect(() => factsFor(tool), tool.id).not.toThrow()
+    }
+  })
+
+  it('skips rather than fails when the fleet is not checked out', () => {
+    // CI and a Vercel build have no sibling repos. Refusing there would fail
+    // every build for a condition that is normal off a dev machine.
+    expect(registryMain(true, join(scratch, 'no-fleet'))).toBe(0)
+  })
+
+  it('reports misuse when asked to write without the fleet', () => {
+    expect(registryMain(false, join(scratch, 'no-fleet'))).toBe(2)
+  })
+
+  it('writes the generated file when asked to sync', () => {
+    const output = join(mkdtempSync(join(scratch, 'gen-')), 'facts.ts')
+    expect(registryMain(false, resolve('..'), output)).toBe(0)
+    expect(readFileSync(output, 'utf8')).toContain('do not edit')
+  })
+
+  it('fails the check when the committed file is stale', () => {
+    const output = join(mkdtempSync(join(scratch, 'stale-')), 'facts.ts')
+    writeFileSync(output, '// not what the repos say\n')
+    expect(registryMain(true, resolve('..'), output)).toBe(1)
+  })
+
+  it('agrees with the committed generated file', () => {
+    // The gate that catches a hand-edit of the generated file, or a repo that
+    // moved on without a re-sync.
+    expect(registryMain(true)).toBe(0)
+  })
+
+  it('exposes one locale count for the whole family', () => {
+    expect(LOCALE_COUNT).toBeGreaterThan(0)
+    for (const tool of TOOLS) expect(factsFor(tool).locales).toBe(LOCALE_COUNT)
   })
 })

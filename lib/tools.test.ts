@@ -3,6 +3,7 @@ import { OPENVSX_NAMESPACE, PUBLISHER, SITE_URL } from './site'
 import {
   CATEGORIES,
   demoSrc,
+  factsFor,
   findTool,
   githubUrl,
   iconSrc,
@@ -211,5 +212,24 @@ describe('findTool', () => {
     // The dynamic route calls this with whatever is in the URL; a throw here
     // would be a 500 where a 404 is correct.
     expect(findTool('not-a-tool')).toBeUndefined()
+  })
+})
+
+describe('factsFor', () => {
+  it('returns the generated facts for every registered tool', () => {
+    for (const tool of TOOLS) {
+      const facts = factsFor(tool)
+      expect(facts.version, tool.id).toMatch(/^\d+\.\d+\.\d+$/)
+      expect(facts.commands, tool.id).toBeGreaterThan(0)
+      expect(facts.mcpPackage, tool.id).toBe(`${tool.id}-mcp`)
+      expect(facts.zedId, tool.id).toBe(tool.id)
+    }
+  })
+
+  it('names the fix rather than returning undefined for an unknown tool', () => {
+    // A tool added to the registry without re-running the sync would otherwise
+    // render `undefined` into the page.
+    const ghost = { ...TOOLS[0], id: 'ghost-le' } as (typeof TOOLS)[number]
+    expect(() => factsFor(ghost)).toThrow(/sync:registry/)
   })
 })

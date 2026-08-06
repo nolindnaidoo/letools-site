@@ -7,7 +7,14 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!next-env.d.ts", "!.next", "!out", "!vercel.json"]
+    "includes": [
+      "**",
+      "!next-env.d.ts",
+      "!.next",
+      "!out",
+      "!vercel.json",
+      "!lib/tool-facts.generated.ts"
+    ]
   },
   "assist": {
     "actions": {

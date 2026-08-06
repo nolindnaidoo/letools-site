@@ -66,8 +66,12 @@ writing, because these have each been wrong on this site before:
 
 - **Network access.** Nine tools make none. **Scrape-LE does** — it fetches the
   page it is checking. "No network access, ever" was false and is now scoped.
-- **Locales.** Eight tools ship 12, Scrape-LE 13, and Regex-LE and Secrets-LE
-  are English-only. There is no single number.
+- **Locales.** All ten ship the same 12 translated bundles (plus the English
+  source, which is not a translation — counting it gives 13 and is wrong). This
+  used to vary, and the site said so long after it stopped being true: copy
+  named Regex-LE and Secrets-LE as English-only while both shipped twelve
+  translations. The count is now read from `LOCALE_COUNT`, derived from the
+  repos by `scripts/sync-registry.ts` — do not restate it as prose.
 - **Bundling.** Nine ship a self-contained bundle; Scrape-LE ships
   `playwright-core` alongside it.
 - **Registry ids are NOT interchangeable.** VS Code resolves
