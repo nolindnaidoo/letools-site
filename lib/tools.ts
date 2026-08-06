@@ -393,3 +393,8 @@ export const LOCALE_COUNT: number = (() => {
   }
   return [...counts][0] ?? 0
 })()
+
+/** The npm package that carries this tool's MCP server. */
+export function mcpPackageFor(tool: Tool): string {
+  return factsFor(tool).mcpPackage
+}
