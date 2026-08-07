@@ -111,7 +111,11 @@ export function CommandPalette() {
         className="flex items-center gap-2 rounded border border-border px-3 py-2 text-sm text-muted hover:text-fg"
       >
         Search
-        <kbd className="rounded border border-border px-1.5 py-0.5 font-mono text-xs">⌘K</kbd>
+        {/* A phone has no ⌘K, and the hint is what pushed the header past
+            375px once the wordmark was spelled out. */}
+        <kbd className="hidden rounded border border-border px-1.5 py-0.5 font-mono text-xs sm:inline-block">
+          ⌘K
+        </kbd>
       </button>
 
       {isOpen && (

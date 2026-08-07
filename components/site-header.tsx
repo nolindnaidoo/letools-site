@@ -1,7 +1,7 @@
 import { ThemeToggle } from '@/components/theme-toggle'
 import { ToolsMenu } from '@/components/tools-menu'
 import { CommandPalette } from '@/features/search/command-palette'
-import { GITHUB_URL, SITE_NAME } from '@/lib/site'
+import { GITHUB_URL, WORDMARK } from '@/lib/site'
 import { buttonVariants } from '@/ui/button'
 import { Link } from '@/ui/link'
 
@@ -19,14 +19,11 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-        <a href="/" className="flex items-center gap-2 font-semibold">
-          <span
-            aria-hidden="true"
-            className="flex size-7 items-center justify-center rounded-lg bg-accent font-mono text-xs font-bold text-accent-foreground"
-          >
-            LE
-          </span>
-          {SITE_NAME}
+        {/* The wordmark carries the name on its own — no mark. It is the long
+            form, so it stays on one line and gives up size before it wraps
+            beside the controls at 375px. */}
+        <a href="/" className="whitespace-nowrap text-sm font-semibold sm:text-base">
+          {WORDMARK}
         </a>
 
         <nav aria-label="Site" className="hidden items-center gap-6 text-sm sm:flex">
@@ -45,11 +42,14 @@ export function SiteHeader() {
         <div className="flex items-center gap-2">
           <CommandPalette />
           <ThemeToggle />
+          {/* Below sm the long wordmark, search and toggle already fill the
+              bar. The footer carries the same link on every page, so hiding it
+              here costs a phone visitor nothing. */}
           <Link
             href={GITHUB_URL}
             target="_blank"
             rel="noreferrer"
-            className={buttonVariants({ variant: 'outline', size: 'sm' })}
+            className={`hidden sm:inline-flex ${buttonVariants({ variant: 'outline', size: 'sm' })}`}
           >
             GitHub
           </Link>
