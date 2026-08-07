@@ -1,5 +1,7 @@
 import { PUBLISHER } from '@/lib/site'
 import {
+  crateFor,
+  crateUrl,
   factsFor,
   githubUrl,
   marketplaceUrl,
@@ -37,6 +39,7 @@ type Channel = Readonly<{
 
 function channelsFor(tool: Tool): readonly Channel[] {
   const facts = factsFor(tool)
+  const crate = crateFor(tool)
 
   return [
     {
@@ -63,6 +66,21 @@ function channelsFor(tool: Tool): readonly Channel[] {
       value: mcpServerName(tool),
       href: githubUrl(tool),
     },
+    ...(crate === undefined
+      ? []
+      : [
+          {
+            label: 'Rust CLI',
+            detail: 'the same check, with no editor and no Node',
+            value: tool.cratePublished === true ? `cargo install ${crate.name}` : crate.name,
+            href: tool.cratePublished === true ? crateUrl(crate.name) : githubUrl(tool),
+            // A crates.io link before the publish lands is a 404 that looks
+            // like a broken tool. Until then this points at the source.
+            ...(tool.cratePublished === true
+              ? {}
+              : { pending: `v${crate.version} — publishing shortly; this links the source` }),
+          },
+        ]),
     {
       label: 'Zed',
       detail: 'built from Rust in the tool repo',

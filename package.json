@@ -40,7 +40,8 @@
     "sync:demos": "bun scripts/sync-demos.ts",
     "verify:deploy": "bun run lint && bun run typecheck && bun run check:registry && bun run test:coverage && bun run build && bun run routes && bun run budget",
     "sync:registry": "bun scripts/sync-registry.ts",
-    "check:registry": "bun scripts/sync-registry.ts --check"
+    "check:registry": "bun scripts/sync-registry.ts --check",
+    "check:crates": "bun scripts/check-crates.ts"
   },
   "dependencies": {
     "@heroui/react": "^3.2.2",

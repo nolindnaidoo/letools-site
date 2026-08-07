@@ -28,6 +28,16 @@ export interface Tool {
   // merged — the site says so rather than implying a listing that does not
   // exist yet. Delete this field once they land and link the listing instead.
   readonly zedPr: number
+  /**
+   * Whether the Rust crate is live on crates.io.
+   *
+   * Hand-set, because only a person knows the moment `cargo publish` returns —
+   * the crate's own name and version are read from the repo. While this is
+   * false the page describes the CLI and links its source; it never links a
+   * crates.io page that would 404. The drift check fails if this claims
+   * published and the registry disagrees.
+   */
+  readonly cratePublished?: boolean
   // Long-form copy for the tool's own page. Paraphrased from that tool's
   // README — the content-truth rule applies here as everywhere: a claim on
   // this site must be provable against the extension repo.
@@ -218,6 +228,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
   },
   {
     id: 'scrape-le',
+    cratePublished: false,
     name: 'Scrape-LE',
     category: 'check',
     summary: 'Check whether a page is actually scrapeable before you burn hours debugging.',
@@ -414,4 +425,13 @@ export const LOCALE_COUNT: number = (() => {
 /** The npm package that carries this tool's MCP server. */
 export function mcpPackageFor(tool: Tool): string {
   return factsFor(tool).mcpPackage
+}
+
+/** The crate a tool ships, or undefined for the nine that ship none. */
+export function crateFor(tool: Tool): { name: string; version: string } | undefined {
+  return factsFor(tool).crate
+}
+
+export function crateUrl(name: string): string {
+  return `https://crates.io/crates/${name}`
 }

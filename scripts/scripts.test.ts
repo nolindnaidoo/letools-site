@@ -1,9 +1,10 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { afterAll, describe, expect, it } from 'vitest'
-import { factsFor, LOCALE_COUNT, TOOLS } from '../lib/tools'
+import { afterAll, describe, expect, it, vi } from 'vitest'
+import { crateFor, factsFor, LOCALE_COUNT, TOOLS } from '../lib/tools'
 import { BUDGETS, main as budgetMain, kb, walk } from './check-budget'
+import { main as cratesMain, publishedVersion, verdictFor } from './check-crates'
 import { type Demo, main as demosMain, problemsWith, readDemos, sha1 } from './check-demos'
 import { fingerprint, main as fleetMain, hash, problemsIn, REPOS, SHARED } from './check-fleet'
 import { isMissing, main as linksMain, refsIn, scan } from './check-openvsx-links'
@@ -489,5 +490,81 @@ describe('the derived registry facts', () => {
   it('exposes one locale count for the whole family', () => {
     expect(LOCALE_COUNT).toBeGreaterThan(0)
     for (const tool of TOOLS) expect(factsFor(tool).locales).toBe(LOCALE_COUNT)
+  })
+})
+
+describe('check-crates', () => {
+  it('fails when the site links a crate that is not published', () => {
+    // The one visitor most likely to click this is a Rust user, and a 404
+    // reads as a broken tool.
+    const verdict = verdictFor('scrape-le', true, {})
+    expect(verdict.level).toBe('fail')
+    expect(verdict.message).toContain('not published')
+  })
+
+  it('reports, without failing, when the publish landed and the flag did not', () => {
+    const verdict = verdictFor('scrape-le', false, { version: '0.1.0' })
+    expect(verdict.level).toBe('note')
+    expect(verdict.message).toContain('cratePublished')
+  })
+
+  it('is content either way when the claim matches the registry', () => {
+    expect(verdictFor('scrape-le', true, { version: '0.1.0' }).level).toBe('ok')
+    expect(verdictFor('scrape-le', false, {}).level).toBe('ok')
+  })
+
+  it('does not fail a build because crates.io is down', () => {
+    // An outage says nothing about whether the claim is honest.
+    expect(verdictFor('scrape-le', true, { error: 'crates.io unreachable' }).level).toBe('note')
+  })
+
+  it('passes when every claim matches, using a stubbed registry', async () => {
+    await expect(cratesMain(async () => ({}))).resolves.toBe(0)
+  })
+
+  it('exits non-zero when the site links a crate the registry does not have', async () => {
+    // scrape-le claims unpublished today, so force the opposite: this is the
+    // run that must stop a dead crates.io link from ever shipping.
+    const claiming = TOOLS.map(tool =>
+      crateFor(tool) === undefined ? tool : { ...tool, cratePublished: true },
+    )
+    await expect(cratesMain(async () => ({}), claiming)).resolves.toBe(1)
+  })
+
+  it('says so when no tool ships a crate, rather than passing silently', async () => {
+    await expect(cratesMain(async () => ({}), [])).resolves.toBe(0)
+  })
+
+  it('reads the published version from crates.io', async () => {
+    const stub = vi.fn(
+      async () =>
+        new Response(JSON.stringify({ crate: { max_stable_version: '0.1.0' } })) as Response,
+    )
+    vi.stubGlobal('fetch', stub)
+    await expect(publishedVersion('scrape-le')).resolves.toEqual({ version: '0.1.0' })
+    vi.unstubAllGlobals()
+  })
+
+  it('treats an absent crate as unpublished, not an error', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(JSON.stringify({ errors: [] }), { status: 404 })),
+    )
+    await expect(publishedVersion('nope-le')).resolves.toEqual({})
+    vi.unstubAllGlobals()
+  })
+
+  it('reports a bad status and an unreachable host as errors, not absence', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response('nope', { status: 503 })),
+    )
+    expect((await publishedVersion('scrape-le')).error).toContain('503')
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => Promise.reject(new Error('offline'))),
+    )
+    expect((await publishedVersion('scrape-le')).error).toContain('unreachable')
+    vi.unstubAllGlobals()
   })
 })

@@ -28,6 +28,9 @@ const OUTPUT = resolve(ROOT, 'lib/tool-facts.generated.ts')
 /** One command as the palette shows it. */
 export type ToolCommand = Readonly<{ id: string; title: string }>
 
+/** The Rust CLI a tool ships, where it ships one. */
+export type CrateFacts = Readonly<{ name: string; version: string }>
+
 export type ToolFacts = Readonly<{
   version: string
   commands: readonly ToolCommand[]
@@ -35,6 +38,8 @@ export type ToolFacts = Readonly<{
   locales: number
   mcpPackage: string
   zedId: string
+  /** Absent for the nine tools that ship no crate. */
+  crate?: CrateFacts
 }>
 
 function json(path: string): Record<string, unknown> {
@@ -67,12 +72,28 @@ export function factsFor(repo: string): ToolFacts {
   const zedId = zed.match(/^id\s*=\s*"([^"]+)"/m)?.[1]
   if (zedId === undefined) throw new Error(`${repo}: zed/extension.toml has no id`)
 
+  // Only scrape-le ships one today; the shape allows for more without a
+  // second table to keep in step.
+  const cargo = resolve(repo, 'crate/Cargo.toml')
+  const crate = existsSync(cargo)
+    ? (() => {
+        const toml = readFileSync(cargo, 'utf8')
+        const name = toml.match(/^name\s*=\s*"([^"]+)"/m)?.[1]
+        const version = toml.match(/^version\s*=\s*"([^"]+)"/m)?.[1]
+        if (name === undefined || version === undefined) {
+          throw new Error(`${repo}: crate/Cargo.toml has no name or version`)
+        }
+        return { name, version }
+      })()
+    : undefined
+
   return {
     version: String(manifest.version),
     commands,
     locales,
     mcpPackage: String(mcp.name),
     zedId,
+    ...(crate === undefined ? {} : { crate }),
   }
 }
 
@@ -85,6 +106,9 @@ export function render(facts: ReadonlyMap<string, ToolFacts>): string {
         `locales: ${fact.locales}`,
         `mcpPackage: '${fact.mcpPackage}'`,
         `zedId: '${fact.zedId}'`,
+        ...(fact.crate === undefined
+          ? []
+          : [`crate: { name: '${fact.crate.name}', version: '${fact.crate.version}' }`]),
       ].join(', ')
       return `  '${id}': { ${fields} },`
     })

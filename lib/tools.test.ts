@@ -4,6 +4,8 @@ import { describe, expect, it } from 'vitest'
 import { OPENVSX_NAMESPACE, PUBLISHER, SITE_URL } from './site'
 import {
   CATEGORIES,
+  crateFor,
+  crateUrl,
   demoSrc,
   factsFor,
   findTool,
@@ -253,5 +255,28 @@ describe('factsFor', () => {
     // render `undefined` into the page.
     const ghost = { ...TOOLS[0], id: 'ghost-le' } as (typeof TOOLS)[number]
     expect(() => factsFor(ghost)).toThrow(/sync:registry/)
+  })
+})
+
+describe('the crate claims', () => {
+  it('only claims publication where a crate exists', () => {
+    for (const tool of TOOLS) {
+      if (tool.cratePublished === undefined) continue
+      expect(crateFor(tool), `${tool.id} claims a crate state but ships no crate`).toBeDefined()
+    }
+  })
+
+  it('reads the crate name and version from the repo, not by hand', () => {
+    const withCrate = TOOLS.filter(tool => crateFor(tool) !== undefined)
+    expect(withCrate.length).toBeGreaterThan(0)
+    for (const tool of withCrate) {
+      const crate = crateFor(tool)
+      expect(crate?.name, tool.id).toBe(tool.id)
+      expect(crate?.version, tool.id).toMatch(/^\d+\.\d+\.\d+$/)
+    }
+  })
+
+  it('builds a crates.io URL from the crate name', () => {
+    expect(crateUrl('scrape-le')).toBe('https://crates.io/crates/scrape-le')
   })
 })
