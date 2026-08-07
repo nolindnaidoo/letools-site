@@ -228,7 +228,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
   },
   {
     id: 'scrape-le',
-    cratePublished: false,
+    cratePublished: true,
     name: 'Scrape-LE',
     category: 'check',
     summary: 'Check whether a page is actually scrapeable before you burn hours debugging.',

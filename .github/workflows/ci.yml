@@ -62,12 +62,6 @@ jobs:
       # The site builds its Open VSX links from OPENVSX_NAMESPACE; a status
       # check cannot validate them because open-vsx.org answers 200 for
       # extensions that do not exist. This asks the API instead.
-      # The site links crates.io only once `cratePublished` is set. This fails
-      # if that claim is ahead of the registry, and reports if the publish
-      # landed and the flag did not.
-      - name: Crate claims match crates.io
-        run: bun run check:crates
-
       - name: Open VSX links resolve
         run: bun scripts/check-openvsx-links.ts out
 

@@ -519,7 +519,8 @@ describe('check-crates', () => {
   })
 
   it('passes when every claim matches, using a stubbed registry', async () => {
-    await expect(cratesMain(async () => ({}))).resolves.toBe(0)
+    // scrape-le is published, so a registry that reports it is the match.
+    await expect(cratesMain(async () => ({ version: '0.1.0' }))).resolves.toBe(0)
   })
 
   it('exits non-zero when the site links a crate the registry does not have', async () => {
