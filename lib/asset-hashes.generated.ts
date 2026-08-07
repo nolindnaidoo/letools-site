@@ -11,7 +11,7 @@ export const ASSET_HASHES: Readonly<Record<string, { demo: string; poster: strin
     'urls-le': { demo: '5bfb0089', poster: 'cf6ce05e' },
     'dates-le': { demo: 'b6b05b59', poster: '8befaecb' },
     'regex-le': { demo: 'b9bdbd59', poster: '8ff44a7b' },
-    'scrape-le': { demo: '9fe6c779', poster: 'ee158f95' },
+    'scrape-le': { demo: 'ea25c1f6', poster: '8a71e148' },
     'secrets-le': { demo: '78688215', poster: 'd0d08739' },
     'envsync-le': { demo: '32b7bcfa', poster: 'e07a144b' },
   })
