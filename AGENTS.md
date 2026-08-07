@@ -134,6 +134,10 @@ outage there must not be able to block a deploy. Both stay in CI.
   from the extension repos. It skips where the repos are not checked out, which
   is normal in CI. Never hand-edit the generated file, and never let biome
   format it — reformatting breaks the byte comparison the check depends on.
+- **`lib/asset-hashes.generated.ts`** is the other generated file, written by
+  `sync:demos`. It is biome-formatted, and a test pins it byte-for-byte to what
+  the renderer emits — the two used to disagree, so every sync left a lint error
+  behind correct output. Change the renderer and the committed file together.
 - **`bun run routes`** asserts every registry path resolves the way a static
   host serves this export, and that no built page is missing from the registry.
 - **`bun run budget`** is a ratchet. Raising a ceiling needs the reason in the

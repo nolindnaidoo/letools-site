@@ -2,6 +2,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, describe, expect, it, vi } from 'vitest'
+import { ASSET_HASHES } from '../lib/asset-hashes.generated'
 import { crateFor, factsFor, LOCALE_COUNT, TOOLS } from '../lib/tools'
 import { BUDGETS, main as budgetMain, kb, walk } from './check-budget'
 import { main as cratesMain, publishedVersion, verdictFor } from './check-crates'
@@ -9,7 +10,7 @@ import { type Demo, main as demosMain, problemsWith, readDemos, sha1 } from './c
 import { fingerprint, main as fleetMain, hash, problemsIn, REPOS, SHARED } from './check-fleet'
 import { isMissing, main as linksMain, refsIn, scan } from './check-openvsx-links'
 import { expectedPaths, orphans, resolves, main as routesMain } from './check-routes'
-import { argsFor, destinationFor, FILTER, sourceFor } from './sync-demos'
+import { argsFor, destinationFor, FILTER, renderHashes, sourceFor } from './sync-demos'
 import { main as registryMain, render, factsFor as repoFacts } from './sync-registry'
 
 /**
@@ -244,6 +245,17 @@ describe('sync-demos', () => {
     expect(args).toContain(FILTER)
     // Overwrite without prompting, or the script hangs waiting on stdin.
     expect(args[0]).toBe('-y')
+  })
+
+  it('emits the file exactly as it is committed', () => {
+    // The renderer and the committed file are two copies of one shape, and
+    // they drifted: the renderer emitted its own indentation, biome formatted
+    // the file to another, and every sync left a lint error behind correct
+    // output. Byte equality is what stops either side moving alone — if this
+    // fails, `sync:demos` and `lint` now disagree again.
+    const rendered = renderHashes(new Map(Object.entries(ASSET_HASHES)))
+    const committed = join(import.meta.dirname, '../lib/asset-hashes.generated.ts')
+    expect(rendered).toBe(readFileSync(committed, 'utf8'))
   })
 })
 
