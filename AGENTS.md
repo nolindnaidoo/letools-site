@@ -65,7 +65,10 @@ Every claim must stay provable against the extension repos. Verify before
 writing, because these have each been wrong on this site before:
 
 - **Network access.** Nine tools make none. **Scrape-LE does** — it fetches the
-  page it is checking. "No network access, ever" was false and is now scoped.
+  page it is checking. "No network access, ever" was false and is now scoped:
+  the home hero says "Local by default", and a tool page reads the badge from
+  `fetchesTarget` in the registry rather than stating it for all ten. Hand-set
+  like `cratePublished`, and pinned by a test — no manifest states it.
 - **Locales.** All ten ship the same 12 translated bundles (plus the English
   source, which is not a translation — counting it gives 13 and is wrong). This
   used to vary, and the site said so long after it stopped being true: copy

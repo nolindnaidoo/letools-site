@@ -258,6 +258,18 @@ describe('factsFor', () => {
   })
 })
 
+describe('the network claim', () => {
+  it('stays scoped to the one tool that reaches the network', () => {
+    // The tool pages badged all ten "No network access" while Scrape-LE was
+    // loading the page it checks. This is a pin, not a derivation — no
+    // manifest states it — so it fails loudly when the registry changes and
+    // someone has to look at the badge again.
+    expect(TOOLS.filter(tool => tool.fetchesTarget === true).map(tool => tool.id)).toEqual([
+      'scrape-le',
+    ])
+  })
+})
+
 describe('the crate claims', () => {
   it('only claims publication where a crate exists', () => {
     for (const tool of TOOLS) {

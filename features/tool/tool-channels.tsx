@@ -44,13 +44,16 @@ function channelsFor(tool: Tool): readonly Channel[] {
   return [
     {
       label: 'VS Code Marketplace',
-      detail: 'Cursor, Windsurf and VS Code itself',
+      detail: 'VS Code itself',
       value: `${PUBLISHER}.${tool.id}`,
       href: marketplaceUrl(tool),
     },
     {
+      // This card used to hand Cursor and Windsurf to the Marketplace, while
+      // the install command two sections up sent the same reader to Open VSX.
+      // The forks do not ship the Marketplace; Open VSX is where they resolve.
       label: 'Open VSX',
-      detail: 'VSCodium and everything else that does not ship the Marketplace',
+      detail: 'Cursor, Windsurf, VSCodium and the other forks',
       value: openVsxUrl(tool).split('/extension/')[1] ?? tool.id,
       href: openVsxUrl(tool),
     },

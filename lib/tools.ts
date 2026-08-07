@@ -38,6 +38,16 @@ export interface Tool {
    * published and the registry disagrees.
    */
   readonly cratePublished?: boolean
+  /**
+   * Set on the one tool that reaches the network.
+   *
+   * Hand-set like `cratePublished`, because no manifest states it. The tool
+   * pages badged all ten "No network access" long after Scrape-LE started
+   * loading the page it is checking — which is the whole job, not an
+   * oversight. The home hero already scopes the claim; this is what lets a
+   * tool page do the same.
+   */
+  readonly fetchesTarget?: boolean
   // Long-form copy for the tool's own page. Paraphrased from that tool's
   // README — the content-truth rule applies here as everywhere: a claim on
   // this site must be provable against the extension repo.
@@ -229,6 +239,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
   {
     id: 'scrape-le',
     cratePublished: true,
+    fetchesTarget: true,
     name: 'Scrape-LE',
     category: 'check',
     summary: 'Check whether a page is actually scrapeable before you burn hours debugging.',
