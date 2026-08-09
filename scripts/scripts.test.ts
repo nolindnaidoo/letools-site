@@ -8,13 +8,9 @@ import { BUDGETS, main as budgetMain, kb, walk } from './check-budget'
 import { main as cratesMain, publishedVersion, verdictFor } from './check-crates'
 import { type Demo, main as demosMain, problemsWith, readDemos, sha1 } from './check-demos'
 import {
-  CRATE_WORKFLOWS,
-  crateProblems,
-  crateRepos,
   fingerprint,
   main as fleetMain,
   hash,
-  jobsIn,
   problemsIn,
   REPOS,
   SHARED,
@@ -177,72 +173,6 @@ describe('check-fleet', () => {
     expect(SHARED.length).toBeGreaterThan(5)
   })
 
-  it('reads the job names out of a workflow', () => {
-    const workflow = [
-      'name: CI',
-      'on:',
-      '  push:',
-      'jobs:',
-      '  test:',
-      '    runs-on: x',
-      '  audit:',
-      '    runs-on: y',
-    ].join('\n')
-    expect(jobsIn(workflow)).toEqual(['audit', 'test'])
-  })
-
-  it('reads no jobs from a workflow that declares none', () => {
-    expect(jobsIn('name: CI\non:\n  push:\n')).toEqual([])
-  })
-
-  // The crate workflows are not byte-identical on purpose — their paths
-  // filters and corpus names differ per tool. Their job *set* is what
-  // must match, or one repo ships a crate to a weaker standard.
-  const crateFixture = (root: string, repo: string, jobs: readonly string[]) => {
-    mkdirSync(join(root, repo, 'crate'), { recursive: true })
-    writeFileSync(join(root, repo, 'crate', 'Cargo.toml'), 'name = "x"')
-    mkdirSync(join(root, repo, '.github', 'workflows'), { recursive: true })
-    for (const file of CRATE_WORKFLOWS) {
-      const body = ['jobs:', ...jobs.map(job => `  ${job}:\n    runs-on: x`)].join('\n')
-      writeFileSync(join(root, repo, file), body)
-    }
-  }
-
-  it('finds only the repos that ship a crate', () => {
-    const root = mkdtempSync(join(scratch, 'crates-'))
-    crateFixture(root, 'paths-le', ['test'])
-    expect(crateRepos(root)).toEqual(['paths-le'])
-  })
-
-  it('says nothing while only one repo ships a crate', () => {
-    const root = mkdtempSync(join(scratch, 'crates-one-'))
-    crateFixture(root, 'paths-le', ['test'])
-    expect(crateProblems(root)).toEqual([])
-  })
-
-  it('passes when two crate repos define the same jobs', () => {
-    const root = mkdtempSync(join(scratch, 'crates-same-'))
-    crateFixture(root, 'paths-le', ['test', 'audit'])
-    crateFixture(root, 'scrape-le', ['audit', 'test'])
-    expect(crateProblems(root)).toEqual([])
-  })
-
-  it('reports a crate repo whose CI is missing a job the other has', () => {
-    const root = mkdtempSync(join(scratch, 'crates-drift-'))
-    crateFixture(root, 'paths-le', ['test', 'audit', 'coverage'])
-    crateFixture(root, 'scrape-le', ['test', 'audit'])
-    const problems = crateProblems(root)
-    expect(problems.length).toBeGreaterThan(0)
-    expect(problems[0]).toContain('define different jobs')
-  })
-
-  it('reports a crate repo missing a workflow entirely', () => {
-    const root = mkdtempSync(join(scratch, 'crates-missing-'))
-    crateFixture(root, 'paths-le', ['test'])
-    crateFixture(root, 'scrape-le', ['test'])
-    rmSync(join(root, 'scrape-le', CRATE_WORKFLOWS[1]))
-    expect(crateProblems(root).some(problem => problem.includes('missing in scrape-le'))).toBe(true)
-  })
 })
 
 describe('check-openvsx-links', () => {

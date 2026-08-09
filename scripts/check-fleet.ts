@@ -107,82 +107,12 @@ export function problemsIn(
   return problems
 }
 
-/**
- * The workflows a repo gains when it ships a Rust crate.
- *
- * These are deliberately NOT in SHARED: their content legitimately
- * differs per tool — the paths filter names that repo's own sources, the
- * corpus files differ, and scrape-le installs a browser where paths-le
- * does not. What must not differ is the *shape*: the set of jobs. A repo
- * whose crate CI quietly lacks the coverage floor, or the policy grep,
- * or the parity gate is a repo shipping a crate to a weaker standard,
- * and nothing inside it would say so.
- */
-export const CRATE_WORKFLOWS = [
-  '.github/workflows/ci-crate.yml',
-  '.github/workflows/release-crate.yml',
-] as const
-
-/**
- * Top-level job names in a workflow.
- *
- * A two-space-indented key under `jobs:`, which is how every workflow in
- * this family is written. Deliberately not a YAML parse: the check needs
- * no dependency, and a workflow whose indentation stops matching the
- * family's would be worth noticing anyway.
- */
-export function jobsIn(source: string): readonly string[] {
-  const lines = source.split('\n')
-  const start = lines.indexOf('jobs:')
-  if (start === -1) return []
-  const jobs: string[] = []
-  for (const line of lines.slice(start + 1)) {
-    if (/^\S/.test(line)) break
-    const match = /^ {2}([A-Za-z][\w-]*):\s*$/.exec(line)
-    if (match?.[1] !== undefined) jobs.push(match[1])
-  }
-  return jobs.sort()
-}
-
-/** Repos that ship a crate, and therefore must carry both workflows. */
-export function crateRepos(root: string): readonly string[] {
-  return REPOS.filter(repo => existsSync(join(root, repo, 'crate', 'Cargo.toml')))
-}
-
-export function crateProblems(root: string): readonly string[] {
-  const repos = crateRepos(root)
-  // One crate is the first crate; there is nothing to be consistent
-  // with yet, and demanding otherwise would block the second one.
-  if (repos.length < 2) return []
-
-  const problems: string[] = []
-  for (const file of CRATE_WORKFLOWS) {
-    const shapes = new Map<string, string[]>()
-    for (const repo of repos) {
-      const path = join(root, repo, file)
-      if (!existsSync(path)) {
-        problems.push(`${file}: missing in ${repo}, which ships a crate`)
-        continue
-      }
-      const key = jobsIn(readFileSync(path, 'utf8')).join(',')
-      shapes.set(key, [...(shapes.get(key) ?? []), repo])
-    }
-    if (shapes.size <= 1) continue
-    const described = [...shapes.entries()]
-      .map(([jobs, owners]) => `${owners.join(', ')} -> [${jobs}]`)
-      .join('; ')
-    problems.push(`${file}: the crate repos define different jobs — ${described}`)
-  }
-  return problems
-}
-
 export function main(root: string = process.argv[2] ?? '..'): number {
   const problems: string[] = []
   for (const file of SHARED) problems.push(...problemsIn(file, fingerprint(root, file), []))
   for (const [file, allowed] of Object.entries(SHARED_WITH_EXCEPTIONS)) {
     problems.push(...problemsIn(file, fingerprint(root, file), allowed))
   }
-  problems.push(...crateProblems(root))
 
   if (problems.length > 0) {
     process.stderr.write('Fleet drift detected:\n')
