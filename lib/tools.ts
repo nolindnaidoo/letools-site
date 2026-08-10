@@ -112,6 +112,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
   },
   {
     id: 'paths-le',
+    cratePublished: true,
     name: 'Paths-LE',
     category: 'extract',
     summary:
@@ -162,6 +163,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
   },
   {
     id: 'urls-le',
+    cratePublished: true,
     name: 'URLs-LE',
     category: 'extract',
     summary: 'Extract URLs from documentation, configs, and code.',
@@ -213,6 +215,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
   },
   {
     id: 'regex-le',
+    cratePublished: true,
     name: 'Regex-LE',
     category: 'check',
     summary:
@@ -268,6 +271,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
   },
   {
     id: 'secrets-le',
+    cratePublished: true,
     name: 'Secrets-LE',
     category: 'guard',
     summary:
