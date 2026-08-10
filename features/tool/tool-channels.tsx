@@ -10,6 +10,7 @@ import {
   npmUrl,
   openVsxUrl,
   type Tool,
+  ZED_MCP_DOCS,
   zedPrUrl,
 } from '@/lib/tools'
 import { Card } from '@/ui/card'
@@ -88,9 +89,14 @@ function channelsFor(tool: Tool): readonly Channel[] {
       label: 'Zed',
       detail: 'built from Rust in the tool repo',
       value: facts.zedId,
-      href: zedPrUrl(tool),
-      // The extensions are submitted, not merged. Saying so is the point.
-      pending: 'listing pending — this links to the open pull request',
+      // Submitted, not merged — and for most tools not submitted at all,
+      // because Zed caps a contributor at three open pull requests. Both
+      // states are said plainly; neither implies a listing that exists.
+      href: zedPrUrl(tool) ?? ZED_MCP_DOCS,
+      pending:
+        tool.zedPr === undefined
+          ? 'no listing yet — this links Zed’s instructions for adding it by hand'
+          : 'listing pending — this links to the open pull request',
     },
   ]
 }

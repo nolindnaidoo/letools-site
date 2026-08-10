@@ -1,6 +1,6 @@
 import { CommandSnippet } from '@/components/command-snippet'
 import { OPENVSX_NAMESPACE, PUBLISHER } from '@/lib/site'
-import { mcpCommand, type Tool, zedPrUrl } from '@/lib/tools'
+import { mcpCommand, type Tool, ZED_MCP_DOCS, zedPrUrl } from '@/lib/tools'
 import { Chip } from '@/ui/chip'
 import { Link } from '@/ui/link'
 
@@ -26,8 +26,11 @@ export function ToolInstall({ tool }: { readonly tool: Tool }) {
       id: 'zed',
       label: 'Zed',
       command: mcpCommand(tool),
-      pending: true,
-      note: `Works in Zed today — add the command above as a custom MCP server from the agent panel, and ${tool.mcpTool} appears in its tool list. The one-click listing in Zed's extension registry is a pull request awaiting review.`,
+      pending: tool.zedPr !== undefined,
+      note:
+        tool.zedPr === undefined
+          ? `Works in Zed today — add the command above as a custom MCP server from the agent panel, and ${tool.mcpTool} appears in its tool list. There is no one-click listing in Zed's extension registry yet.`
+          : `Works in Zed today — add the command above as a custom MCP server from the agent panel, and ${tool.mcpTool} appears in its tool list. The one-click listing in Zed's extension registry is a pull request awaiting review.`,
     },
     {
       id: 'agents',
@@ -59,7 +62,7 @@ export function ToolInstall({ tool }: { readonly tool: Tool }) {
                 <>
                   {' '}
                   {/* No newline before the period, or JSX renders "review ." */}
-                  <Link href={zedPrUrl(tool)} target="_blank" rel="noreferrer">
+                  <Link href={zedPrUrl(tool) ?? ZED_MCP_DOCS} target="_blank" rel="noreferrer">
                     Track the review
                   </Link>
                   {'.'}

@@ -56,15 +56,31 @@ export const SHARED_WITH_EXCEPTIONS: Record<string, readonly string[]> = {
   'tsconfig.json': ['scrape-le'],
 }
 
-export function hash(path: string): string | null {
-  return existsSync(path) ? createHash('sha1').update(readFileSync(path)).digest('hex') : null
+/**
+ * The file's content with the repo's own name written out.
+ *
+ * A shared file may still have to name the tool it sits in — release.yml
+ * describes publishing `colors-le-mcp` from colors-le and `urls-le-mcp` from
+ * urls-le. Hashing the raw bytes calls all ten of those drift, which is nine
+ * false alarms and the fastest way to teach someone to ignore this check.
+ * What must match is the shape, so the name is normalised away first.
+ */
+export function normalize(source: string, repo: string): string {
+  return source.split(repo).join('<tool>')
+}
+
+export function hash(path: string, repo: string): string | null {
+  if (!existsSync(path)) return null
+  return createHash('sha1')
+    .update(normalize(readFileSync(path, 'utf8'), repo))
+    .digest('hex')
 }
 
 /** How one shared file looks across the fleet: its hash per repo, or null. */
 export type Fingerprints = ReadonlyMap<string, string | null>
 
 export function fingerprint(root: string, file: string): Fingerprints {
-  return new Map(REPOS.map(repo => [repo, hash(join(root, repo, file))]))
+  return new Map(REPOS.map(repo => [repo, hash(join(root, repo, file), repo)]))
 }
 
 /**

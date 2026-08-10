@@ -11,6 +11,7 @@ import {
   fingerprint,
   main as fleetMain,
   hash,
+  normalize,
   problemsIn,
   REPOS,
   SHARED,
@@ -168,11 +169,19 @@ describe('check-fleet', () => {
     expect(problems.some(problem => problem.includes('missing in b'))).toBe(true)
   })
 
+  it("writes the repo's own name out before comparing", () => {
+    // release.yml names the package it publishes, so ten copies of one file
+    // legitimately hold ten different strings. Comparing the shape is the
+    // only way that file can be checked at all.
+    expect(normalize('publish colors-le-mcp', 'colors-le')).toBe('publish <tool>-mcp')
+    expect(normalize('publish urls-le-mcp', 'urls-le')).toBe('publish <tool>-mcp')
+    expect(normalize('publish urls-le-mcp', 'colors-le')).toBe('publish urls-le-mcp')
+  })
+
   it('covers the whole family and the files that must match', () => {
     expect(REPOS).toHaveLength(10)
     expect(SHARED.length).toBeGreaterThan(5)
   })
-
 })
 
 describe('check-openvsx-links', () => {
@@ -282,8 +291,8 @@ describe('the filesystem readers', () => {
 
   it('hashes a file that exists and returns null for one that does not', () => {
     const root = fakeBuild({ 'ci.yml': 'shared' })
-    expect(hash(join(root, 'ci.yml'))).toBe(sha1('shared'))
-    expect(hash(join(root, 'absent.yml'))).toBeNull()
+    expect(hash(join(root, 'ci.yml'), 'colors-le')).toBe(sha1('shared'))
+    expect(hash(join(root, 'absent.yml'), 'colors-le')).toBeNull()
   })
 
   it('fingerprints one file across every repo in the family', () => {

@@ -109,9 +109,16 @@ describe('the registry', () => {
     // The field exists to say "submitted, not merged" honestly. A zero or a
     // negative would render a link to nothing.
     for (const tool of TOOLS) {
+      if (tool.zedPr === undefined) continue
       expect(Number.isInteger(tool.zedPr), `${tool.id} zedPr`).toBe(true)
       expect(tool.zedPr, `${tool.id} zedPr`).toBeGreaterThan(0)
     }
+  })
+
+  it('carries no more open Zed pull requests than Zed allows', () => {
+    // Zed caps a contributor at three open pull requests. A fourth here means
+    // one of them has closed and the page is linking a dead review as pending.
+    expect(TOOLS.filter(tool => tool.zedPr !== undefined).length).toBeLessThanOrEqual(3)
   })
 
   it('is frozen, so a render body cannot reshape a fact', () => {
@@ -177,7 +184,19 @@ describe('the link builders', () => {
   it('points the Zed link at the pull request, not a listing', () => {
     // The extensions are submitted, not merged. Linking a listing that does
     // not exist would be the dishonest version of this.
-    expect(zedPrUrl(tool)).toBe(`https://github.com/zed-industries/extensions/pull/${tool.zedPr}`)
+    const submitted = TOOLS.find(current => current.zedPr !== undefined)
+    expect(submitted, 'no tool has an open Zed pull request').toBeDefined()
+    if (submitted === undefined) return
+    expect(zedPrUrl(submitted)).toBe(
+      `https://github.com/zed-industries/extensions/pull/${submitted.zedPr}`,
+    )
+  })
+
+  it('offers no Zed link for a tool with nothing submitted', () => {
+    const unsubmitted = TOOLS.find(current => current.zedPr === undefined)
+    expect(unsubmitted, 'every tool claims an open Zed pull request').toBeDefined()
+    if (unsubmitted === undefined) return
+    expect(zedPrUrl(unsubmitted)).toBeUndefined()
   })
 
   it('builds asset paths that match what the repo ships', () => {
@@ -205,6 +224,9 @@ describe('the link builders', () => {
     for (const current of TOOLS) {
       for (const build of builders) {
         const url = build(current)
+        // zedPrUrl answers undefined when nothing is submitted; that is the
+        // absence of a link, not a malformed one.
+        if (url === undefined) continue
         expect(() => new URL(url), `${current.id}: ${url}`).not.toThrow()
         expect(url.startsWith('https://'), `${current.id}: ${url}`).toBe(true)
       }
