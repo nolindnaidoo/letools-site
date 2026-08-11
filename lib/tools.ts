@@ -445,11 +445,42 @@ export function mcpPackageFor(tool: Tool): string {
   return factsFor(tool).mcpPackage
 }
 
-/** The crate a tool ships, or undefined for the nine that ship none. */
+/** The crate a tool ships, or undefined for the ones that ship none. */
 export function crateFor(tool: Tool): { name: string; version: string } | undefined {
   return factsFor(tool).crate
 }
 
 export function crateUrl(name: string): string {
   return `https://crates.io/crates/${name}`
+}
+
+export interface PublishedCrate {
+  readonly tool: Tool
+  readonly name: string
+  readonly version: string
+}
+
+/**
+ * The crates that are live on crates.io, in registry order.
+ *
+ * Derived rather than listed, because the home page puts these names in an
+ * install command a reader copies. A hand-typed list is a second place to
+ * forget when the next crate publishes, and the reader finds out by running a
+ * command that fails. Throwing here fails the build instead: a tool that
+ * claims a published crate while its repo defines none would otherwise drop
+ * out of every crate surface without ever looking wrong.
+ */
+export const PUBLISHED_CRATES: readonly PublishedCrate[] = TOOLS.filter(
+  tool => tool.cratePublished === true,
+).map(tool => {
+  const crate = crateFor(tool)
+  if (crate === undefined) {
+    throw new Error(`${tool.id} claims a published crate but its repo defines none`)
+  }
+  return { tool, name: crate.name, version: crate.version }
+})
+
+/** One command that installs every published CLI. */
+export function cargoInstallCommand(): string {
+  return `cargo install ${PUBLISHED_CRATES.map(crate => crate.name).join(' ')}`
 }

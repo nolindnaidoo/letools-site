@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { OPENVSX_NAMESPACE, PUBLISHER, SITE_URL } from './site'
 import {
   CATEGORIES,
+  cargoInstallCommand,
   crateFor,
   crateUrl,
   demoSrc,
@@ -18,6 +19,7 @@ import {
   mcpServerName,
   npmUrl,
   openVsxUrl,
+  PUBLISHED_CRATES,
   posterSrc,
   TOOLS,
   toolPath,
@@ -312,5 +314,25 @@ describe('the crate claims', () => {
 
   it('builds a crates.io URL from the crate name', () => {
     expect(crateUrl('scrape-le')).toBe('https://crates.io/crates/scrape-le')
+  })
+
+  it('publishes exactly the crates the registry flags as live', () => {
+    const flagged = TOOLS.filter(tool => tool.cratePublished === true).map(tool => tool.id)
+    expect(PUBLISHED_CRATES.map(crate => crate.name)).toEqual(flagged)
+    for (const crate of PUBLISHED_CRATES) {
+      expect(crate.version, crate.name).toBe(crateFor(crate.tool)?.version)
+    }
+  })
+
+  it('names every published crate in the install command', () => {
+    // The home page prints this for a reader to copy. A crate that publishes
+    // without joining the command is a CLI nobody installs, and a name typed
+    // by hand here is a command that fails silently for whoever runs it.
+    const command = cargoInstallCommand()
+    expect(command.startsWith('cargo install ')).toBe(true)
+    expect(command.slice('cargo install '.length).split(' ')).toEqual(
+      PUBLISHED_CRATES.map(crate => crate.name),
+    )
+    expect(PUBLISHED_CRATES.length).toBeGreaterThan(0)
   })
 })
