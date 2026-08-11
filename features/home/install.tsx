@@ -2,6 +2,9 @@
 
 import { CommandSnippet } from '@/components/command-snippet'
 import { OPENVSX_NAMESPACE, PUBLISHER } from '@/lib/site'
+import { cargoInstallCommand, PUBLISHED_CRATES, TOOLS, toolPath } from '@/lib/tools'
+import { Link } from '@/ui/link'
+import { Separator } from '@/ui/separator'
 import { Tabs } from '@/ui/tabs'
 
 // One representative command per surface; the placeholder id is swappable
@@ -29,10 +32,13 @@ const SURFACES = [
     note: 'VS Code forks pull from Open VSX, where the namespace is OffensiveEdge rather than nolindnaidoo.',
   },
   {
-    id: 'cli',
-    label: 'CLI',
+    // Labelled plain "CLI" until five tools shipped an actual Rust CLI, at
+    // which point the tab a reader clicks looking for the binary handed them
+    // an editor-extension install instead.
+    id: 'vscode-cli',
+    label: 'VS Code CLI',
     command: `code --install-extension ${MARKETPLACE_ID}`,
-    note: 'Scriptable installs for dotfiles and machine setup.',
+    note: 'Scriptable extension installs for dotfiles and machine setup. For the standalone binaries, see the Rust CLI below.',
   },
   {
     id: 'zed',
@@ -75,6 +81,32 @@ export function Install() {
           </Tabs.Panel>
         ))}
       </Tabs>
+
+      {/*
+        Outside the tabs on purpose. A tab renders only while it is selected,
+        so a reader arriving for the CLIs saw an editor command and no sign the
+        binaries exist. The counts and the names are read from the registry —
+        the next crate to publish joins this line without an edit.
+      */}
+      <Separator className="my-10" />
+
+      <div className="flex flex-col gap-3">
+        <h3 className="text-xl font-bold tracking-tight">Rust CLI</h3>
+        <p className="text-muted">
+          {PUBLISHED_CRATES.length} of the {TOOLS.length} also ship a standalone binary — the same
+          engine over a whole repository, with no editor and no Node. Each one also runs as an MCP
+          server.
+        </p>
+        <CommandSnippet command={cargoInstallCommand()} label="Rust CLI" />
+        <p className="text-sm text-muted">
+          {PUBLISHED_CRATES.map((crate, index) => (
+            <span key={crate.name}>
+              {index > 0 && ' · '}
+              <Link href={toolPath(crate.tool)}>{crate.name}</Link>
+            </span>
+          ))}
+        </p>
+      </div>
     </section>
   )
 }
