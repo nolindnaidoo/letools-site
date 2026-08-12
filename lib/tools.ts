@@ -64,6 +64,7 @@ export interface Tool {
 export const TOOLS: readonly Tool[] = Object.freeze([
   {
     id: 'string-le',
+    cratePublished: true,
     name: 'String-LE',
     category: 'extract',
     summary: 'Extract string values from JSON, YAML, CSV, TOML, INI, and .env — for i18n.',
@@ -89,6 +90,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
   },
   {
     id: 'numbers-le',
+    cratePublished: true,
     name: 'Numbers-LE',
     category: 'extract',
     summary: 'Extract numeric values from JSON, YAML, CSV, TOML, INI, and .env.',
@@ -138,6 +140,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
   },
   {
     id: 'colors-le',
+    cratePublished: true,
     name: 'Colors-LE',
     category: 'extract',
     summary: 'Extract and analyze colors from CSS, SCSS, LESS, Stylus, HTML, JS/TS, and SVG.',
@@ -190,6 +193,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
   },
   {
     id: 'dates-le',
+    cratePublished: true,
     name: 'Dates-LE',
     category: 'extract',
     summary: 'Extract date and time data from logs, configs, and code.',
@@ -299,6 +303,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
   },
   {
     id: 'envsync-le',
+    cratePublished: true,
     name: 'EnvSync-LE',
     category: 'guard',
     summary:
