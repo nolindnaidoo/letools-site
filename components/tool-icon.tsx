@@ -44,7 +44,9 @@ export function ToolIcon({
       // Sized in px rather than a utility class so one prop drives both
       // branches and the two cannot fall out of step at a call site.
       style={{ width: size, height: size, fontSize: Math.round(size * 0.36) }}
-      className={`inline-flex shrink-0 items-center justify-center bg-accent-soft font-mono font-bold tracking-tight text-accent ${className}`}
+      // Foreground on surface, not accent on accent-soft: that pair renders
+      // 4.12:1 at this weight and axe fails it on every card that shows one.
+      className={`inline-flex shrink-0 items-center justify-center border border-border bg-surface font-mono font-bold tracking-tight text-foreground ${className}`}
     >
       LE
     </span>

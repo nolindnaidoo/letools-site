@@ -1,16 +1,22 @@
 import { expect, test } from '@playwright/test'
-import { TOOLS } from '../lib/tools'
+import { demoSrc, TOOLS } from '../lib/tools'
 
 /**
  * Every demo on the grid animates at once, so the motion preference stops being
  * a nicety and becomes the whole point of WCAG 2.2.2: ten looping clips is
  * exactly what someone turns that setting on to avoid.
  *
+ * The expected count is derived, not `TOOLS.length`: a tool whose extension is
+ * still to be written has no recording to play, and its card shows the command
+ * it answers to instead.
+ *
  * `lib/use-prefers-reduced-motion.ts` is excluded from unit coverage because it
  * needs a DOM and a renderer this project does not otherwise pull in. This is
  * the assurance instead, and it asserts what a user experiences rather than
  * what the hook returns.
  */
+
+const WITH_DEMO = TOOLS.filter(tool => demoSrc(tool) !== undefined)
 
 test('plays every demo when no motion preference is set', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' })
@@ -20,7 +26,7 @@ test('plays every demo when no motion preference is set', async ({ page }) => {
     .locator('img[alt$="demo"]')
     .evaluateAll(nodes => nodes.map(node => node.getAttribute('src') ?? ''))
 
-  expect(sources).toHaveLength(TOOLS.length)
+  expect(sources).toHaveLength(WITH_DEMO.length)
   expect(
     sources.every(source => source.endsWith('.gif')),
     sources.join('\n'),
@@ -45,7 +51,7 @@ test('shows a still for every demo under prefers-reduced-motion', async ({ page 
   const sources = await page
     .locator('img[alt$="demo"]')
     .evaluateAll(nodes => nodes.map(node => node.getAttribute('src') ?? ''))
-  expect(sources).toHaveLength(TOOLS.length)
+  expect(sources).toHaveLength(WITH_DEMO.length)
   expect(sources.some(source => source.endsWith('.gif'))).toBe(false)
 })
 

@@ -7,7 +7,7 @@ import { defineConfig, devices } from '@playwright/test'
 //
 // The webServer serves the real static export (`out/`), not a dev server, so
 // what is audited is what ships.
-const PORT = 3140
+const PORT = 3000
 const baseURL = `http://localhost:${PORT}`
 
 export default defineConfig({
@@ -26,7 +26,7 @@ export default defineConfig({
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
   ],
   webServer: {
-    command: 'bunx serve out -l 3140',
+    command: 'bun run build && bun run start',
     url: baseURL,
     timeout: 180_000,
     reuseExistingServer: !process.env.CI,
