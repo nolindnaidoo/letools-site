@@ -219,6 +219,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
   },
   {
     id: 'units-le',
+    cratePublished: true,
     name: 'Units-LE',
     category: 'extract',
     summary:
@@ -246,6 +247,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
   },
   {
     id: 'ids-le',
+    cratePublished: true,
     name: 'IDs-LE',
     category: 'extract',
     summary:
@@ -273,6 +275,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
   },
   {
     id: 'ips-le',
+    cratePublished: true,
     name: 'IPs-LE',
     category: 'extract',
     summary:
@@ -356,6 +359,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
   },
   {
     id: 'versions-le',
+    cratePublished: true,
     name: 'Versions-LE',
     category: 'check',
     summary:
@@ -383,6 +387,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
   },
   {
     id: 'i18n-le',
+    cratePublished: true,
     name: 'i18n-LE',
     category: 'check',
     summary:
@@ -466,6 +471,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
   },
   {
     id: 'unicode-le',
+    cratePublished: true,
     name: 'Unicode-LE',
     category: 'guard',
     summary:
