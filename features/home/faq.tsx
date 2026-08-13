@@ -10,7 +10,7 @@ const FAQ_ITEMS = [
     id: 'privacy',
     question: 'Do they send my code anywhere?',
     answer:
-      'No. Your file contents are never transmitted. Nine of the ten tools make no network requests at all; Scrape-LE fetches the page you point it at, because that is what checking scrapeability means — it still never uploads your files. The optional telemetry setting only writes to a local output channel inside your editor, and it is off by default.',
+      'No. Your file contents are never transmitted. Fifteen of the sixteen tools make no network requests at all; Scrape-LE fetches the page you point it at, because that is what checking scrapeability means — it still never uploads your files. The optional telemetry setting only writes to a local output channel inside your editor, and it is off by default.',
   },
   {
     id: 'forks',
@@ -22,11 +22,11 @@ const FAQ_ITEMS = [
     id: 'agents',
     question: 'Can my AI agent use these?',
     answer:
-      'Yes. Every tool ships its engine as an MCP server, so an agent can call it with no editor in the loop — npx -y <tool>-mcp wires it into Claude Code, Cursor, Windsurf or Zed. VS Code 1.101+ needs nothing: installing the extension registers the tool with agent mode. Each server takes content and returns structured data; it reads no files and makes no network requests of its own.',
+      'Yes. Every tool ships its engine as an MCP server, so an agent can call it with no editor in the loop. Where the extension has shipped, npx -y <tool>-mcp wires it into Claude Code, Cursor, Windsurf or Zed, and VS Code 1.101+ needs nothing at all — installing the extension registers the tool with agent mode. The newest tools carry the server inside their binary instead: <tool> mcp speaks the same protocol with no Node involved. Each tool page prints the exact command for that tool.',
   },
   {
     id: 'split',
-    question: 'Why ten separate extensions instead of one?',
+    question: 'Why separate tools instead of one suite?',
     answer:
       'Install only what you need. Each tool stays small, auditable, and fast to activate — no idle features running in your editor.',
   },

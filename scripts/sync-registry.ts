@@ -31,14 +31,28 @@ export type ToolCommand = Readonly<{ id: string; title: string }>
 /** The Rust CLI a tool ships, where it ships one. */
 export type CrateFacts = Readonly<{ name: string; version: string }>
 
+/**
+ * What a repo says about itself.
+ *
+ * The extension-side fields are optional because the newest tools land the
+ * crate first and the VS Code extension follows: their repo has no
+ * `package.json`, no `l10n/`, no `mcp/` and no `zed/extension.toml` yet. That
+ * is a repo that has not been finished, not a different kind of tool — every
+ * field fills in on its own as the file it is read from appears, and the
+ * pages say "coming" for the surfaces that are still absent.
+ */
 export type ToolFacts = Readonly<{
-  version: string
+  /** The extension manifest's version. Absent until the extension exists. */
+  version?: string
+  /** Palette commands. Empty until the extension exists. */
   commands: readonly ToolCommand[]
-  /** Translated locales, excluding the English base bundle. */
-  locales: number
-  mcpPackage: string
-  zedId: string
-  /** Absent for the nine tools that ship no crate. */
+  /** Translated locales, excluding the English base bundle. Absent until `l10n/` exists. */
+  locales?: number
+  /** The npm package carrying the MCP server. Absent until `mcp/` exists. */
+  mcpPackage?: string
+  /** The Zed extension id. Absent until `zed/extension.toml` exists. */
+  zedId?: string
+  /** Absent for a tool that ships no crate. */
   crate?: CrateFacts
 }>
 
@@ -46,17 +60,22 @@ function json(path: string): Record<string, unknown> {
   return JSON.parse(readFileSync(path, 'utf8'))
 }
 
+/** Reads a file only if it is there, so an unwritten surface reads as absent. */
+function maybe<T>(path: string, read: (path: string) => T): T | undefined {
+  return existsSync(path) ? read(path) : undefined
+}
+
 export function factsFor(repo: string): ToolFacts {
-  const manifest = json(resolve(repo, 'package.json'))
-  const contributes = (manifest.contributes ?? {}) as {
+  const manifest = maybe(resolve(repo, 'package.json'), json)
+  const contributes = (manifest?.contributes ?? {}) as {
     commands?: { command: string; title?: string }[]
   }
-  const mcp = json(resolve(repo, 'mcp/package.json'))
+  const mcp = maybe(resolve(repo, 'mcp/package.json'), json)
 
   // Manifest titles are NLS placeholders (`%manifest.command.x.title%`); the
   // English strings live in package.nls.json. Rendering the placeholder would
   // put `%manifest.command.extract.title%` on the page.
-  const nls = json(resolve(repo, 'package.nls.json')) as Record<string, string>
+  const nls = (maybe(resolve(repo, 'package.nls.json'), json) ?? {}) as Record<string, string>
   const commands: ToolCommand[] = (contributes.commands ?? []).map(command => {
     const raw = command.title ?? ''
     const key = raw.startsWith('%') && raw.endsWith('%') ? raw.slice(1, -1) : ''
@@ -64,35 +83,35 @@ export function factsFor(repo: string): ToolFacts {
   })
 
   // `bundle.l10n.json` is the English source, not a translation.
-  const locales = readdirSync(resolve(repo, 'l10n')).filter(file =>
-    /^bundle\.l10n\.[a-z-]+\.json$/.test(file),
-  ).length
+  const locales = maybe(
+    resolve(repo, 'l10n'),
+    path => readdirSync(path).filter(file => /^bundle\.l10n\.[a-z-]+\.json$/.test(file)).length,
+  )
 
-  const zed = readFileSync(resolve(repo, 'zed/extension.toml'), 'utf8')
-  const zedId = zed.match(/^id\s*=\s*"([^"]+)"/m)?.[1]
-  if (zedId === undefined) throw new Error(`${repo}: zed/extension.toml has no id`)
+  const zedId = maybe(resolve(repo, 'zed/extension.toml'), path => {
+    const id = readFileSync(path, 'utf8').match(/^id\s*=\s*"([^"]+)"/m)?.[1]
+    // A manifest that exists and has no id is a broken manifest, not an
+    // absent one — emitting `undefined` would put it on the page.
+    if (id === undefined) throw new Error(`${repo}: zed/extension.toml has no id`)
+    return id
+  })
 
-  // Only scrape-le ships one today; the shape allows for more without a
-  // second table to keep in step.
-  const cargo = resolve(repo, 'crate/Cargo.toml')
-  const crate = existsSync(cargo)
-    ? (() => {
-        const toml = readFileSync(cargo, 'utf8')
-        const name = toml.match(/^name\s*=\s*"([^"]+)"/m)?.[1]
-        const version = toml.match(/^version\s*=\s*"([^"]+)"/m)?.[1]
-        if (name === undefined || version === undefined) {
-          throw new Error(`${repo}: crate/Cargo.toml has no name or version`)
-        }
-        return { name, version }
-      })()
-    : undefined
+  const crate = maybe(resolve(repo, 'crate/Cargo.toml'), path => {
+    const toml = readFileSync(path, 'utf8')
+    const name = toml.match(/^name\s*=\s*"([^"]+)"/m)?.[1]
+    const version = toml.match(/^version\s*=\s*"([^"]+)"/m)?.[1]
+    if (name === undefined || version === undefined) {
+      throw new Error(`${repo}: crate/Cargo.toml has no name or version`)
+    }
+    return { name, version }
+  })
 
   return {
-    version: String(manifest.version),
+    ...(manifest === undefined ? {} : { version: String(manifest.version) }),
     commands,
-    locales,
-    mcpPackage: String(mcp.name),
-    zedId,
+    ...(locales === undefined ? {} : { locales }),
+    ...(mcp === undefined ? {} : { mcpPackage: String(mcp.name) }),
+    ...(zedId === undefined ? {} : { zedId }),
     ...(crate === undefined ? {} : { crate }),
   }
 }
@@ -100,12 +119,15 @@ export function factsFor(repo: string): ToolFacts {
 export function render(facts: ReadonlyMap<string, ToolFacts>): string {
   const entries = [...facts]
     .map(([id, fact]) => {
+      // An absent field is emitted as an absent field, never as a placeholder:
+      // the tools whose extension is still to be written have no manifest,
+      // no catalogues and no Zed id, and a `''` here would render as one.
       const fields = [
-        `version: '${fact.version}'`,
+        ...(fact.version === undefined ? [] : [`version: '${fact.version}'`]),
         `commands: ${JSON.stringify(fact.commands)}`,
-        `locales: ${fact.locales}`,
-        `mcpPackage: '${fact.mcpPackage}'`,
-        `zedId: '${fact.zedId}'`,
+        ...(fact.locales === undefined ? [] : [`locales: ${fact.locales}`]),
+        ...(fact.mcpPackage === undefined ? [] : [`mcpPackage: '${fact.mcpPackage}'`]),
+        ...(fact.zedId === undefined ? [] : [`zedId: '${fact.zedId}'`]),
         ...(fact.crate === undefined
           ? []
           : [`crate: { name: '${fact.crate.name}', version: '${fact.crate.version}' }`]),
@@ -132,7 +154,10 @@ export function main(
   fleet: string = FLEET,
   output: string = OUTPUT,
 ): number {
-  const missing = TOOLS.filter(tool => !existsSync(resolve(fleet, tool.id, 'package.json')))
+  // The checkout itself, not its manifest: a tool whose extension is still to
+  // be written has a repo with only `crate/` in it, and demanding a
+  // package.json there would refuse a repo that is present and readable.
+  const missing = TOOLS.filter(tool => !existsSync(resolve(fleet, tool.id)))
   if (missing.length > 0) {
     const names = missing.map(tool => tool.id).join(', ')
     if (check) {
@@ -163,10 +188,12 @@ export function main(
 
   writeFileSync(output, rendered)
   for (const [id, fact] of facts) {
-    process.stdout.write(
-      `  ${id.padEnd(12)} v${fact.version}  ${String(fact.commands.length).padStart(2)} commands  ` +
-        `${fact.locales} locales\n`,
-    )
+    const extension =
+      fact.version === undefined
+        ? 'crate only — extension not written yet'
+        : `v${fact.version}  ${String(fact.commands.length).padStart(2)} commands  ` +
+          `${fact.locales ?? 0} locales`
+    process.stdout.write(`  ${id.padEnd(12)} ${extension}\n`)
   }
   return 0
 }

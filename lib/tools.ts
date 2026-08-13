@@ -218,6 +218,87 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     ],
   },
   {
+    id: 'units-le',
+    name: 'Units-LE',
+    category: 'extract',
+    summary:
+      'Extract every quantity with its unit, normalised to one base unit so two configs can be compared.',
+    mcpTool: 'extract_units',
+    overview:
+      'A number without its unit is not something you can compare. Units-LE finds every quantity in a tree and reports it twice: the text the document actually holds, and that value in one base unit. Four dimensions — duration in milliseconds, bytes, percent as a ratio, frequency in hertz. JSON, YAML, CSV, TOML, INI and dotenv are parsed; everything else is scanned as text, so a Kubernetes manifest or a Markdown table of limits yields its quantities rather than nothing. What it will not do is guess: a bare m is minutes in one config format, milliseconds in another and millicores in Kubernetes, so it comes back refused by name rather than resolved.',
+    useCases: [
+      {
+        title: 'Reconcile two services',
+        detail:
+          'A timeout of 30s in one file and 30000 in another are the same number of milliseconds, and nothing about the text says so.',
+      },
+      {
+        title: 'Catch the 7% nobody sees',
+        detail:
+          '1GB and 1GiB look identical at a glance and differ by seventy-three million bytes. The base value is where that shows.',
+      },
+      {
+        title: 'Stop a build on an ambiguity',
+        detail:
+          'Strict mode exits non-zero if any quantity was refused, so a cpu value of 500m fails review instead of being guessed at.',
+      },
+    ],
+  },
+  {
+    id: 'ids-le',
+    name: 'IDs-LE',
+    category: 'extract',
+    summary:
+      'Find every UUID, ULID, NanoID, ObjectId and Snowflake, and decode the time inside it.',
+    mcpTool: 'extract_ids',
+    overview:
+      'An identifier usually records when and where something was made, and almost none of that is readable by eye. IDs-LE finds every UUID, ULID, NanoID, MongoDB ObjectId and Snowflake in a tree, says what each one is, and decodes the timestamp inside the ones that carry a clock — six bit layouts over three epochs, one of which starts in 1582, all reported as the same ISO-8601 UTC string. It refuses rather than guesses: thirty-two hex digits are an unhyphenated UUID and an MD5 digest in equal measure, so that run comes back as a row with a named reason instead of a confident wrong answer.',
+    useCases: [
+      {
+        title: 'Date an id with no lookup',
+        detail:
+          'A v7 UUID, a ULID, an ObjectId or a Snowflake in a log resolves to an instant without a database in the loop.',
+      },
+      {
+        title: 'Stop a regex mislabelling a digest',
+        detail:
+          'A run that fits two schemes is reported as ambiguous, not classified as whichever pattern happened to match first.',
+      },
+      {
+        title: 'Sweep a repo for placeholders',
+        detail:
+          'The nil UUID, a v4 that is plainly not random, and a timestamp before 1990 each come back named rather than dropped.',
+      },
+    ],
+  },
+  {
+    id: 'ips-le',
+    name: 'IPs-LE',
+    category: 'extract',
+    summary:
+      'Find every IP address, CIDR block and MAC address in a tree, normalized and classified.',
+    mcpTool: 'extract_ips',
+    overview:
+      'A regex over dotted quads finds no IPv6 at all, calls 1.2.3 an address, and reports 2001:0db8::0001 and 2001:db8::1 as two different things when they are one. IPs-LE finds every IP address, CIDR block and MAC address in a tree, normalizes IPv6 per RFC 5952, and says what each one is: loopback, private, link-local, cgnat, multicast, broadcast, reserved, documentation, unique-local or global. The scan runs over the bytes of every file, so an address inside a connection string or a rotated log is found too. It never resolves a name, never geolocates and never opens a socket.',
+    useCases: [
+      {
+        title: 'Audit an allow-list',
+        detail:
+          'Filter to private and loopback and see what a config makes reachable that the change request never mentioned.',
+      },
+      {
+        title: 'Surface an SSRF bypass',
+        detail:
+          'A leading-zero octet is octal to some resolvers and decimal to others, so 010.1.1.1 is refused by name rather than resolved to either.',
+      },
+      {
+        title: 'Make a diff stop lying',
+        detail:
+          'Four spellings of one IPv6 address sort as four entries in raw text and as one after normalization.',
+      },
+    ],
+  },
+  {
     id: 'regex-le',
     cratePublished: true,
     name: 'Regex-LE',
@@ -270,6 +351,60 @@ export const TOOLS: readonly Tool[] = Object.freeze([
         title: 'Respect robots.txt',
         detail:
           'The origin rules are fetched and reported alongside everything else. A scrapeability report is information, not permission.',
+      },
+    ],
+  },
+  {
+    id: 'versions-le',
+    name: 'Versions-LE',
+    category: 'check',
+    summary:
+      'Find where the same dependency is constrained differently across a repository’s manifests.',
+    mcpTool: 'compare_versions',
+    overview:
+      'The build broke because one crate asks for serde 1.0.200 and another asks for serde 2. Or it did not break, and will, because CI has been running on a toolchain below the minimum a manifest declares. Versions-LE reads the version constraints across package.json, Cargo.toml, pyproject.toml, go.mod and GitHub workflow files, then reports where the same dependency is constrained inconsistently. Two constraints no single version can satisfy is an error, decided by interval arithmetic rather than string comparison; different but satisfiable is a warning; a floating pin is information. Comparison never crosses an ecosystem, and a grammar it does not model is named in the report rather than approximated into a range.',
+    useCases: [
+      {
+        title: 'Fail before CI does',
+        detail:
+          'A pair of constraints no single version satisfies is an error and a non-zero exit, so the build stops before the deploy does.',
+      },
+      {
+        title: 'Catch CI below the floor',
+        detail:
+          'A workflow toolchain that has drifted under the minimum version a manifest declares is the failure nobody notices until a release.',
+      },
+      {
+        title: 'Diff against a baseline',
+        detail:
+          'The report carries no timestamp, so two runs over an unchanged tree produce identical output and a review can diff them.',
+      },
+    ],
+  },
+  {
+    id: 'i18n-le',
+    name: 'i18n-LE',
+    category: 'check',
+    summary:
+      'Audit translation catalogues for missing keys, placeholder drift and structural mismatches.',
+    mcpTool: 'check_catalogues',
+    overview:
+      'Spanish shipped last week and the metrics screen has been saying a Spanish-looking placeholder name to every user since: the catalogue had every key, it parsed, and the placeholder came back from machine translation with its name translated too. i18n-LE audits a set of catalogues against one of them and reports what is structurally wrong — keys missing or extra, placeholders dropped or renamed, constructs from the wrong convention, empty values, keys defined twice, and a path that is an object in one locale and a string in another. It works out which library the project uses first, from the manifest, the config, the directory layout, the catalogue syntax and the call sites, because the library is what decides the placeholder grammar. Only key names and structural facts are reported: no translated value ever reaches the output.',
+    useCases: [
+      {
+        title: 'Catch a renamed placeholder',
+        detail:
+          'Same count, different names — the failure that compiles perfectly and renders the literal to every user of that locale.',
+      },
+      {
+        title: 'See the one real break',
+        detail:
+          'A path that became a string reads as forty missing keys to a flatten-and-compare test, and as one finding here.',
+      },
+      {
+        title: 'Audit copy you cannot read',
+        detail:
+          'Findings are proved by tokens, counts and byte offsets, so a vendor’s catalogue can be checked without seeing its prose.',
       },
     ],
   },
@@ -329,6 +464,33 @@ export const TOOLS: readonly Tool[] = Object.freeze([
       },
     ],
   },
+  {
+    id: 'unicode-le',
+    name: 'Unicode-LE',
+    category: 'guard',
+    summary:
+      'Find the Unicode that hides meaning — Trojan Source controls, invisibles, homoglyphs, mixed scripts.',
+    mcpTool: 'detect_unicode_risks',
+    overview:
+      'Some characters are not what they look like. Unicode-LE scans a tree for the ones that hide meaning: the bidirectional controls behind CVE-2021-42574, zero-width and other invisibles, homoglyphs, words no single script accounts for, text that is not in Normalization Form C, and the spaces that are not the space. It reports codepoints and never the characters themselves, because a report that pasted one raw would reorder the terminal, the diff and the pull request of whoever read it. It rewrites nothing. A file plainly written in another script is refused for the homoglyph checks rather than judged by them, which is what lets the screen stay on in an internationalised repository instead of being switched off for noise.',
+    useCases: [
+      {
+        title: 'Gate CI on Trojan Source',
+        detail:
+          'Fail the build on the bidirectional-control class alone, or on every finding — the exit code is the interface.',
+      },
+      {
+        title: 'Screen for forged names',
+        detail:
+          'A Cyrillic character sitting in an otherwise Latin word is a finding; a word written wholly in Cyrillic is not.',
+      },
+      {
+        title: 'Explain the string that never matches',
+        detail:
+          'A zero-width space between two values a hash calls different and a person calls identical, reported at its key.',
+      },
+    ],
+  },
 ])
 
 export function findTool(id: string): Tool | undefined {
@@ -340,6 +502,24 @@ export function findTool(id: string): Tool | undefined {
 // enumerates.
 export function toolPath(tool: Tool): string {
   return `/tools/${tool.id}`
+}
+
+/**
+ * Whether this tool's VS Code extension is still to be written.
+ *
+ * Read from the generated facts rather than declared by hand, because it is a
+ * fact about the repo on the day of the build and not a property of the tool.
+ * The newest tools land the Rust crate first and the extension follows, so for
+ * a while their repo holds only `crate/`: no manifest, no `l10n/`, no `mcp/`
+ * package, no Zed id. Every surface that comes from the extension is absent
+ * for exactly as long as this is true, and the pages say "coming" rather than
+ * linking a Marketplace listing that would 404.
+ *
+ * The manifest version is the test because the manifest is what gets
+ * published — when it appears, so does everything downstream of it.
+ */
+export function extensionPending(tool: Tool): boolean {
+  return factsFor(tool).version === undefined
 }
 
 export function marketplaceUrl(tool: Tool): string {
@@ -359,6 +539,25 @@ export function githubUrl(tool: Tool): string {
 // derived from the tool id — one naming rule, no table to keep in step.
 export function npmUrl(tool: Tool): string {
   return `https://www.npmjs.com/package/${tool.id}-mcp`
+}
+
+/**
+ * How to start this tool's MCP server, as a command and its arguments.
+ *
+ * Two shapes, because the server ships in two places and only one of them is
+ * always there. The extension repos publish it as an npm package; a tool whose
+ * extension is still to be written has no package to `npx`, but its crate
+ * already answers `mcp` on stdio — the same server, the same tools, no editor
+ * and no Node. Split into command and args because the JSON clients want the
+ * two separately and joining then re-splitting is how a config goes wrong.
+ */
+export function mcpInvocation(tool: Tool): {
+  readonly command: string
+  readonly args: readonly string[]
+} {
+  const npmPackage = factsFor(tool).mcpPackage
+  if (npmPackage === undefined) return { command: tool.id, args: ['mcp'] }
+  return { command: 'npx', args: ['-y', npmPackage] }
 }
 
 /** Zed's own instructions, for a tool with no submission to link. */
@@ -382,21 +581,28 @@ export function installCommand(tool: Tool): string {
 }
 
 export function mcpCommand(tool: Tool): string {
-  return `npx -y ${tool.id}-mcp`
+  const { command, args } = mcpInvocation(tool)
+  return [command, ...args].join(' ')
 }
 
-// Assets are copied from each tool repo's src/assets/images (icons
-// downscaled to 128px); refresh them when a tool's branding changes.
-export function iconSrc(tool: Tool): string {
+/**
+ * The icon, demo and poster a tool's extension repo ships.
+ *
+ * All three are copied out of the same `src/assets/images/` directory by
+ * `sync:demos`, so they arrive together and a repo without that directory yet
+ * has none of them. Absent means "not recorded yet", never "does not apply":
+ * the pages render a typographic mark and the tool's captured terminal
+ * output until the real assets land, and a test pins the icon files on disk
+ * to what this reports so the two cannot drift apart.
+ */
+function assetHash(tool: Tool): { demo: string; poster: string } | undefined {
+  return ASSET_HASHES[tool.id]
+}
+
+// Icons are downscaled to 128px; refresh them when a tool's branding changes.
+export function iconSrc(tool: Tool): string | undefined {
+  if (assetHash(tool) === undefined) return undefined
   return `/icons/${tool.id}.png`
-}
-
-function assetHash(tool: Tool): { demo: string; poster: string } {
-  const hash = ASSET_HASHES[tool.id]
-  if (hash === undefined) {
-    throw new Error(`${tool.id} has no asset hashes — run \`bun run sync:demos\``)
-  }
-  return hash
 }
 
 /**
@@ -407,12 +613,16 @@ function assetHash(tool: Tool): { demo: string; poster: string } {
  * screenshot was fixed and returning visitors kept the wrong one. Naming by
  * content makes a change a new URL, which is what makes the long cache safe.
  */
-export function demoSrc(tool: Tool): string {
-  return `/demos/${tool.id}.${assetHash(tool).demo}.gif`
+export function demoSrc(tool: Tool): string | undefined {
+  const hash = assetHash(tool)
+  if (hash === undefined) return undefined
+  return `/demos/${tool.id}.${hash.demo}.gif`
 }
 
-export function posterSrc(tool: Tool): string {
-  return `/posters/${tool.id}.${assetHash(tool).poster}.jpg`
+export function posterSrc(tool: Tool): string | undefined {
+  const hash = assetHash(tool)
+  if (hash === undefined) return undefined
+  return `/posters/${tool.id}.${hash.poster}.jpg`
 }
 
 /**
@@ -430,23 +640,30 @@ export function factsFor(tool: Tool): (typeof TOOL_FACTS)[string] {
 }
 
 /**
- * The locale count the whole family shares.
+ * The locale count every shipped extension shares.
  *
  * Copy used to state this as prose and named two tools as English-only long
  * after both shipped translations. Reading it from the registry means the
  * sentence cannot be wrong while the data is right; `sync:registry --check`
  * keeps the data right.
+ *
+ * Counted over the extensions that exist. A tool whose extension is still to
+ * be written has no `l10n/` to count and reports nothing — including it as a
+ * zero would break the one-count invariant and put "0 languages" on the page,
+ * which is a claim about a catalogue nobody has written rather than a fact.
  */
 export const LOCALE_COUNT: number = (() => {
-  const counts = new Set(TOOLS.map(tool => factsFor(tool).locales))
+  const counts = new Set(
+    TOOLS.map(tool => factsFor(tool).locales).filter(count => count !== undefined),
+  )
   if (counts.size !== 1) {
-    throw new Error(`the fleet no longer shares one locale count: ${[...counts].join(', ')}`)
+    throw new Error(`the shipped extensions no longer share one locale count: ${[...counts]}`)
   }
   return [...counts][0] ?? 0
 })()
 
-/** The npm package that carries this tool's MCP server. */
-export function mcpPackageFor(tool: Tool): string {
+/** The npm package that carries this tool's MCP server, once one is published. */
+export function mcpPackageFor(tool: Tool): string | undefined {
   return factsFor(tool).mcpPackage
 }
 
@@ -458,6 +675,15 @@ export function crateFor(tool: Tool): { name: string; version: string } | undefi
 export function crateUrl(name: string): string {
   return `https://crates.io/crates/${name}`
 }
+
+/**
+ * Every tool that ships a Rust CLI, published or not.
+ *
+ * Counted rather than written out, because the home page states the number
+ * next to the family size and the two moved independently: the copy said five
+ * for as long as it took the next five crates to land.
+ */
+export const CRATE_TOOLS: readonly Tool[] = TOOLS.filter(tool => crateFor(tool) !== undefined)
 
 export interface PublishedCrate {
   readonly tool: Tool

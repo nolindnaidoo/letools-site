@@ -1,4 +1,4 @@
-import { mcpPackageFor, type Tool } from './tools'
+import { mcpInvocation, type Tool } from './tools'
 
 /**
  * The wiring for each MCP client, exactly as the tool repos document it.
@@ -60,14 +60,19 @@ export function clientById(id: string): Client {
 export function configFor(client: Client, tools: readonly Tool[]): string {
   if (client.language === 'none' || tools.length === 0) return ''
 
+  // Two shapes, from one source. Most tools publish their server as an npm
+  // package; the ones whose extension is still to be written ship it in their
+  // binary instead, and `mcpInvocation` is what knows which. Hardcoding `npx`
+  // here would emit a config that installs nothing for those.
   if (client.id === 'claude-code') {
     return tools
-      .map(tool => `claude mcp add ${tool.id} -- npx -y ${mcpPackageFor(tool)}`)
+      .map(tool => {
+        const { command, args } = mcpInvocation(tool)
+        return `claude mcp add ${tool.id} -- ${command} ${args.join(' ')}`
+      })
       .join('\n')
   }
 
-  const servers = Object.fromEntries(
-    tools.map(tool => [tool.id, { command: 'npx', args: ['-y', mcpPackageFor(tool)] }]),
-  )
+  const servers = Object.fromEntries(tools.map(tool => [tool.id, mcpInvocation(tool)]))
   return JSON.stringify({ mcpServers: servers }, null, 2)
 }

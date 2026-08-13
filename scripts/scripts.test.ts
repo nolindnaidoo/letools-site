@@ -3,11 +3,12 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, describe, expect, it, vi } from 'vitest'
 import { ASSET_HASHES } from '../lib/asset-hashes.generated'
-import { crateFor, factsFor, LOCALE_COUNT, TOOLS } from '../lib/tools'
+import { crateFor, extensionPending, factsFor, LOCALE_COUNT, TOOLS } from '../lib/tools'
 import { BUDGETS, main as budgetMain, kb, walk } from './check-budget'
 import { main as cratesMain, publishedVersion, verdictFor } from './check-crates'
 import { type Demo, main as demosMain, problemsWith, readDemos, sha1 } from './check-demos'
 import {
+  EXTENSION_PENDING,
   fingerprint,
   main as fleetMain,
   hash,
@@ -178,9 +179,24 @@ describe('check-fleet', () => {
     expect(normalize('publish urls-le-mcp', 'colors-le')).toBe('publish urls-le-mcp')
   })
 
-  it('covers the whole family and the files that must match', () => {
-    expect(REPOS).toHaveLength(10)
+  it('accounts for every tool the site lists, once', () => {
+    // The shared files belong to the TypeScript extension, so a repo that is
+    // still only a crate has none of them and is deliberately not compared.
+    // Pinning the two lists against the registry is what stops that becoming
+    // a tool nobody checks: it has to be in exactly one of them.
+    const covered = [...REPOS, ...EXTENSION_PENDING].sort()
+    expect(covered).toEqual(TOOLS.map(tool => tool.id).sort())
+    expect(new Set(covered).size).toBe(covered.length)
     expect(SHARED.length).toBeGreaterThan(5)
+  })
+
+  it('leaves a repo out of the comparison only while its extension is unwritten', () => {
+    for (const id of EXTENSION_PENDING) {
+      const tool = TOOLS.find(current => current.id === id)
+      expect(tool, `${id} is not in the registry`).toBeDefined()
+      if (tool === undefined) continue
+      expect(extensionPending(tool), `${id} has an extension and belongs in REPOS`).toBe(true)
+    }
   })
 })
 
@@ -394,6 +410,23 @@ describe('sync-registry', () => {
     ])
   })
 
+  it('reads a repo that holds only a crate, rather than refusing it', () => {
+    // The newest tools land the crate first, so for a while the repo has no
+    // manifest, no l10n/, no mcp/ and no zed/. Every one of those used to be
+    // read unconditionally, and each threw.
+    const repo = fakeBuild({
+      'crate/Cargo.toml': 'name = "c-le"\nversion = "0.1.0"\n',
+    })
+    expect(repoFacts(repo)).toEqual({ commands: [], crate: { name: 'c-le', version: '0.1.0' } })
+  })
+
+  it('emits an absent fact as an absent field, never as a placeholder', () => {
+    const rendered = render(new Map([['c-le', { commands: [] }]]))
+    expect(rendered).toContain("'c-le': { commands: [] },")
+    expect(rendered).not.toContain('undefined')
+    expect(rendered).not.toContain("version: ''")
+  })
+
   it('treats a manifest with no commands as zero, not a crash', () => {
     const repo = fakeBuild({
       'package.json': JSON.stringify({ version: '1.0.0' }),
@@ -516,9 +549,15 @@ describe('the derived registry facts', () => {
     expect(registryMain(true)).toBe(0)
   })
 
-  it('exposes one locale count for the whole family', () => {
+  it('exposes one locale count across every shipped extension', () => {
     expect(LOCALE_COUNT).toBeGreaterThan(0)
-    for (const tool of TOOLS) expect(factsFor(tool).locales).toBe(LOCALE_COUNT)
+    for (const tool of TOOLS) {
+      // A tool whose extension is unwritten has no l10n/ to count. Reading it
+      // as a zero would break the invariant and put "0 languages" on the page.
+      expect(factsFor(tool).locales, tool.id).toBe(
+        extensionPending(tool) ? undefined : LOCALE_COUNT,
+      )
+    }
   })
 })
 

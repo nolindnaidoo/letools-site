@@ -13,7 +13,7 @@ import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { TOOLS } from '../lib/tools'
+import { demoSrc, TOOLS } from '../lib/tools'
 
 // import.meta.dir is Bun-only and does not typecheck; this is the portable form.
 const DEMOS = fileURLToPath(new URL('../public/demos', import.meta.url))
@@ -79,7 +79,12 @@ export function problemsWith(
 }
 
 export function main(directory: string = DEMOS, posters: string = POSTERS): number {
-  const toolIds = TOOLS.map(tool => tool.id)
+  // Only the tools that have a recording. A tool whose extension is still to
+  // be written has no editor screen to record, so "missing" would describe the
+  // whole point rather than a mistake — its page shows the captured terminal
+  // run instead. The duplicate check, which is why this script exists, still
+  // covers every recording that does exist.
+  const toolIds = TOOLS.filter(tool => demoSrc(tool) !== undefined).map(tool => tool.id)
   const problems = [...problemsWith(toolIds, readDemos(directory))]
 
   // The posters are checked too. They were not, and two of them were the same

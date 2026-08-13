@@ -1,12 +1,12 @@
-import { factsFor, type Tool, toolPath } from './tools'
+import { factsFor, mcpCommand, type Tool, toolPath } from './tools'
 
 /**
  * A client-side index over everything the registry knows.
  *
- * The site had no search. With ten tools, ~60 commands and ten MCP servers,
- * the only way to find "the one that pulls dates out of a CSV" was to read the
- * grid and guess from names. That is fine at ten tools and already awkward at
- * sixty commands.
+ * The site had no search. With sixteen tools, ~60 commands and sixteen MCP
+ * servers, the only way to find "the one that pulls dates out of a CSV" was to
+ * read the grid and guess from names. That is fine at ten tools and already
+ * awkward at sixty commands.
  *
  * The index is built from the same registry the pages render from, so anything
  * findable here is real, and anything that ships is findable.
@@ -42,8 +42,17 @@ export function buildIndex(tools: readonly Tool[]): readonly Entry[] {
 
     // The MCP surface is the part nobody can currently find: an agent author
     // searching "extract_strings" should land on the tool that answers to it.
+    // The second line names whatever actually carries the server — the npm
+    // package where one is published, and the binary where the extension that
+    // would publish it is still to be written.
     entries.push(
-      entry('mcp', tool.mcpTool, `MCP tool · ${facts.mcpPackage}`, `${path}#channels`, 1),
+      entry(
+        'mcp',
+        tool.mcpTool,
+        `MCP tool · ${facts.mcpPackage ?? mcpCommand(tool)}`,
+        `${path}#channels`,
+        1,
+      ),
     )
 
     for (const command of facts.commands) {

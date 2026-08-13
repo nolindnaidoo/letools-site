@@ -15,6 +15,11 @@ import { Card } from '@/ui/card'
 export function ToolCommands({ tool }: { readonly tool: Tool }) {
   const { commands } = factsFor(tool)
 
+  // No extension, no palette. Rendering "0 commands in the palette" over an
+  // empty card would read as a tool that does nothing, when what it has is a
+  // CLI and an MCP server and no editor front end written for it yet.
+  if (commands.length === 0) return null
+
   return (
     <section id="commands" className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-12 sm:px-6">
       <div className="mb-6 flex flex-col gap-2">

@@ -56,7 +56,7 @@ export default function OpengraphImage() {
         {TAGLINE}
       </div>
       <div style={{ display: 'flex', fontSize: 30, color: '#a1a1aa' }}>
-        Ten free, single-purpose VS Code extensions · letools.dev
+        Sixteen free, single-purpose devtools · letools.dev
       </div>
     </div>,
     { ...size },

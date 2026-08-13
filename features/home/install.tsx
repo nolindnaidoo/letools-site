@@ -2,7 +2,7 @@
 
 import { CommandSnippet } from '@/components/command-snippet'
 import { OPENVSX_NAMESPACE, PUBLISHER } from '@/lib/site'
-import { cargoInstallCommand, PUBLISHED_CRATES, TOOLS, toolPath } from '@/lib/tools'
+import { CRATE_TOOLS, cargoInstallCommand, PUBLISHED_CRATES, TOOLS, toolPath } from '@/lib/tools'
 import { Link } from '@/ui/link'
 import { Separator } from '@/ui/separator'
 import { Tabs } from '@/ui/tabs'
@@ -93,9 +93,10 @@ export function Install() {
       <div className="flex flex-col gap-3">
         <h3 className="text-xl font-bold tracking-tight">Rust CLI</h3>
         <p className="text-muted">
-          {PUBLISHED_CRATES.length} of the {TOOLS.length} also ship a standalone binary — the same
-          engine over a whole repository, with no editor and no Node. Each one also runs as an MCP
-          server.
+          {CRATE_TOOLS.length} of the {TOOLS.length} also ship a standalone binary — the same engine
+          over a whole repository, with no editor and no Node, and an MCP server in the same file.{' '}
+          {PUBLISHED_CRATES.length} of them are on crates.io today; the rest build from their
+          repository until they publish.
         </p>
         <CommandSnippet command={cargoInstallCommand()} label="Rust CLI" />
         <p className="text-sm text-muted">

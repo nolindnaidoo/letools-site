@@ -9,7 +9,7 @@ import { Card } from '@/ui/card'
 const PRINCIPLES = [
   {
     title: 'Local by design',
-    body: 'File contents never leave your machine. Nine of the ten tools make no network requests at all; Scrape-LE is the exception by design, since checking whether a page is scrapeable means fetching that page. Telemetry is off by default and only ever writes to a local output channel you can read.',
+    body: 'File contents never leave your machine. Fifteen of the sixteen tools make no network requests at all; Scrape-LE is the exception by design, since checking whether a page is scrapeable means fetching that page. Telemetry is off by default and only ever writes to a local output channel you can read.',
   },
   {
     title: 'One job each',
@@ -17,11 +17,11 @@ const PRINCIPLES = [
   },
   {
     title: 'Held to the same bar',
-    body: 'Every tool ships a single bundled file with no runtime dependencies — except Scrape-LE, which ships the browser driver it needs. All ten run CI on Linux, macOS, and Windows and pass real unit, extension-host, and installed-VSIX tests before release.',
+    body: 'Every extension ships a single bundled file with no runtime dependencies — except Scrape-LE, which ships the browser driver it needs — and every Rust tool ships one binary. All sixteen run CI on Linux, macOS, and Windows: the extensions against a real extension host and an installed VSIX, the crates against a fixture corpus that ships inside the crate so anyone can rerun it.',
   },
   {
     title: 'Yours to read',
-    body: `MIT licensed with every repo public. Every tool ships its interface translated into ${LOCALE_COUNT} languages.`,
+    body: `MIT licensed with every repo public. Every published extension ships its interface translated into ${LOCALE_COUNT} languages.`,
   },
 ] as const
 

@@ -1,11 +1,12 @@
 'use client'
 
+import { ToolIcon } from '@/components/tool-icon'
 import {
   CATEGORIES,
   type CategoryId,
   demoSrc,
+  extensionPending,
   githubUrl,
-  iconSrc,
   marketplaceUrl,
   npmUrl,
   openVsxUrl,
@@ -14,6 +15,7 @@ import {
   type Tool,
   toolPath,
 } from '@/lib/tools'
+import { transcriptFor } from '@/lib/transcripts'
 import { usePrefersReducedMotion } from '@/lib/use-prefers-reduced-motion'
 import { Card } from '@/ui/card'
 import { Chip } from '@/ui/chip'
@@ -49,6 +51,11 @@ function ToolCard({ tool }: { readonly tool: Tool }) {
    */
   const prefersReducedMotion = usePrefersReducedMotion()
   const shouldAnimate = !prefersReducedMotion
+  const face = shouldAnimate ? demoSrc(tool) : posterSrc(tool)
+  // No recording exists for a tool whose extension is still to be written —
+  // there is no editor screen to record. The command it answers to is the
+  // honest card face until there is.
+  const transcript = transcriptFor(tool)
 
   return (
     <Card
@@ -56,14 +63,28 @@ function ToolCard({ tool }: { readonly tool: Tool }) {
       className="group flex h-full flex-col gap-1 transition-shadow hover:shadow-lg"
     >
       <div className="relative overflow-hidden rounded-xl border border-border">
-        <img
-          src={shouldAnimate ? demoSrc(tool) : posterSrc(tool)}
-          alt={`${tool.name} demo`}
-          width={800}
-          loading="lazy"
-          decoding="async"
-          className="aspect-video w-full object-cover object-top"
-        />
+        {face !== undefined ? (
+          <img
+            src={face}
+            alt={`${tool.name} demo`}
+            width={800}
+            loading="lazy"
+            decoding="async"
+            className="aspect-video w-full object-cover object-top"
+          />
+        ) : (
+          <div className="flex aspect-video w-full flex-col justify-center gap-2 bg-surface px-4">
+            <code className="font-mono text-sm">
+              <span aria-hidden="true" className="text-muted">
+                ${' '}
+              </span>
+              {transcript?.command ?? `${tool.id} --help`}
+            </code>
+            <span className="text-xs text-muted">
+              Terminal and MCP today — the editor extension is being written.
+            </span>
+          </div>
+        )}
         <Chip
           size="sm"
           variant="soft"
@@ -75,15 +96,7 @@ function ToolCard({ tool }: { readonly tool: Tool }) {
       </div>
 
       <Card.Header className="flex-row items-center gap-3 pt-3">
-        <img
-          src={iconSrc(tool)}
-          alt=""
-          width={36}
-          height={36}
-          loading="lazy"
-          decoding="async"
-          className="size-9 shrink-0 rounded-lg"
-        />
+        <ToolIcon tool={tool} size={36} className="rounded-lg" />
         <Card.Title>
           <Link href={toolPath(tool)}>{tool.name}</Link>
         </Card.Title>
@@ -91,37 +104,43 @@ function ToolCard({ tool }: { readonly tool: Tool }) {
       <Card.Content>
         <Card.Description className="text-pretty">{tool.summary}</Card.Description>
       </Card.Content>
+      {/* The three editor and npm links exist only once the extension does;
+          rendering them early is three dead links per card. */}
       <Card.Footer className="mt-auto gap-4 text-sm">
         <Link href={toolPath(tool)} aria-label={`${tool.name} details`} className="py-2">
           Details
         </Link>
-        <Link
-          href={marketplaceUrl(tool)}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={`${tool.name} on the VS Code Marketplace (opens in new tab)`}
-          className="py-2"
-        >
-          VS Code
-        </Link>
-        <Link
-          href={openVsxUrl(tool)}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={`${tool.name} on Open VSX (opens in new tab)`}
-          className="py-2"
-        >
-          Open VSX
-        </Link>
-        <Link
-          href={npmUrl(tool)}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={`${tool.name} MCP server on npm (opens in new tab)`}
-          className="py-2"
-        >
-          MCP
-        </Link>
+        {extensionPending(tool) ? null : (
+          <>
+            <Link
+              href={marketplaceUrl(tool)}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`${tool.name} on the VS Code Marketplace (opens in new tab)`}
+              className="py-2"
+            >
+              VS Code
+            </Link>
+            <Link
+              href={openVsxUrl(tool)}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`${tool.name} on Open VSX (opens in new tab)`}
+              className="py-2"
+            >
+              Open VSX
+            </Link>
+            <Link
+              href={npmUrl(tool)}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`${tool.name} MCP server on npm (opens in new tab)`}
+              className="py-2"
+            >
+              MCP
+            </Link>
+          </>
+        )}
         <Link
           href={githubUrl(tool)}
           target="_blank"
@@ -151,7 +170,9 @@ export function ToolGrid() {
     <section id="tools" className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6">
       <div className="mb-8 flex flex-col gap-2">
         <h2 className="text-3xl font-bold tracking-tight">The tools</h2>
-        <p className="text-muted">Ten extensions, each with one job. Install only what you need.</p>
+        <p className="text-muted">
+          {TOOLS.length} tools, each with one job. Install only what you need.
+        </p>
       </div>
 
       <Tabs defaultSelectedKey="all">

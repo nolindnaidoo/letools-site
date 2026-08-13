@@ -1,14 +1,17 @@
+import { ToolIcon } from '@/components/tool-icon'
+import { ToolTranscript } from '@/features/tool/tool-transcript'
 import {
   crateFor,
   demoSrc,
+  extensionPending,
   githubUrl,
-  iconSrc,
   marketplaceUrl,
   mcpCommand,
   openVsxUrl,
   posterSrc,
   type Tool,
 } from '@/lib/tools'
+import { transcriptFor } from '@/lib/transcripts'
 import { buttonVariants } from '@/ui/button'
 import { Chip } from '@/ui/chip'
 import { Link } from '@/ui/link'
@@ -37,10 +40,16 @@ function badgesFor(tool: Tool): readonly string[] {
  */
 export function ToolHero({ tool }: { readonly tool: Tool }) {
   const crate = crateFor(tool)
+  const demo = demoSrc(tool)
+  const poster = posterSrc(tool)
+  const transcript = transcriptFor(tool)
+  // The editor buttons would send a reader to a Marketplace listing that does
+  // not exist yet, which reads as a broken tool rather than an unfinished one.
+  const pending = extensionPending(tool)
 
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-6 px-4 pb-12 pt-16 text-center sm:px-6">
-      <img src={iconSrc(tool)} alt="" width={72} height={72} className="size-18 rounded-2xl" />
+      <ToolIcon tool={tool} size={72} className="rounded-2xl" />
 
       <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl">{tool.name}</h1>
 
@@ -55,31 +64,46 @@ export function ToolHero({ tool }: { readonly tool: Tool }) {
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-3">
-        <Link
-          href={marketplaceUrl(tool)}
-          target="_blank"
-          rel="noreferrer"
-          className={buttonVariants({ variant: 'primary', size: 'lg' })}
-        >
-          Install for VS Code
-        </Link>
-        <Link
-          href={openVsxUrl(tool)}
-          target="_blank"
-          rel="noreferrer"
-          className={buttonVariants({ variant: 'secondary', size: 'lg' })}
-        >
-          Install for Cursor &amp; VSCodium
-        </Link>
+        {pending ? null : (
+          <>
+            <Link
+              href={marketplaceUrl(tool)}
+              target="_blank"
+              rel="noreferrer"
+              className={buttonVariants({ variant: 'primary', size: 'lg' })}
+            >
+              Install for VS Code
+            </Link>
+            <Link
+              href={openVsxUrl(tool)}
+              target="_blank"
+              rel="noreferrer"
+              className={buttonVariants({ variant: 'secondary', size: 'lg' })}
+            >
+              Install for Cursor &amp; VSCodium
+            </Link>
+          </>
+        )}
         <Link
           href={githubUrl(tool)}
           target="_blank"
           rel="noreferrer"
-          className={buttonVariants({ variant: 'outline', size: 'lg' })}
+          className={buttonVariants({
+            variant: pending ? 'primary' : 'outline',
+            size: 'lg',
+          })}
         >
           Source on GitHub
         </Link>
       </div>
+
+      {pending ? (
+        <p className="max-w-2xl text-pretty text-sm text-muted">
+          The command-line tool and its MCP server are written and tested. The VS Code extension is
+          not written yet, so there is nothing to install from the Marketplace or Open VSX — those
+          links appear here when it ships rather than before.
+        </p>
+      ) : null}
 
       {/* The commands lead the sentence rather than ending it: a code span
           carries its own padding, so a period after one renders as "scrape-le
@@ -89,8 +113,8 @@ export function ToolHero({ tool }: { readonly tool: Tool }) {
         <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">
           {mcpCommand(tool)}
         </code>{' '}
-        runs the same engine as an MCP server, so an agent can call {tool.mcpTool} with nothing else
-        installed
+        runs the same engine as an MCP server, so an agent can call {tool.mcpTool}
+        {pending ? ' over stdio, with no editor and no Node' : ' with nothing else installed'}
         {/* Only once the publish lands: a crates.io link before it is a 404
             that looks like a broken tool. The channels section carries the
             qualified version until then. */}
@@ -108,18 +132,25 @@ export function ToolHero({ tool }: { readonly tool: Tool }) {
         {'.'}
       </p>
 
-      <img
-        src={demoSrc(tool)}
-        // The demo is the pitch, so it carries a real description rather than
-        // being decorative — a reader on a slow connection or a screen reader
-        // still learns what the tool does.
-        alt={`${tool.name} in use: ${tool.summary}`}
-        // Poster dimensions; the GIF is authored to match.
-        loading="lazy"
-        decoding="async"
-        className="mt-4 w-full rounded-xl border border-default"
-        style={{ backgroundImage: `url(${posterSrc(tool)})`, backgroundSize: 'cover' }}
-      />
+      {/* The recording where one exists, and the tool's own captured output
+          where nobody has made one yet. Rendering neither would leave the page
+          with no evidence at all, which is the worst of the three. */}
+      {demo !== undefined && poster !== undefined ? (
+        <img
+          src={demo}
+          // The demo is the pitch, so it carries a real description rather than
+          // being decorative — a reader on a slow connection or a screen reader
+          // still learns what the tool does.
+          alt={`${tool.name} in use: ${tool.summary}`}
+          // Poster dimensions; the GIF is authored to match.
+          loading="lazy"
+          decoding="async"
+          className="mt-4 w-full rounded-xl border border-default"
+          style={{ backgroundImage: `url(${poster})`, backgroundSize: 'cover' }}
+        />
+      ) : transcript !== undefined ? (
+        <ToolTranscript tool={tool} transcript={transcript} />
+      ) : null}
     </section>
   )
 }

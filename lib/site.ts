@@ -11,8 +11,8 @@ export const SITE_NAME = 'LE Tools'
 export const WORDMARK = 'Limited Edition DevTools'
 export const TAGLINE = 'Get your data right before the model sees it.'
 
-// Combined Open VSX downloads + VS Code Marketplace acquisitions across all
-// ten tools. Hardcoded and rounded DOWN, because Marketplace acquisitions are
+// Combined Open VSX downloads + VS Code Marketplace acquisitions across the
+// published extensions. Hardcoded and rounded DOWN, because Marketplace acquisitions are
 // publisher-dashboard only — no public API exposes them, so this cannot be
 // derived at build time. Last measured 2026-08-04: 71,052 Open VSX +
 // 4,564 Marketplace = 75,616. Re-measure before raising it.
@@ -28,7 +28,8 @@ export const GITHUB_URL = `https://github.com/${PUBLISHER}`
 // Open VSX still publishes under the old namespace. On that registry the
 // namespace IS the extension id, so these links cannot move until the rename
 // (EclipseFdn/open-vsx.org#12345) is actioned — pointing them at
-// `nolindnaidoo` early gives ten dead links, because that namespace is empty.
+// `nolindnaidoo` early gives a dead link per tool, because that namespace is
+// empty.
 // Change this to PUBLISHER on the day the rename lands.
 export const OPENVSX_NAMESPACE = 'OffensiveEdge'
 

@@ -28,9 +28,9 @@ export function Hero() {
       <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-6xl">{TAGLINE}</h1>
 
       <p className="max-w-2xl text-pretty text-lg text-muted">
-        Ten single-purpose tools for the manual work in front of every model: pull the values out,
-        check they are what you think, and catch the secrets before they travel. In your editor, or
-        callable by an agent over MCP.
+        Sixteen single-purpose tools for the manual work in front of every model: pull the values
+        out, check they are what you think, and catch what should not travel. In your editor, in a
+        terminal, or callable by an agent over MCP.
       </p>
 
       <div className="flex flex-wrap items-center justify-center gap-3">

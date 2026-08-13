@@ -50,6 +50,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 // facts, so they are stated; there is no rating data, so no aggregateRating —
 // inventing one is the kind of thing that gets rich results revoked.
 function structuredData(tool: Tool) {
+  // Version and image are stated only where they exist. A tool whose extension
+  // is still to be written has no manifest version and no icon copied from it,
+  // and emitting an empty string for either is worse than omitting the
+  // property — a crawler reads it as a claim rather than as an absence.
+  const version = factsFor(tool).version
+  const icon = iconSrc(tool)
+
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -60,9 +67,9 @@ function structuredData(tool: Tool) {
         url: `${SITE_URL}${toolPath(tool)}`,
         applicationCategory: 'DeveloperApplication',
         operatingSystem: 'Windows, macOS, Linux',
-        softwareVersion: factsFor(tool).version,
+        ...(version === undefined ? {} : { softwareVersion: version }),
         license: 'https://opensource.org/licenses/MIT',
-        image: `${SITE_URL}${iconSrc(tool)}`,
+        ...(icon === undefined ? {} : { image: `${SITE_URL}${icon}` }),
         codeRepository: githubUrl(tool),
         offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
         author: { '@type': 'Person', name: 'nolindnaidoo', url: 'https://github.com/nolindnaidoo' },

@@ -15,18 +15,20 @@ export const metadata: Metadata = {
     template: `%s — ${SITE_NAME}`,
   },
   description:
-    'Ten free, single-purpose VS Code extensions that extract, check, and guard strings, numbers, paths, env keys, regexes, secrets, colors, URLs, and dates — all local, no network access, MIT.',
+    'Sixteen free, single-purpose devtools that extract, check, and guard strings, numbers, paths, units, ids, IP addresses, env keys, regexes, secrets, colors, URLs, dates, dependency versions, translations, and Unicode — local by default, MIT.',
   openGraph: {
     type: 'website',
     url: SITE_URL,
     siteName: SITE_NAME,
     title: `${SITE_NAME} — ${TAGLINE}`,
-    description: 'Ten free, single-purpose VS Code extensions — all local, no network access, MIT.',
+    description:
+      'Sixteen free, single-purpose devtools for VS Code, the terminal, and AI agents — local by default, MIT.',
   },
   twitter: {
     card: 'summary_large_image',
     title: `${SITE_NAME} — ${TAGLINE}`,
-    description: 'Ten free, single-purpose VS Code extensions — all local, no network access, MIT.',
+    description:
+      'Sixteen free, single-purpose devtools for VS Code, the terminal, and AI agents — local by default, MIT.',
   },
 }
 

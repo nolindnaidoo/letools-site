@@ -1,14 +1,14 @@
 #!/usr/bin/env bun
 /**
- * Compare the shared config files across all ten extension repos.
+ * Compare the shared config files across the extension repos.
  *
- * The family is ten hand-maintained copies by decision — there is no shared
- * workflow repo. That means a change has to be copied nine times, and nothing
+ * The family is hand-maintained copies by decision — there is no shared
+ * workflow repo. That means a change has to be copied everywhere, and nothing
  * inside any single repo can tell you when a copy was missed. This has already
  * bitten three times: eight distinct biome.json, seven distinct
  * vitest.config.ts, ten distinct ci.yml.
  *
- * Run from a directory containing all ten checkouts, or let the workflow
+ * Run from a directory containing the checkouts, or let the workflow
  * clone them:
  *
  *   bun scripts/check-fleet.ts ../          # siblings of letools-site
@@ -29,6 +29,28 @@ export const REPOS = [
   'secrets-le',
   'string-le',
   'urls-le',
+] as const
+
+/**
+ * Registry tools this check does not compare yet, and why.
+ *
+ * Every file in `SHARED` belongs to the TypeScript extension — the biome
+ * config, the extension-host tsconfig, the workflow that builds and publishes
+ * a VSIX. These repos hold only `crate/` so far, so none of those files exists
+ * in them and comparing would report ten "missing in" lines that describe a
+ * repo nobody has finished rather than a copy somebody missed.
+ *
+ * They join `REPOS` the day their extension lands. The test that pins this
+ * list against the site registry is what makes that a failure rather than an
+ * omission: a tool cannot be in one list and neither of the other two.
+ */
+export const EXTENSION_PENDING = [
+  'i18n-le',
+  'ids-le',
+  'ips-le',
+  'unicode-le',
+  'units-le',
+  'versions-le',
 ] as const
 
 /** Files that must be byte-identical everywhere. */
@@ -134,8 +156,8 @@ export function main(root: string = process.argv[2] ?? '..'): number {
     process.stderr.write('Fleet drift detected:\n')
     for (const problem of problems) process.stderr.write(`  ${problem}\n`)
     process.stderr.write(
-      '\nThese files are meant to be identical across all ten repos. Copy the ' +
-        'canonical version across, or add a documented exception to ' +
+      `\nThese files are meant to be identical across all ${REPOS.length} extension repos. ` +
+        'Copy the canonical version across, or add a documented exception to ' +
         'scripts/check-fleet.ts if the difference is deliberate.\n',
     )
     return 1
@@ -143,7 +165,8 @@ export function main(root: string = process.argv[2] ?? '..'): number {
 
   const count = SHARED.length + Object.keys(SHARED_WITH_EXCEPTIONS).length
   process.stdout.write(
-    `Fleet check passed: ${count} shared files consistent across ${REPOS.length} repos.\n`,
+    `Fleet check passed: ${count} shared files consistent across ${REPOS.length} repos ` +
+      `(${EXTENSION_PENDING.length} crate-only repos not compared — no extension in them yet).\n`,
   )
   return 0
 }

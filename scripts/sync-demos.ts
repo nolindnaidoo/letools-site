@@ -125,7 +125,12 @@ ${entries}
 }
 
 export async function main(): Promise<number> {
-  const missing = TOOLS.filter(tool => !existsSync(sourceFor(tool.id)))
+  // A repo with no `src/assets/images/` at all has no extension in it yet —
+  // there is no editor screen to record, so there is nothing to copy and
+  // nothing wrong. A repo that has the directory and not the demo is the
+  // failure this used to catch, and still does.
+  const recorded = TOOLS.filter(tool => existsSync(resolve(FLEET, tool.id, 'src/assets')))
+  const missing = recorded.filter(tool => !existsSync(sourceFor(tool.id)))
   if (missing.length > 0) {
     process.stderr.write(
       `\nsync-demos: no source demo for ${missing.map(t => t.id).join(', ')}.\n` +
@@ -136,7 +141,7 @@ export async function main(): Promise<number> {
 
   let total = 0
   const hashes = new Map<string, { demo: string; poster: string }>()
-  for (const tool of TOOLS) {
+  for (const tool of recorded) {
     const destination = destinationFor(tool.id)
     const result = Bun.spawnSync(['ffmpeg', ...argsFor(sourceFor(tool.id), destination)])
 
@@ -201,9 +206,11 @@ export async function main(): Promise<number> {
   }
 
   writeFileSync(MAP, renderHashes(hashes))
+  const skipped = TOOLS.length - recorded.length
   process.stdout.write(
-    `\nSynced ${TOOLS.length} demos and posters, ${(total / 1024 / 1024).toFixed(1)} MB` +
-      `${removed > 0 ? `, removed ${removed} superseded file(s)` : ''}.\n`,
+    `\nSynced ${recorded.length} demos and posters, ${(total / 1024 / 1024).toFixed(1)} MB` +
+      `${removed > 0 ? `, removed ${removed} superseded file(s)` : ''}` +
+      `${skipped > 0 ? `. ${skipped} tool(s) have no extension to record yet` : ''}.\n`,
   )
   return 0
 }

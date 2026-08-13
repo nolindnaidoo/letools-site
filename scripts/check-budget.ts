@@ -22,17 +22,23 @@ const BUILD = resolve(ROOT, 'out')
 const KB = 1024
 
 /**
- * Measured 2026-08-06 against the current build: js 880 KB, css 413 KB,
- * html 807 KB across eleven pages, fonts 143 KB, and 8.1 MB of hover demos.
+ * Measured 2026-08-12 against the current build: js 865 KB, css 418 KB,
+ * html 1421 KB across seventeen pages, fonts 143 KB, and 7.6 MB of demos.
  *
  * The HTML ceiling moved from 750 KB to 950 KB across two steps: the tool
  * pages gained the command list and the distribution channels, and the home
  * page gained the thesis section, the MCP generator and the palette trigger.
+ * It then moved to 1560 KB when the family went from ten tools to sixteen —
+ * six new pages, and six more sibling cards on each of the other eleven, so
+ * the class grows faster than the page count does.
  *
  * **Set this from the deployed number, not a local build.** The same commit
  * measures ~823 KB locally and ~885 KB in the build image — about 5 KB per
  * page — so a ceiling tuned locally passes here and fails the deploy, which
- * happened. Every other class matches; only HTML differs.
+ * happened. Every other class matches; only HTML differs. At nineteen HTML
+ * files that delta is ~95 KB, which puts this build near 1516 KB deployed;
+ * 1560 is that plus the usual sliver. **If the deploy fails on HTML, take the
+ * number from the build log rather than adding another round guess.**
  *
  * Raising any ceiling needs the reason in the commit body. That is the only
  * way these move up.
@@ -49,7 +55,7 @@ const KB = 1024
 const BUDGETS = Object.freeze([
   { label: 'client JS', match: (p: string) => p.endsWith('.js'), ceiling: 900 * KB },
   { label: 'CSS', match: (p: string) => p.endsWith('.css'), ceiling: 430 * KB },
-  { label: 'HTML', match: (p: string) => p.endsWith('.html'), ceiling: 950 * KB },
+  { label: 'HTML', match: (p: string) => p.endsWith('.html'), ceiling: 1_560 * KB },
   { label: 'fonts', match: (p: string) => p.endsWith('.woff2'), ceiling: 160 * KB },
   { label: 'demo GIFs', match: (p: string) => p.endsWith('.gif'), ceiling: 8_600 * KB },
 ])

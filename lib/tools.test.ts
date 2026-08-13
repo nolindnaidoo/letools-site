@@ -4,10 +4,12 @@ import { describe, expect, it } from 'vitest'
 import { OPENVSX_NAMESPACE, PUBLISHER, SITE_URL } from './site'
 import {
   CATEGORIES,
+  CRATE_TOOLS,
   cargoInstallCommand,
   crateFor,
   crateUrl,
   demoSrc,
+  extensionPending,
   factsFor,
   findTool,
   githubUrl,
@@ -15,6 +17,7 @@ import {
   installCommand,
   marketplaceUrl,
   mcpCommand,
+  mcpInvocation,
   mcpRegistryUrl,
   mcpServerName,
   npmUrl,
@@ -25,6 +28,7 @@ import {
   toolPath,
   zedPrUrl,
 } from './tools'
+import { transcriptFor } from './transcripts'
 
 /**
  * The registry is the single source the grid, the category tabs, the install
@@ -39,9 +43,9 @@ import {
 
 describe('the registry', () => {
   it('describes the whole family', () => {
-    // Ten is a product fact the copy states out loud; a mismatch means the
-    // site is claiming a family size it does not list.
-    expect(TOOLS).toHaveLength(10)
+    // The family size is a product fact the copy states out loud; a mismatch
+    // means the site is claiming a size it does not list.
+    expect(TOOLS).toHaveLength(16)
   })
 
   it('gives every tool a unique id', () => {
@@ -210,14 +214,41 @@ describe('the link builders', () => {
     expect(posterSrc(tool)).toMatch(new RegExp(`^/posters/${tool.id}\\.[0-9a-f]{8}\\.jpg$`))
   })
 
-  it('gives every tool a fingerprinted demo and poster that exist on disk', () => {
+  it('references no asset that is not in public/', () => {
     for (const current of TOOLS) {
-      for (const path of [demoSrc(current), posterSrc(current)]) {
+      for (const path of [iconSrc(current), demoSrc(current), posterSrc(current)]) {
+        // Absent is allowed and means the extension that would ship the asset
+        // is not written yet. A path that is *stated* and not there is not.
+        if (path === undefined) continue
         expect(
           statSync(resolve('public', path.replace(/^\//, '')), { throwIfNoEntry: false })?.isFile(),
           `${path} is referenced but not in public/`,
         ).toBe(true)
       }
+    }
+  })
+
+  it('reports an icon for exactly the tools that have one on disk', () => {
+    // Icon presence is inferred from the demo hashes, because the three assets
+    // are copied out of one directory in the extension repo. That inference is
+    // the thing this pins: an icon added without a demo would render as the
+    // family mark while sitting unused in public/.
+    for (const current of TOOLS) {
+      const onDisk = statSync(resolve('public/icons', `${current.id}.png`), {
+        throwIfNoEntry: false,
+      })?.isFile()
+      expect(iconSrc(current) !== undefined, `${current.id} icon`).toBe(onDisk === true)
+    }
+  })
+
+  it('gives every tool something to show in place of a demo', () => {
+    // The demo is the pitch. A tool with neither a recording nor a captured
+    // run would render a hero with no evidence in it at all.
+    for (const current of TOOLS) {
+      expect(
+        demoSrc(current) !== undefined || transcriptFor(current) !== undefined,
+        `${current.id} has no demo and no transcript`,
+      ).toBe(true)
     }
   })
 
@@ -238,7 +269,7 @@ describe('the link builders', () => {
   it('gives every tool a distinct page path and asset set', () => {
     const paths = TOOLS.map(toolPath)
     expect(new Set(paths).size).toBe(paths.length)
-    const icons = TOOLS.map(iconSrc)
+    const icons = TOOLS.map(iconSrc).filter(icon => icon !== undefined)
     expect(new Set(icons).size).toBe(icons.length)
   })
 })
@@ -258,8 +289,9 @@ describe('findTool', () => {
 })
 
 describe('factsFor', () => {
-  it('returns the generated facts for every registered tool', () => {
+  it('returns the generated facts for every tool whose extension exists', () => {
     for (const tool of TOOLS) {
+      if (extensionPending(tool)) continue
       const facts = factsFor(tool)
       expect(facts.version, tool.id).toMatch(/^\d+\.\d+\.\d+$/)
       expect(facts.commands.length, tool.id).toBeGreaterThan(0)
@@ -271,6 +303,35 @@ describe('factsFor', () => {
       }
       expect(facts.mcpPackage, tool.id).toBe(`${tool.id}-mcp`)
       expect(facts.zedId, tool.id).toBe(tool.id)
+    }
+  })
+
+  it('reports the extension surfaces as absent together, or not at all', () => {
+    // They come from one repo and land in one commit, so a tool with a Zed id
+    // and no manifest is a half-read repo rather than a state that exists.
+    for (const tool of TOOLS) {
+      const facts = factsFor(tool)
+      const absent = [facts.version, facts.locales, facts.mcpPackage, facts.zedId].filter(
+        fact => fact === undefined,
+      ).length
+      expect(
+        absent === 0 || absent === 4,
+        `${tool.id} has ${absent} of 4 extension facts missing`,
+      ).toBe(true)
+      expect(extensionPending(tool), tool.id).toBe(absent === 4)
+    }
+  })
+
+  it('still knows how to start the MCP server for a tool with no npm package', () => {
+    // The server ships in the binary until the extension publishes one. An
+    // `npx -y undefined-mcp` here is a config that installs nothing.
+    for (const tool of TOOLS) {
+      const { command, args } = mcpInvocation(tool)
+      expect(command, tool.id).not.toContain('undefined')
+      expect(args.join(' '), tool.id).not.toContain('undefined')
+      expect(mcpCommand(tool), tool.id).toBe(
+        extensionPending(tool) ? `${tool.id} mcp` : `npx -y ${tool.id}-mcp`,
+      )
     }
   })
 
@@ -303,7 +364,7 @@ describe('the crate claims', () => {
   })
 
   it('reads the crate name and version from the repo, not by hand', () => {
-    const withCrate = TOOLS.filter(tool => crateFor(tool) !== undefined)
+    const withCrate = CRATE_TOOLS
     expect(withCrate.length).toBeGreaterThan(0)
     for (const tool of withCrate) {
       const crate = crateFor(tool)

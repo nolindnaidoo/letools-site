@@ -2,6 +2,7 @@ import { PUBLISHER } from '@/lib/site'
 import {
   crateFor,
   crateUrl,
+  extensionPending,
   factsFor,
   githubUrl,
   marketplaceUrl,
@@ -41,13 +42,19 @@ type Channel = Readonly<{
 function channelsFor(tool: Tool): readonly Channel[] {
   const facts = factsFor(tool)
   const crate = crateFor(tool)
+  // Everything the extension repo publishes is absent while the extension is
+  // unwritten. The row still appears, carrying the id the listing will take
+  // and a link to the repository, because a channel silently missing reads as
+  // a channel that will never exist.
+  const pending = extensionPending(tool)
 
   return [
     {
       label: 'VS Code Marketplace',
       detail: 'VS Code itself',
       value: `${PUBLISHER}.${tool.id}`,
-      href: marketplaceUrl(tool),
+      href: pending ? githubUrl(tool) : marketplaceUrl(tool),
+      ...(pending ? { pending: 'the extension is not written yet — this links the source' } : {}),
     },
     {
       // This card used to hand Cursor and Windsurf to the Marketplace, while
@@ -56,13 +63,19 @@ function channelsFor(tool: Tool): readonly Channel[] {
       label: 'Open VSX',
       detail: 'Cursor, Windsurf, VSCodium and the other forks',
       value: openVsxUrl(tool).split('/extension/')[1] ?? tool.id,
-      href: openVsxUrl(tool),
+      href: pending ? githubUrl(tool) : openVsxUrl(tool),
+      ...(pending ? { pending: 'the extension is not written yet — this links the source' } : {}),
     },
     {
       label: 'MCP server',
       detail: 'the same engine, callable by an agent with no editor in the loop',
       value: mcpCommand(tool),
-      href: npmUrl(tool),
+      // Without the extension there is no npm package; the crate answers `mcp`
+      // on stdio instead, and that is what the command above already says.
+      href: facts.mcpPackage === undefined ? githubUrl(tool) : npmUrl(tool),
+      ...(facts.mcpPackage === undefined
+        ? { pending: 'shipped by the binary, not by npm — no package to link yet' }
+        : {}),
     },
     {
       label: 'MCP registry',
@@ -82,13 +95,16 @@ function channelsFor(tool: Tool): readonly Channel[] {
             // like a broken tool. Until then this points at the source.
             ...(tool.cratePublished === true
               ? {}
-              : { pending: `v${crate.version} — publishing shortly; this links the source` }),
+              : { pending: `v${crate.version} — not on crates.io yet; this links the source` }),
           },
         ]),
     {
       label: 'Zed',
-      detail: 'built from Rust in the tool repo',
-      value: facts.zedId,
+      detail:
+        facts.zedId === undefined
+          ? 'as a custom MCP server today'
+          : 'built from Rust in the tool repo',
+      value: facts.zedId ?? mcpCommand(tool),
       // Submitted, not merged — and for most tools not submitted at all,
       // because Zed caps a contributor at three open pull requests. Both
       // states are said plainly; neither implies a listing that exists.
