@@ -31,18 +31,30 @@ jobs:
         with:
           bun-version: 1.3.13
 
-      # Shallow, no history — only the working tree is compared.
-      - name: Clone the ten extension repos
+      # Shallow, no history — only the working tree is compared. All sixteen:
+      # the crate-only six share a set with each other, and their docs are
+      # checked for paths that are not there.
+      - name: Clone the sixteen tool repos
         run: |
           mkdir -p /tmp/fleet
           for r in colors-le dates-le envsync-le numbers-le paths-le \
-                   regex-le scrape-le secrets-le string-le urls-le; do
+                   regex-le scrape-le secrets-le string-le urls-le \
+                   units-le i18n-le ids-le ips-le versions-le unicode-le; do
             git clone --depth 1 --quiet \
               "https://github.com/${{ github.repository_owner }}/$r.git" "/tmp/fleet/$r"
           done
+          # check-doc-paths resolves `letools-site/scripts/check-fleet.ts` the
+          # way every repo writes it — relative to the directory they sit in.
+          ln -s "$GITHUB_WORKSPACE" /tmp/fleet/letools-site
 
       - name: Compare shared config
         run: bun scripts/check-fleet.ts /tmp/fleet
+
+      # A doc is the one artefact here with no compiler and no test. Two crate
+      # standards named a sibling's contract fixture for months.
+      - name: Documented paths exist
+        if: always()
+        run: bun scripts/check-doc-paths.ts /tmp/fleet
 
   readme-links:
     name: README links

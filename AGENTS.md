@@ -64,6 +64,40 @@ lib/          tools.ts (THE tool registry) · site.ts (urls/name/theme colors) �
 Every claim must stay provable against the extension repos. Verify before
 writing, because these have each been wrong on this site before:
 
+**What the rule is about, and what it is not.** It governs **behaviour and
+numbers** — what a tool does, what it refuses, how many locales it ships, what
+a benchmark measured. Those are true or false against the tree right now, and
+a wrong one is a lie on a product page.
+
+It does **not** govern **availability** — whether a crate is on crates.io, an
+extension is on a marketplace, a listing has merged. Those are facts about a
+registry at a moment in time, and every one of them is false right up until the
+moment you make it true. Reading the rule as "you may not write the sentence
+yet" makes launch copy unwritable, which makes the launch itself impossible:
+the copy has to exist before the publish, and the publish is what the copy is
+about.
+
+**So staging copy ahead of a release is expected, not a violation.** Write it.
+Availability is declared in exactly one place and the page renders from that
+declaration, so unflipped copy cannot assert anything:
+
+- `cratePublished` in `lib/tools.ts` — while it is false the page describes the
+  CLI and links its source, and never links a crates.io URL that would 404.
+- `EXTENSION_PENDING` in `scripts/check-fleet.ts` — a repo with no extension
+  yet, deliberately not compared against the ten.
+- `zedPr` — absent means there is no open submission to link, so the page says
+  the listing does not exist.
+
+Flip the flag in the same commit as the release. `bun run check:crates`
+reconciles the declaration against the live registry, and its asymmetry is the
+point: claiming published while the registry disagrees **fails**, being
+published without the claim only **reports**, and an unreachable registry
+**passes** — an outage says nothing about a claim.
+
+The failure this whole section exists to prevent is a page that states
+something untrue to a reader. Copy sitting behind a false flag states nothing
+to anyone.
+
 - **Network access.** Nine tools make none. **Scrape-LE does** — it fetches the
   page it is checking. "No network access, ever" was false and is now scoped:
   the home hero says "Local by default", and a tool page reads the badge from

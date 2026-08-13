@@ -2,7 +2,7 @@
   "name": "letools-site",
   "version": "0.1.0",
   "private": true,
-  "description": "The hub site for the LE family of VS Code extensions \u2014 ten single-purpose devtools at letools.dev.",
+  "description": "The hub site for the LE family of VS Code extensions — ten single-purpose devtools at letools.dev.",
   "author": {
     "name": "Nolin Naidoo",
     "email": "nolin.naidoo@me.com",
@@ -26,6 +26,7 @@
     "e2e:ui": "playwright test --ui",
     "check:ovsx-links": "bun scripts/check-openvsx-links.ts",
     "check:fleet": "bun scripts/check-fleet.ts",
+    "check:doc-paths": "bun scripts/check-doc-paths.ts",
     "check:demos": "bun scripts/check-demos.ts",
     "lint": "biome check",
     "format": "biome check --write",
@@ -40,6 +41,7 @@
     "sync:demos": "bun scripts/sync-demos.ts",
     "verify:deploy": "bun run lint && bun run typecheck && bun run check:registry && bun run test:coverage && bun run build && bun run routes && bun run budget",
     "sync:registry": "bun scripts/sync-registry.ts",
+    "sync:readmes": "bun scripts/sync-readmes.ts",
     "check:registry": "bun scripts/sync-registry.ts --check",
     "check:crates": "bun scripts/check-crates.ts"
   },

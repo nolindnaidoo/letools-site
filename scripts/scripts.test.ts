@@ -8,6 +8,15 @@ import { BUDGETS, main as budgetMain, kb, walk } from './check-budget'
 import { main as cratesMain, publishedVersion, verdictFor } from './check-crates'
 import { type Demo, main as demosMain, problemsWith, readDemos, sha1 } from './check-demos'
 import {
+  resolves as docPathResolves,
+  main as docPathsMain,
+  looksLikePath,
+  pathsIn,
+  target,
+} from './check-doc-paths'
+import {
+  ALL_SHARED,
+  CRATE_ONLY_SHARED,
   EXTENSION_PENDING,
   fingerprint,
   main as fleetMain,
@@ -16,10 +25,12 @@ import {
   problemsIn,
   REPOS,
   SHARED,
+  SHARED_WITH_EXCEPTIONS,
 } from './check-fleet'
 import { isMissing, main as linksMain, refsIn, scan } from './check-openvsx-links'
 import { expectedPaths, orphans, resolves, main as routesMain } from './check-routes'
 import { argsFor, destinationFor, FILTER, renderHashes, sourceFor } from './sync-demos'
+import { regenerate, summarise } from './sync-readmes'
 import { main as registryMain, render, factsFor as repoFacts } from './sync-registry'
 
 /**
@@ -200,6 +211,94 @@ describe('check-fleet', () => {
   })
 })
 
+describe('check-doc-paths', () => {
+  it('takes a real reference and rejects prose that only looks like one', () => {
+    expect(looksLikePath('fixtures/mcp-detect-secrets.json')).toBe(true)
+    expect(looksLikePath('crate/src/detect/mod.rs')).toBe(true)
+    // Prose, schemes, placeholders and absolute paths are not references here.
+    expect(looksLikePath('if/else')).toBe(false)
+    expect(looksLikePath('America/New_York')).toBe(false)
+    expect(looksLikePath('postgres://10.0.0.5:5432/app')).toBe(false)
+    expect(looksLikePath('~/dev/rust/pixelcoords-site/AGENTS.md')).toBe(false)
+    expect(looksLikePath('/robots.txt')).toBe(false)
+    expect(looksLikePath('.js/.cjs/.mjs/.ts')).toBe(false)
+    expect(looksLikePath('@heroui/react')).toBe(false)
+  })
+
+  it('checks a glob by its directory', () => {
+    // `l10n/bundle.l10n.*.json` names a set that exists. Checking the literal
+    // string reports every wildcard in the fleet; checking the directory still
+    // catches a wrong directory in a copied paragraph.
+    expect(target('l10n/bundle.l10n.*.json')).toBe('l10n')
+    expect(target('crate/src/detect/mod.rs')).toBe('crate/src/detect/mod.rs')
+  })
+
+  it('reads backticked references and ignores the rest of the prose', () => {
+    const found = pathsIn('see `crate/src/detect/mod.rs` and `if/else`, plus plain text')
+    expect(found).toEqual(['crate/src/detect/mod.rs'])
+  })
+
+  it('does not accept a sibling repo as the home of a reference', () => {
+    // The defect this exists for: secrets-le named paths-le's contract
+    // fixture. A "does any repo have this?" fallback was tried and passed the
+    // exact case, because paths-le really does have the file.
+    const root = mkdtempSync(join(scratch, 'docpaths-'))
+    mkdirSync(join(root, 'paths-le/crate/fixtures'), { recursive: true })
+    writeFileSync(join(root, 'paths-le/crate/fixtures/mcp-extract-paths.json'), '{}')
+    mkdirSync(join(root, 'secrets-le/crate'), { recursive: true })
+    expect(
+      docPathResolves(
+        'fixtures/mcp-extract-paths.json',
+        root,
+        'secrets-le',
+        join(root, 'secrets-le/crate'),
+      ),
+    ).toBe(false)
+    expect(
+      docPathResolves(
+        'fixtures/mcp-extract-paths.json',
+        root,
+        'paths-le',
+        join(root, 'paths-le/crate'),
+      ),
+    ).toBe(true)
+  })
+
+  it('reports every repo missing when nothing is checked out', () => {
+    expect(docPathsMain(join(scratch, 'no-fleet-here'))).toBe(1)
+  })
+})
+
+describe('sync-readmes', () => {
+  it('reports a repo that is not checked out rather than passing over it', () => {
+    const outcome = regenerate(join(scratch, 'not-here'))
+    expect(outcome.ok).toBe(false)
+    expect(outcome.detail).toBe('not checked out')
+  })
+
+  it('surfaces the actionable last line when a regeneration fails', () => {
+    const dir = mkdtempSync(join(scratch, 'sync-fail-'))
+    const outcome = regenerate(dir, () => ({
+      status: 1,
+      stderr: 'a wall of test output\n\ncoverage/test-results.json not found\n\n',
+    }))
+    expect(outcome.ok).toBe(false)
+    expect(outcome.detail).toBe('coverage/test-results.json not found')
+  })
+
+  it('fails the run when any repo failed', () => {
+    // A regeneration that reported success over a repo it never wrote is the
+    // failure this whole family is built against.
+    expect(summarise([{ repo: 'a', ok: true, detail: 'regenerated' }])).toBe(0)
+    expect(
+      summarise([
+        { repo: 'a', ok: true, detail: 'regenerated' },
+        { repo: 'b', ok: false, detail: 'exit 1' },
+      ]),
+    ).toBe(1)
+  })
+})
+
 describe('check-openvsx-links', () => {
   it('extracts namespace and name from a link', () => {
     expect(refsIn('see https://open-vsx.org/extension/OffensiveEdge/paths-le now')).toEqual([
@@ -326,14 +425,71 @@ describe('the failure paths', () => {
 
   it('check-fleet passes when the fleet agrees', () => {
     const root = mkdtempSync(join(scratch, 'fleet-'))
+    // Derived from the lists rather than named here. Spelling the files out
+    // meant adding one to SHARED made this test fail as "missing everywhere",
+    // which reads as a broken check rather than an out-of-date fixture.
+    const plant = (repos: readonly string[], files: readonly string[]) => {
+      for (const repo of repos) {
+        for (const file of files) {
+          const full = join(root, repo, file)
+          mkdirSync(join(full, '..'), { recursive: true })
+          writeFileSync(full, `shared ${file}`)
+        }
+      }
+    }
+    plant(REPOS, [...SHARED, ...Object.keys(SHARED_WITH_EXCEPTIONS)])
+    // The crate-only repos share a different set with each other, and are not
+    // compared against the ten — a Rust codeql config and a TypeScript one are
+    // not the same document.
+    plant(EXTENSION_PENDING, CRATE_ONLY_SHARED)
+    // And a third set belongs to every repo in the family.
+    plant([...REPOS, ...EXTENSION_PENDING], ALL_SHARED)
+    expect(fleetMain(root)).toBe(0)
+  })
+
+  it('catches a file that differs between the two generations', () => {
+    // The gap that let one rule be implemented twice — a vitest file in the
+    // ten, a Python heredoc in the six — and diverge unnoticed: each group was
+    // internally consistent, and nothing compared them to each other.
+    const root = mkdtempSync(join(scratch, 'all-shared-'))
+    const write = (repo: string, file: string, content: string) => {
+      const full = join(root, repo, file)
+      mkdirSync(join(full, '..'), { recursive: true })
+      writeFileSync(full, content)
+    }
     for (const repo of REPOS) {
-      for (const file of [...SHARED, 'vitest.config.ts', 'tsconfig.json']) {
+      for (const file of [...SHARED, ...Object.keys(SHARED_WITH_EXCEPTIONS)]) {
+        write(repo, file, `shared ${file}`)
+      }
+      for (const file of ALL_SHARED) write(repo, file, `shared ${file}`)
+    }
+    for (const repo of EXTENSION_PENDING) {
+      for (const file of CRATE_ONLY_SHARED) write(repo, file, `shared ${file}`)
+      // Internally consistent across the six, and different from the ten.
+      for (const file of ALL_SHARED) write(repo, file, 'the other generation')
+    }
+    expect(fleetMain(root)).toBe(1)
+  })
+
+  it('check-fleet catches drift among the crate-only repos', () => {
+    // The gap that let two of them assert opposite things about this very
+    // list: uncompared, both claims survived because neither was checkable.
+    const root = mkdtempSync(join(scratch, 'crate-fleet-'))
+    for (const repo of REPOS) {
+      for (const file of [...SHARED, ...Object.keys(SHARED_WITH_EXCEPTIONS)]) {
         const full = join(root, repo, file)
         mkdirSync(join(full, '..'), { recursive: true })
         writeFileSync(full, `shared ${file}`)
       }
     }
-    expect(fleetMain(root)).toBe(0)
+    for (const [index, repo] of EXTENSION_PENDING.entries()) {
+      for (const file of CRATE_ONLY_SHARED) {
+        const full = join(root, repo, file)
+        mkdirSync(join(full, '..'), { recursive: true })
+        writeFileSync(full, index === 0 ? 'drifted' : `shared ${file}`)
+      }
+    }
+    expect(fleetMain(root)).toBe(1)
   })
 
   it('check-routes fails on a page the registry does not claim', () => {

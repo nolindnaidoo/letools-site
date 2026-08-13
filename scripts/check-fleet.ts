@@ -53,7 +53,52 @@ export const EXTENSION_PENDING = [
   'versions-le',
 ] as const
 
-/** Files that must be byte-identical everywhere. */
+/**
+ * Files the crate-only repos share **with each other**.
+ *
+ * They are outside `SHARED` because none of them is the same document as the
+ * extension repos' copy — a Rust `codeql-config.yml` and a TypeScript one
+ * describe different trees. Left uncompared entirely, the six drifted anyway:
+ * two of them ended up asserting opposite things about this very list, one
+ * saying nothing here is shared and another saying the workflow scaffolding
+ * is. Neither was checkable, so both survived.
+ *
+ * `ci-crate.yml` and `release-crate.yml` are deliberately absent: the crates
+ * stand on their own, and a job one repo needs and another does not is the
+ * point rather than a failure.
+ */
+/**
+ * Files that must be byte-identical across **all sixteen**.
+ *
+ * The tool could previously only say "identical across the ten" or "identical
+ * across the six", so a file that belongs to every repo had to be listed twice
+ * and was still never compared between the two groups. That gap is what let one
+ * rule be implemented twice — a vitest file in the ten, a Python heredoc in the
+ * six — and diverge before anyone noticed.
+ */
+export const ALL_SHARED = [
+  '.editorconfig',
+  // The agent-instruction rule itself. The ten call it from
+  // `src/agent-files.test.ts`; the six call it from the `policy` job.
+  'scripts/check-agent-files.py',
+] as const
+
+export const CRATE_ONLY_SHARED = [
+  '.gitattributes',
+  '.githooks/commit-msg',
+  '.github/dependabot.yml',
+  '.github/codeql-config.yml',
+  '.github/workflows/codeql.yml',
+  '.github/workflows/dependabot-auto-merge.yml',
+] as const
+
+/**
+ * Files that must be byte-identical everywhere.
+ *
+ * Nothing under `crate/` is listed, and that is a decision rather than an
+ * omission: the crates stand on their own, and a job or a toolchain one of
+ * them needs and another does not is the point rather than a failure.
+ */
 export const SHARED = [
   'biome.json',
   'tsconfig.it.json',
@@ -61,10 +106,32 @@ export const SHARED = [
   '.github/workflows/release.yml',
   '.github/workflows/codeql.yml',
   '.github/workflows/dependabot-auto-merge.yml',
+  '.github/workflows/zed-sync.yml',
   '.github/dependabot.yml',
   '.github/codeql-config.yml',
   'scripts/coverage-readme.js',
   'scripts/perf-readme.js',
+  // The commit convention is enforced twice — a local hook and a CI job — and
+  // both call one implementation so the rules cannot drift apart. That holds
+  // inside a repo; nothing held the ten copies of it equal until now.
+  '.githooks/commit-msg',
+  'scripts/commit-lint.js',
+  'scripts/install-hooks.js',
+  // The npm/MCP build path. `build-npm.js` writes the version into four files,
+  // so a copy that drifts publishes a package claiming a version it is not.
+  'scripts/build-mcp.js',
+  'scripts/build-npm.js',
+  // The six agent instruction files, and the test inside each repo that holds
+  // them to one document. That test is the within-repo half; this list is the
+  // across-repo half, and neither implies the other — ten identical copies of
+  // `.cursorrules` say nothing about whether GEMINI.md beside them agrees.
+  '.cursorrules',
+  '.windsurfrules',
+  '.clinerules',
+  'GEMINI.md',
+  '.cursor/rules/project.mdc',
+  '.github/copilot-instructions.md',
+  'src/agent-files.test.ts',
 ] as const
 
 /**
@@ -76,6 +143,10 @@ export const SHARED_WITH_EXCEPTIONS: Record<string, readonly string[]> = {
   'vitest.config.ts': ['scrape-le'],
   // scrape-le adds "DOM" to lib for Playwright page-eval code.
   'tsconfig.json': ['scrape-le'],
+  // scrape-le ships playwright-core beside the bundle, so its allow-list and
+  // the static require scan that guards it both admit one dependency.
+  '.vscodeignore': ['scrape-le'],
+  'scripts/check-bundle.js': ['scrape-le'],
 }
 
 /**
@@ -101,8 +172,12 @@ export function hash(path: string, repo: string): string | null {
 /** How one shared file looks across the fleet: its hash per repo, or null. */
 export type Fingerprints = ReadonlyMap<string, string | null>
 
-export function fingerprint(root: string, file: string): Fingerprints {
-  return new Map(REPOS.map(repo => [repo, hash(join(root, repo, file), repo)]))
+export function fingerprint(
+  root: string,
+  file: string,
+  repos: readonly string[] = REPOS,
+): Fingerprints {
+  return new Map(repos.map(repo => [repo, hash(join(root, repo, file), repo)]))
 }
 
 /**
@@ -151,13 +226,21 @@ export function main(root: string = process.argv[2] ?? '..'): number {
   for (const [file, allowed] of Object.entries(SHARED_WITH_EXCEPTIONS)) {
     problems.push(...problemsIn(file, fingerprint(root, file), allowed))
   }
+  for (const file of CRATE_ONLY_SHARED) {
+    problems.push(...problemsIn(file, fingerprint(root, file, EXTENSION_PENDING), []))
+  }
+  const everyRepo = [...REPOS, ...EXTENSION_PENDING]
+  for (const file of ALL_SHARED) {
+    problems.push(...problemsIn(file, fingerprint(root, file, everyRepo), []))
+  }
 
   if (problems.length > 0) {
     process.stderr.write('Fleet drift detected:\n')
     for (const problem of problems) process.stderr.write(`  ${problem}\n`)
     process.stderr.write(
-      `\nThese files are meant to be identical across all ${REPOS.length} extension repos. ` +
-        'Copy the canonical version across, or add a documented exception to ' +
+      '\nThese files are meant to be identical across the repos that carry them — ' +
+        `the ${REPOS.length} extension repos, or the ${EXTENSION_PENDING.length} crate-only ` +
+        'ones. Copy the canonical version across, or add a documented exception to ' +
         'scripts/check-fleet.ts if the difference is deliberate.\n',
     )
     return 1
@@ -165,8 +248,9 @@ export function main(root: string = process.argv[2] ?? '..'): number {
 
   const count = SHARED.length + Object.keys(SHARED_WITH_EXCEPTIONS).length
   process.stdout.write(
-    `Fleet check passed: ${count} shared files consistent across ${REPOS.length} repos ` +
-      `(${EXTENSION_PENDING.length} crate-only repos not compared — no extension in them yet).\n`,
+    `Fleet check passed: ${count} shared files consistent across ${REPOS.length} extension ` +
+      `repos, ${CRATE_ONLY_SHARED.length} across the ${EXTENSION_PENDING.length} crate-only ` +
+      `ones, and ${ALL_SHARED.length} across all ${REPOS.length + EXTENSION_PENDING.length}.\n`,
   )
   return 0
 }
