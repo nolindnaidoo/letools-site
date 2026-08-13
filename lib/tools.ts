@@ -67,7 +67,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     cratePublished: true,
     name: 'String-LE',
     category: 'extract',
-    summary: 'Extract string values from JSON, YAML, CSV, TOML, INI, and .env — for i18n.',
+    summary: 'Extract every string in a codebase, with its position, so a person can read them',
     mcpTool: 'extract_strings',
     overview:
       'Locale files, config files and CSV exports all bury their string values in structure. String-LE flattens that structure away: run one command and every string value in the document lands in a new editor, ready to paste into a translation tool or scan by eye. It parses JSON, YAML, CSV, TOML, INI and .env, and streams large CSVs rather than loading them whole.',
@@ -93,7 +93,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     cratePublished: true,
     name: 'Numbers-LE',
     category: 'extract',
-    summary: 'Extract numeric values from JSON, YAML, CSV, TOML, INI, and .env.',
+    summary: 'Extract every hardcoded number in a codebase, so a person can check them',
     mcpTool: 'extract_numbers',
     overview:
       'Numbers are the values most likely to be wrong and least likely to be read. Numbers-LE pulls every numeric value out of a config, fixture or data file into a plain list, so ranges and outliers are visible at a glance instead of buried in syntax. It parses JSON, YAML, CSV, TOML, INI and .env, and falls back to scanning plain text for anything else.',
@@ -117,8 +117,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     cratePublished: true,
     name: 'Paths-LE',
     category: 'extract',
-    summary:
-      'Pull every file path out of JS/TS imports, JSON, HTML, CSS, TOML, CSV, and .env files.',
+    summary: 'Extract every file path in a codebase, and say whether it still points at anything',
     mcpTool: 'extract_paths',
     overview:
       'A path in an import, an asset reference or a config value is a dependency you cannot see until something breaks. Paths-LE extracts every file and directory path from the active document and classifies each one, so a refactor or an asset audit starts from a list rather than a search. It reads JS/TS imports including multi-line statements, HTML and CSS references, and JSON, TOML, CSV and .env values.',
@@ -143,7 +142,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     cratePublished: true,
     name: 'Colors-LE',
     category: 'extract',
-    summary: 'Extract and analyze colors from CSS, SCSS, LESS, Stylus, HTML, JS/TS, and SVG.',
+    summary: 'Extract every color in a codebase, and say which ones are not in your palette',
     mcpTool: 'extract_colors',
     zedPr: 7078,
     overview:
@@ -169,7 +168,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     cratePublished: true,
     name: 'URLs-LE',
     category: 'extract',
-    summary: 'Extract URLs from documentation, configs, and code.',
+    summary: 'Extract every URL in a codebase, with its protocol and exact position',
     mcpTool: 'extract_urls',
     zedPr: 7077,
     overview:
@@ -196,7 +195,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     cratePublished: true,
     name: 'Dates-LE',
     category: 'extract',
-    summary: 'Extract date and time data from logs, configs, and code.',
+    summary: 'Extract every date and timestamp, and the exact instant each one resolves to',
     mcpTool: 'extract_dates',
     zedPr: 7079,
     overview:
@@ -223,7 +222,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     name: 'Units-LE',
     category: 'extract',
     summary:
-      'Extract every quantity with its unit, normalised to one base unit so two configs can be compared.',
+      'Extract every quantity with its unit, normalized, and refuse the ambiguous ones by name',
     mcpTool: 'extract_units',
     overview:
       'A number without its unit is not something you can compare. Units-LE finds every quantity in a tree and reports it twice: the text the document actually holds, and that value in one base unit. Four dimensions — duration in milliseconds, bytes, percent as a ratio, frequency in hertz. JSON, YAML, CSV, TOML, INI and dotenv are parsed; everything else is scanned as text, so a Kubernetes manifest or a Markdown table of limits yields its quantities rather than nothing. What it will not do is guess: a bare m is minutes in one config format, milliseconds in another and millicores in Kubernetes, so it comes back refused by name rather than resolved.',
@@ -250,8 +249,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     cratePublished: true,
     name: 'IDs-LE',
     category: 'extract',
-    summary:
-      'Find every UUID, ULID, NanoID, ObjectId and Snowflake, and decode the time inside it.',
+    summary: 'Extract every UUID, ULID, NanoID, ObjectId and Snowflake, and decode the time inside',
     mcpTool: 'extract_ids',
     overview:
       'An identifier usually records when and where something was made, and almost none of that is readable by eye. IDs-LE finds every UUID, ULID, NanoID, MongoDB ObjectId and Snowflake in a tree, says what each one is, and decodes the timestamp inside the ones that carry a clock — six bit layouts over three epochs, one of which starts in 1582, all reported as the same ISO-8601 UTC string. It refuses rather than guesses: thirty-two hex digits are an unhyphenated UUID and an MD5 digest in equal measure, so that run comes back as a row with a named reason instead of a confident wrong answer.',
@@ -278,8 +276,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     cratePublished: true,
     name: 'IPs-LE',
     category: 'extract',
-    summary:
-      'Find every IP address, CIDR block and MAC address in a tree, normalized and classified.',
+    summary: 'Extract every IP address, CIDR block and MAC, normalized and classified by scope',
     mcpTool: 'extract_ips',
     overview:
       'A regex over dotted quads finds no IPv6 at all, calls 1.2.3 an address, and reports 2001:0db8::0001 and 2001:db8::1 as two different things when they are one. IPs-LE finds every IP address, CIDR block and MAC address in a tree, normalizes IPv6 per RFC 5952, and says what each one is: loopback, private, link-local, cgnat, multicast, broadcast, reserved, documentation, unique-local or global. The scan runs over the bytes of every file, so an address inside a connection string or a rotated log is found too. It never resolves a name, never geolocates and never opens a socket.',
@@ -307,7 +304,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     name: 'Regex-LE',
     category: 'check',
     summary:
-      'Find, test, and validate the regular expressions in any file — match reports and built-in ReDoS screening.',
+      'Find every regex in a codebase, and report which can be driven into catastrophic backtracking',
     mcpTool: 'extract_patterns',
     overview:
       'A regular expression is easy to write and hard to trust. Regex-LE finds every pattern in the current file, runs one against the document to show real matches with line and column positions and capture groups, and screens each pattern for the shapes that cause catastrophic backtracking. Three commands: extract, test, validate.',
@@ -335,7 +332,8 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     fetchesTarget: true,
     name: 'Scrape-LE',
     category: 'check',
-    summary: 'Check whether a page is actually scrapeable before you burn hours debugging.',
+    summary:
+      'Check whether a page is scrapeable before the scraper is written, and say when it cannot tell',
     mcpTool: 'analyze_robots_txt',
     overview:
       'Whether a page can be scraped is a question best answered before the scraper is written. Scrape-LE loads a URL in a real headless Chromium and reports what it found: HTTP status, page title, load time, console errors, a full-page screenshot, and four detections covering anti-bot measures, authentication requirements, rate limiting and robots.txt rules.',
@@ -362,8 +360,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     cratePublished: true,
     name: 'Versions-LE',
     category: 'check',
-    summary:
-      'Find where the same dependency is constrained differently across a repository’s manifests.',
+    summary: "Find where one dependency is constrained differently across a repository's manifests",
     mcpTool: 'compare_versions',
     overview:
       'The build broke because one crate asks for serde 1.0.200 and another asks for serde 2. Or it did not break, and will, because CI has been running on a toolchain below the minimum a manifest declares. Versions-LE reads the version constraints across package.json, Cargo.toml, pyproject.toml, go.mod and GitHub workflow files, then reports where the same dependency is constrained inconsistently. Two constraints no single version can satisfy is an error, decided by interval arithmetic rather than string comparison; different but satisfiable is a warning; a floating pin is information. Comparison never crosses an ecosystem, and a grammar it does not model is named in the report rather than approximated into a range.',
@@ -391,7 +388,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     name: 'i18n-LE',
     category: 'check',
     summary:
-      'Audit translation catalogues for missing keys, placeholder drift and structural mismatches.',
+      "Identify the i18n library a project uses, then audit its catalogs by that library's rules",
     mcpTool: 'check_catalogues',
     overview:
       'Spanish shipped last week and the metrics screen has been saying a Spanish-looking placeholder name to every user since: the catalogue had every key, it parsed, and the placeholder came back from machine translation with its name translated too. i18n-LE audits a set of catalogues against one of them and reports what is structurally wrong — keys missing or extra, placeholders dropped or renamed, constructs from the wrong convention, empty values, keys defined twice, and a path that is an object in one locale and a string in another. It works out which library the project uses first, from the manifest, the config, the directory layout, the catalogue syntax and the call sites, because the library is what decides the placeholder grammar. Only key names and structural facts are reported: no translated value ever reaches the output.',
@@ -418,8 +415,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     cratePublished: true,
     name: 'Secrets-LE',
     category: 'guard',
-    summary:
-      'Detect and sanitize credentials, tokens, API keys, and private keys locally — before you commit.',
+    summary: 'Find hardcoded credentials in a codebase, and never print one into the report',
     mcpTool: 'detect_secrets',
     overview:
       'The cheapest place to catch a committed credential is before the commit. Secrets-LE scans your workspace for API keys, passwords, tokens and private keys, groups the findings by file with positions pointing at the value, and can replace them in place with a placeholder. Detection is regex-based over full text, so it works on code, configs, .env files, YAML, JSON and logs alike.',
@@ -446,8 +442,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     cratePublished: true,
     name: 'EnvSync-LE',
     category: 'guard',
-    summary:
-      'Spot missing keys across your .env files — automatic checks, a status bar counter, and a markdown report.',
+    summary: 'Compare the dotenv files in a tree, and say which keys are missing from which',
     mcpTool: 'compare_env_files',
     overview:
       'Environment files drift the moment one of them gains a key. EnvSync-LE compares the variable names across the .env files in your workspace and tells you which file is missing which key — names only, never values. Checks run automatically when a watched file changes, and the current issue count sits in the status bar.',
@@ -475,7 +470,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     name: 'Unicode-LE',
     category: 'guard',
     summary:
-      'Find the Unicode that hides meaning — Trojan Source controls, invisibles, homoglyphs, mixed scripts.',
+      'Find the Unicode that hides meaning — bidi controls, invisibles, homoglyphs, mixed scripts',
     mcpTool: 'detect_unicode_risks',
     overview:
       'Some characters are not what they look like. Unicode-LE scans a tree for the ones that hide meaning: the bidirectional controls behind CVE-2021-42574, zero-width and other invisibles, homoglyphs, words no single script accounts for, text that is not in Normalization Form C, and the spaces that are not the space. It reports codepoints and never the characters themselves, because a report that pasted one raw would reorder the terminal, the diff and the pull request of whoever read it. It rewrites nothing. A file plainly written in another script is refused for the homoglyph checks rather than judged by them, which is what lets the screen stay on in an internationalised repository instead of being switched off for noise.',
