@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, describe, expect, it, vi } from 'vitest'
-import { ASSET_HASHES } from '../lib/asset-hashes.generated'
+import { ASSET_HASHES, ICONS } from '../lib/asset-hashes.generated'
 import { crateFor, extensionPending, factsFor, LOCALE_COUNT, TOOLS } from '../lib/tools'
 import { BUDGETS, main as budgetMain, kb, walk } from './check-budget'
 import { main as cratesMain, publishedVersion, verdictFor } from './check-crates'
@@ -471,7 +471,7 @@ describe('sync-demos', () => {
     // the file to another, and every sync left a lint error behind correct
     // output. Byte equality is what stops either side moving alone — if this
     // fails, `sync:demos` and `lint` now disagree again.
-    const rendered = renderHashes(new Map(Object.entries(ASSET_HASHES)))
+    const rendered = renderHashes(new Map(Object.entries(ASSET_HASHES)), ICONS)
     const committed = join(import.meta.dirname, '../lib/asset-hashes.generated.ts')
     expect(rendered).toBe(readFileSync(committed, 'utf8'))
   })

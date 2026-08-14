@@ -57,7 +57,12 @@ const BUDGETS = Object.freeze([
   { label: 'CSS', match: (p: string) => p.endsWith('.css'), ceiling: 430 * KB },
   { label: 'HTML', match: (p: string) => p.endsWith('.html'), ceiling: 1_560 * KB },
   { label: 'fonts', match: (p: string) => p.endsWith('.woff2'), ceiling: 160 * KB },
-  { label: 'demo GIFs', match: (p: string) => p.endsWith('.gif'), ceiling: 8_600 * KB },
+  // Raised from 8600 when the six crate-only tools got terminal demos. The
+  // sixteen fit under the old ceiling at 97%, which is not headroom — it is
+  // the next re-recording failing a build for no reason anyone would learn
+  // from. A ceiling sitting on top of the current number is a tripwire rather
+  // than a budget.
+  { label: 'demo GIFs', match: (p: string) => p.endsWith('.gif'), ceiling: 10_500 * KB },
 ])
 
 export function* walk(directory: string): Generator<string> {

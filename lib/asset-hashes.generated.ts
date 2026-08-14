@@ -10,8 +10,32 @@ export const ASSET_HASHES: Readonly<Record<string, { demo: string; poster: strin
     'colors-le': { demo: '9999de44', poster: 'a00c94e7' },
     'urls-le': { demo: '5bfb0089', poster: 'cf6ce05e' },
     'dates-le': { demo: 'b6b05b59', poster: '8befaecb' },
+    'units-le': { demo: 'fdc3c15f', poster: '7798628b' },
+    'ids-le': { demo: 'f2ce0f58', poster: 'c100344f' },
+    'ips-le': { demo: '373da7dc', poster: 'a7afd3e8' },
     'regex-le': { demo: 'b9bdbd59', poster: '8ff44a7b' },
     'scrape-le': { demo: 'ea25c1f6', poster: '8a71e148' },
+    'versions-le': { demo: '33d7fc81', poster: '63a1dd56' },
+    'i18n-le': { demo: '38632b69', poster: '700fc995' },
     'secrets-le': { demo: '78688215', poster: 'd0d08739' },
     'envsync-le': { demo: '32b7bcfa', poster: 'e07a144b' },
+    'unicode-le': { demo: 'f80dd4a0', poster: '9468625d' },
   })
+
+// The tools with card artwork on disk, read from public/icons/ rather than
+// inferred. iconSrc used to derive this from the demo hash, which held only
+// while artwork and recording always arrived together — the crate-only tools
+// have a terminal demo and no icon, and the card asked for a file that was
+// never there.
+export const ICONS: readonly string[] = Object.freeze([
+  'string-le',
+  'numbers-le',
+  'paths-le',
+  'colors-le',
+  'urls-le',
+  'dates-le',
+  'regex-le',
+  'scrape-le',
+  'secrets-le',
+  'envsync-le',
+])

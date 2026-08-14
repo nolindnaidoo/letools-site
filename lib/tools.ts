@@ -1,5 +1,5 @@
 import { OPENVSX_NAMESPACE, PUBLISHER } from '@/lib/site'
-import { ASSET_HASHES } from './asset-hashes.generated'
+import { ASSET_HASHES, ICONS } from './asset-hashes.generated'
 import { TOOL_FACTS } from './tool-facts.generated'
 
 // THE tool registry. The grid, the category tabs, the install examples,
@@ -600,9 +600,20 @@ function assetHash(tool: Tool): { demo: string; poster: string } | undefined {
   return ASSET_HASHES[tool.id]
 }
 
-// Icons are downscaled to 128px; refresh them when a tool's branding changes.
+/**
+ * The 128px card icon, for the tools that have one.
+ *
+ * Icons are downscaled by hand from each extension repo's own artwork; refresh
+ * them when a tool's branding changes.
+ *
+ * This used to infer the icon from the demo hash, which held only while the two
+ * always arrived together. The crate-only tools broke that: they have terminal
+ * demos and no artwork, so the card asked for an icon that was never on disk.
+ * `ICONS` is generated from `public/icons/` itself, so the claim and the
+ * directory cannot disagree.
+ */
 export function iconSrc(tool: Tool): string | undefined {
-  if (assetHash(tool) === undefined) return undefined
+  if (!ICONS.includes(tool.id)) return undefined
   return `/icons/${tool.id}.png`
 }
 
