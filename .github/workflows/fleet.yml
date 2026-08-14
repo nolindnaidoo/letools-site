@@ -70,6 +70,14 @@ jobs:
         if: always()
         run: bun scripts/check-quoted-versions.ts /tmp/fleet
 
+      # Sixteen repositories built at three different times drifted into
+      # sixteen different front doors: none of the ten had an Install section
+      # at all, two crate pages had no License, three had no flag reference.
+      # Presence only — the middle of a README is the tool's own.
+      - name: Every README carries its pillars
+        if: always()
+        run: bun scripts/check-readme-pillars.ts /tmp/fleet
+
   readme-links:
     name: README links
     runs-on: ubuntu-latest

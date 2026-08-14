@@ -29,7 +29,8 @@ import {
 } from './check-fleet'
 import { isMissing, main as linksMain, refsIn, scan } from './check-openvsx-links'
 import { claimsIn, main as claimsMain } from './check-publication-claims'
-import { pinsIn, main as pinsMain } from './check-quoted-versions'
+import { manifestVersions, pinsIn, main as pinsMain } from './check-quoted-versions'
+import { missingFrom, main as pillarsMain } from './check-readme-pillars'
 import { expectedPaths, orphans, resolves, main as routesMain } from './check-routes'
 import { argsFor, destinationFor, FILTER, renderHashes, sourceFor } from './sync-demos'
 import { main as readmesMain, regenerate, summarise } from './sync-readmes'
@@ -456,6 +457,81 @@ describe('check-quoted-versions', () => {
 
   it('reports misuse when the root does not exist', async () => {
     expect(await pinsMain(join(scratch, 'no-fleet-here'))).toBe(1)
+  })
+
+  it('reads the crate version too, and skips a repo with no manifest at all', () => {
+    const root = mkdtempSync(join(scratch, 'pins-'))
+    const repo = join(root, 'demo-le')
+    mkdirSync(join(repo, 'crate'), { recursive: true })
+    writeFileSync(
+      join(repo, 'crate/Cargo.toml'),
+      '[package]\nname = "demo-le"\nversion = "0.4.2"\n',
+    )
+    expect(manifestVersions(root, 'demo-le').get('demo-le')).toBe('0.4.2')
+    expect(manifestVersions(root, 'absent-le').size).toBe(0)
+  })
+
+  it('passes a tree with no pins in it', async () => {
+    const root = mkdtempSync(join(scratch, 'pins-'))
+    const repo = join(root, 'demo-le')
+    mkdirSync(repo, { recursive: true })
+    writeFileSync(join(repo, 'package.json'), JSON.stringify({ name: 'demo-le', version: '1.0.0' }))
+    writeFileSync(join(repo, 'README.md'), 'no versions written down here')
+    expect(await pinsMain(root)).toBe(0)
+  })
+})
+
+describe('check-readme-pillars', () => {
+  const full = [
+    '# tool',
+    '## What it does',
+    '## Install',
+    '## Options',
+    '## Documentation',
+    '## More from the LE family',
+    '## License',
+  ].join('\n\n')
+
+  it('passes a README carrying all five', () => {
+    expect(missingFrom(full)).toEqual([])
+  })
+
+  it('names the pillar a README is missing', () => {
+    const missing = missingFrom(full.replace('## Install\n\n', ''))
+    expect(missing).toHaveLength(1)
+    expect(missing[0]?.what).toBe('how to install it')
+  })
+
+  it('accepts any of the headings a pillar allows', () => {
+    // The extension repos answer the flag question with Commands and
+    // Settings; the crates answer it with Options. Both are the same pillar.
+    expect(missingFrom(full.replace('## Options', '## Commands'))).toEqual([])
+    expect(missingFrom(full.replace('## Options', '## Settings'))).toEqual([])
+  })
+
+  it('leaves the middle of a README alone', () => {
+    // Every tool's differentiator is its own — a check that flattened those
+    // would be a tax on writing the next one.
+    const opinionated = `${full}\n\n## It refuses rather than guesses\n\n## Four dimensions`
+    expect(missingFrom(opinionated)).toEqual([])
+  })
+
+  it('reports misuse when the root does not exist', () => {
+    expect(pillarsMain(join(scratch, 'no-fleet-here'))).toBe(1)
+  })
+
+  it('skips a README that is not checked out rather than failing on it', () => {
+    // The crate-only six have no `src/`, and a partial checkout has no repo at
+    // all. Absent is not the same as missing a pillar.
+    const root = mkdtempSync(join(scratch, 'pillars-'))
+    expect(pillarsMain(root)).toBe(0)
+  })
+
+  it('fails a repo whose README is short a pillar', () => {
+    const root = mkdtempSync(join(scratch, 'pillars-'))
+    mkdirSync(join(root, 'colors-le'), { recursive: true })
+    writeFileSync(join(root, 'colors-le', 'README.md'), '# colors-le\n\n## Install\n')
+    expect(pillarsMain(root)).toBe(1)
   })
 })
 
