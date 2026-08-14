@@ -43,4 +43,5 @@ export const ICONS: readonly string[] = Object.freeze([
   'i18n-le',
   'secrets-le',
   'envsync-le',
+  'unicode-le',
 ])
