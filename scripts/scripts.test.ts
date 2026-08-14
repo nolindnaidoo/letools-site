@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -10,6 +11,7 @@ import { type Demo, main as demosMain, problemsWith, readDemos, sha1 } from './c
 import {
   resolves as docPathResolves,
   main as docPathsMain,
+  isGenerated,
   looksLikePath,
   pathsIn,
   target,
@@ -227,6 +229,25 @@ describe('check-doc-paths', () => {
     expect(looksLikePath('/robots.txt')).toBe(false)
     expect(looksLikePath('.js/.cjs/.mjs/.ts')).toBe(false)
     expect(looksLikePath('@heroui/react')).toBe(false)
+  })
+
+  it('treats a gitignored path as built, and still fails a wrong one', () => {
+    // The gate went green locally and red in CI: `dist/extension.js` and
+    // `release/*.vsix` are real references that only exist after a build, so a
+    // fresh clone reported them missing. Git is the authority on which is which
+    // — and a path it does not ignore is still a defect.
+    const repo = mkdtempSync(join(scratch, 'gitrepo-'))
+    writeFileSync(join(repo, '.gitignore'), 'dist/\nrelease/\n')
+    spawnSync('git', ['-C', repo, 'init', '--quiet'], { stdio: 'ignore' })
+
+    expect(isGenerated('dist/extension.js', repo)).toBe(true)
+    expect(isGenerated('release/*.vsix', repo)).toBe(true)
+    expect(isGenerated('fixtures/mcp-extract-paths.json', repo)).toBe(false)
+  })
+
+  it('stays strict when git cannot answer', () => {
+    // A directory that is not a repository must not turn into a blanket pass.
+    expect(isGenerated('dist/extension.js', mkdtempSync(join(scratch, 'nogit-')))).toBe(false)
   })
 
   it('checks a glob by its directory', () => {

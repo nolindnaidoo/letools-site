@@ -15,6 +15,7 @@
  *
  * Run: bun run check:doc-paths [root]
  */
+import { spawnSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
@@ -94,6 +95,36 @@ const CROSS_REPO: Readonly<Record<string, readonly string[]>> = {
   'scripts/commit-lint.js': ['unicode-le'],
 }
 
+/**
+ * Whether git is told to ignore this path — which makes it a build artefact,
+ * not a reference.
+ *
+ * `dist/extension.js`, `release/*.vsix` and `coverage/coverage-summary.json`
+ * are all named legitimately by the standards and none of them exists in a
+ * fresh clone. Without this the gate passed on a developer machine, where a
+ * build had been run, and failed in CI, where one had not — the worst shape a
+ * check can have, because the person who can fix it is the one who cannot see
+ * it. That is exactly what happened: green locally, red on the runner.
+ *
+ * Asking git rather than keeping a list of artefact directories means a new
+ * build output is covered the day it is added to `.gitignore`.
+ *
+ * An unknown answer counts as *not* ignored, so a repo without git, or a git
+ * that fails, keeps the check strict rather than silently passing everything.
+ */
+export function isGenerated(token: string, repoRoot: string): boolean {
+  // Probed as a file, never as the bare directory `target()` produces. A
+  // `.gitignore` entry of `release/` matches `release/x.vsix` and does not
+  // match `release`, because the trailing slash means "directory" and the
+  // directory is not there to be recognised in a fresh clone — which is the
+  // exact situation this is for.
+  const probe = token.replaceAll('*', 'x')
+  const result = spawnSync('git', ['-C', repoRoot, 'check-ignore', '--quiet', '--', probe], {
+    stdio: 'ignore',
+  })
+  return result.status === 0
+}
+
 /** Whether a reference resolves from where its document sits. */
 export function resolves(token: string, root: string, repo: string, docDir: string): boolean {
   const wanted = target(token)
@@ -132,6 +163,8 @@ export function main(root: string = process.argv[2] ?? '..'): number {
       for (const token of pathsIn(source)) {
         checked += 1
         if (resolves(token, root, repo, dirname(path))) continue
+        // Absent because it is built, not because the doc is wrong.
+        if (isGenerated(token, join(root, repo))) continue
         problems.push(`${repo}/${doc}: \`${token}\` does not exist`)
       }
     }
