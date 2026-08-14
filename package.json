@@ -43,7 +43,8 @@
     "sync:registry": "bun scripts/sync-registry.ts",
     "sync:readmes": "bun scripts/sync-readmes.ts",
     "check:registry": "bun scripts/sync-registry.ts --check",
-    "check:crates": "bun scripts/check-crates.ts"
+    "check:crates": "bun scripts/check-crates.ts",
+    "check:publication-claims": "bun scripts/check-publication-claims.ts"
   },
   "dependencies": {
     "@heroui/react": "^3.2.3",

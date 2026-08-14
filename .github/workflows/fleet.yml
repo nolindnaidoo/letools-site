@@ -56,6 +56,13 @@ jobs:
         if: always()
         run: bun scripts/check-doc-paths.ts /tmp/fleet
 
+      # The other half: a flag has a checker, prose did not. All six crate-only
+      # repos shipped a README telling readers `cargo install` would not work
+      # while every one of them was live on crates.io.
+      - name: No doc calls a published crate unpublished
+        if: always()
+        run: bun scripts/check-publication-claims.ts /tmp/fleet
+
   readme-links:
     name: README links
     runs-on: ubuntu-latest

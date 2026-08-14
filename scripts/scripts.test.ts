@@ -28,6 +28,7 @@ import {
   SHARED_WITH_EXCEPTIONS,
 } from './check-fleet'
 import { isMissing, main as linksMain, refsIn, scan } from './check-openvsx-links'
+import { claimsIn } from './check-publication-claims'
 import { expectedPaths, orphans, resolves, main as routesMain } from './check-routes'
 import { argsFor, destinationFor, FILTER, renderHashes, sourceFor } from './sync-demos'
 import { regenerate, summarise } from './sync-readmes'
@@ -296,6 +297,31 @@ describe('sync-readmes', () => {
         { repo: 'b', ok: false, detail: 'exit 1' },
       ]),
     ).toBe(1)
+  })
+})
+
+describe('check-publication-claims', () => {
+  it('catches a doc telling readers a live crate is not installable', () => {
+    const found = claimsIn('unicode-le', 'README.md', '## Install\n\n**Not on crates.io yet.**\n')
+    expect(found).toHaveLength(1)
+    expect(found[0]?.line).toBe(3)
+  })
+
+  it('ignores a general statement about publishing order', () => {
+    // Every extension repo's release notes say "a merged extension pointing at
+    // an unpublished version is broken for everyone who installs it". That is
+    // npm ordering advice, not a claim about this crate — and a bare
+    // /unpublished/ matched it in ten repos on the first run.
+    const generic =
+      'npm must be published before any Zed PR merges — a merged extension ' +
+      'pointing at an unpublished version is broken for everyone.'
+    expect(claimsIn('colors-le', 'AGENTS.md', generic)).toEqual([])
+  })
+
+  it('reads an assertion about this crate, in either phrasing', () => {
+    expect(claimsIn('a', 'README.md', '0.1.0 is unpublished')).toHaveLength(1)
+    expect(claimsIn('a', 'AGENTS.md', '**Status: v0.1.0, unpublished.**')).toHaveLength(1)
+    expect(claimsIn('a', 'README.md', 'cargo install a  # once published')).toHaveLength(1)
   })
 })
 
