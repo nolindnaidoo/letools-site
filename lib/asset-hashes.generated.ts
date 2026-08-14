@@ -36,6 +36,7 @@ export const ICONS: readonly string[] = Object.freeze([
   'dates-le',
   'units-le',
   'ids-le',
+  'ips-le',
   'regex-le',
   'scrape-le',
   'secrets-le',
