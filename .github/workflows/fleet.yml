@@ -109,6 +109,11 @@ jobs:
       # answers 200 for extensions that do not exist, so a status-code checker
       # cannot judge it. The next step checks those against the API instead.
       # linkedin.com answers 999 to non-browser clients and is never broken.
+      #
+      # npmjs.com is excluded for the mirror-image reason: it answers 403 to
+      # every automated client, browser user-agent or not, so it reported all
+      # ten MCP packages dead while every one was published. Those are checked
+      # against registry.npmjs.org below, which is the source that owns the fact.
       - uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:
           args: >-
@@ -117,8 +122,12 @@ jobs:
             --accept 200,206,301,302
             --exclude open-vsx\.org
             --exclude linkedin\.com
+            --exclude npmjs\.com
             /tmp/fleet/*/README.md
           fail: true
 
       - name: Open VSX links (API, not status code)
         run: bun scripts/check-openvsx-links.ts /tmp/fleet
+
+      - name: npm links (registry, not status code)
+        run: bun scripts/check-npm-links.ts /tmp/fleet

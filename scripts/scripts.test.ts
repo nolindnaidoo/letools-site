@@ -27,6 +27,7 @@ import {
   SHARED,
   SHARED_WITH_EXCEPTIONS,
 } from './check-fleet'
+import { main as npmMain, refsIn as refsInNpm, scan as scanNpm } from './check-npm-links'
 import { isMissing, main as linksMain, refsIn, scan } from './check-openvsx-links'
 import { claimsIn, main as claimsMain } from './check-publication-claims'
 import { manifestVersions, pinsIn, main as pinsMain } from './check-quoted-versions'
@@ -589,6 +590,60 @@ describe('check-openvsx-links', () => {
     const root = fakeBuild({ 'README.md': 'https://open-vsx.org/extension/OffensiveEdge/a' })
     await expect(linksMain(root, async () => ({ error: 'gone' }))).resolves.toBe(1)
     await expect(linksMain(root, async () => ({ version: '2.2.3' }))).resolves.toBe(0)
+  })
+})
+
+describe('check-npm-links', () => {
+  it('extracts an unscoped and a scoped package name', () => {
+    expect(refsInNpm('see https://www.npmjs.com/package/colors-le-mcp now')).toEqual([
+      'colors-le-mcp',
+    ])
+    expect(refsInNpm('https://www.npmjs.com/package/@scope/thing')).toEqual(['@scope/thing'])
+  })
+
+  it('stops at delimiters, including a backslash-escaped quote', () => {
+    // Same trap as the Open VSX pattern: the built page serializes the URL
+    // inside a JS string where the closing quote is escaped.
+    expect(refsInNpm('<a href="https://www.npmjs.com/package/urls-le-mcp">')).toEqual([
+      'urls-le-mcp',
+    ])
+    expect(refsInNpm(String.raw`{"href":"https://www.npmjs.com/package/colors-le-mcp\",`)).toEqual([
+      'colors-le-mcp',
+    ])
+  })
+
+  it('finds links in markdown and built HTML, and ignores other files', () => {
+    const root = fakeBuild({
+      'README.md': 'https://www.npmjs.com/package/a-le-mcp',
+      'out/index.html': '<a href="https://www.npmjs.com/package/b-le-mcp">',
+      'notes.txt': 'https://www.npmjs.com/package/ignored-le-mcp',
+    })
+    expect([...scanNpm(root).keys()].sort()).toEqual(['a-le-mcp', 'b-le-mcp'])
+  })
+
+  it('reports misuse without a directory', async () => {
+    await expect(npmMain(undefined, async () => ({ missing: false }))).resolves.toBe(2)
+  })
+
+  it('passes when there is nothing to check', async () => {
+    await expect(
+      npmMain(fakeBuild({ 'a.txt': 'x' }), async () => ({ missing: false })),
+    ).resolves.toBe(0)
+  })
+
+  it('fails on an unpublished package and passes on a live one', async () => {
+    const root = fakeBuild({ 'README.md': 'https://www.npmjs.com/package/a-le-mcp' })
+    await expect(npmMain(root, async () => ({ missing: true }))).resolves.toBe(1)
+    await expect(npmMain(root, async () => ({ missing: false, version: '2.2.3' }))).resolves.toBe(0)
+  })
+
+  it('does not fail the run because the registry was unreachable', async () => {
+    // The bug this whole script replaces: npmjs.com answering 403 to a robot
+    // is not evidence that the package is gone. An outage reports and passes.
+    const root = fakeBuild({ 'README.md': 'https://www.npmjs.com/package/a-le-mcp' })
+    await expect(
+      npmMain(root, async () => ({ missing: false, unreachable: 'HTTP 503' })),
+    ).resolves.toBe(0)
   })
 })
 
