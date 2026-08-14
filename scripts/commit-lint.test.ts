@@ -67,13 +67,13 @@ describe('rejected subjects', () => {
     expect(check(subject).code).toBe(1)
   })
 
-  it('rejects a subject over 72 characters', () => {
-    expect(check(`feat: ${'x'.repeat(80)}`).code).toBe(1)
+  it('rejects a subject over 100 characters', () => {
+    expect(check(`feat: ${'x'.repeat(110)}`).code).toBe(1)
   })
 
-  it('accepts a subject at exactly 72 characters', () => {
-    const subject = `feat: ${'x'.repeat(72 - 'feat: '.length)}`
-    expect(subject).toHaveLength(72)
+  it('accepts a subject at exactly 100 characters', () => {
+    const subject = `feat: ${'x'.repeat(100 - 'feat: '.length)}`
+    expect(subject).toHaveLength(100)
     expect(check(subject).code).toBe(0)
   })
 

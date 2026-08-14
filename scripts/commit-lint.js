@@ -31,7 +31,7 @@ const TYPES = Object.freeze([
   'revert',
 ])
 
-const MAX_SUBJECT = 72
+const MAX_SUBJECT = 100
 const SUBJECT = new RegExp(`^(${TYPES.join('|')})(\\([a-z0-9._/-]+\\))?!?: .+$`)
 
 const OK = 0
