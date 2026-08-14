@@ -29,6 +29,7 @@ import {
 } from './check-fleet'
 import { isMissing, main as linksMain, refsIn, scan } from './check-openvsx-links'
 import { claimsIn, main as claimsMain } from './check-publication-claims'
+import { pinsIn, main as pinsMain } from './check-quoted-versions'
 import { expectedPaths, orphans, resolves, main as routesMain } from './check-routes'
 import { argsFor, destinationFor, FILTER, renderHashes, sourceFor } from './sync-demos'
 import { main as readmesMain, regenerate, summarise } from './sync-readmes'
@@ -382,6 +383,79 @@ describe('check-publication-claims', () => {
 
   it('reports misuse when the root does not exist', async () => {
     expect(await claimsMain(join(scratch, 'no-fleet-here'), async () => '0.1.0')).toBe(1)
+  })
+
+  it('reads a claim that wraps across two lines', () => {
+    // These documents hard-wrap near 72 characters, so the claim that shipped
+    // in four repositories was split — "once it is published; until" on one
+    // line and "then it builds from `crate/`" on the next. A per-line scan saw
+    // two innocent halves and this gate reported green over five live claims.
+    const wrapped =
+      'Install it with `cargo install colors-le` once it is published; until\n' +
+      'then it builds from `crate/`. The spec lives beside it.\n'
+    const found = claimsIn('colors-le', 'README.md', wrapped)
+    expect(found).toHaveLength(1)
+    expect(found[0]?.line).toBe(1)
+  })
+
+  it('catches the hedge on an install row', () => {
+    expect(
+      claimsIn(
+        'string-le',
+        'crate/README.md',
+        '| `cargo install string-le` | *(publishing shortly)* |',
+      ),
+    ).toHaveLength(1)
+  })
+
+  it('does not run a bounded pattern past the line it was written for', () => {
+    // Flattening the newlines is what lets a wrapped claim match. It also
+    // turns any unbounded `[^\n]*` into "the rest of the file" — which fired
+    // on an ASCII architecture diagram the first time this was written.
+    const diagram =
+      'statusBar -> registerCommands()\ncommands/  one file per command\n' +
+      'extraction/  dispatcher\nui/  notifier, statusBar\n'
+    expect(claimsIn('numbers-le', 'AGENTS.md', diagram)).toEqual([])
+  })
+})
+
+describe('check-quoted-versions', () => {
+  it('reads an exact pin of a package this repo publishes', () => {
+    const found = pinsIn('README.md', 'pin it — `colors-le-mcp@2.2.1`.', ['colors-le-mcp'])
+    expect(found).toHaveLength(1)
+    expect(found[0]).toMatchObject({ pkg: 'colors-le-mcp', quoted: '2.2.1', line: 1 })
+  })
+
+  it('ignores anything that is not one of this repo own packages', () => {
+    // `actions/checkout@v4` and an email address are both @-shaped and neither
+    // is a claim about this repository's release.
+    expect(pinsIn('ci.yml', 'uses: actions/checkout@4.1.1', ['colors-le'])).toEqual([])
+  })
+
+  it('ignores a range, which says nothing that can rot', () => {
+    expect(pinsIn('README.md', 'colors-le-mcp@^2.2', ['colors-le-mcp'])).toEqual([])
+  })
+
+  const fakeRepo = (readme: string, version: string) => {
+    const root = mkdtempSync(join(scratch, 'pins-'))
+    const repo = join(root, 'demo-le')
+    mkdirSync(join(repo, 'mcp'), { recursive: true })
+    writeFileSync(join(repo, 'package.json'), JSON.stringify({ name: 'demo-le', version }))
+    writeFileSync(join(repo, 'mcp/package.json'), JSON.stringify({ name: 'demo-le-mcp', version }))
+    writeFileSync(join(repo, 'README.md'), readme)
+    return root
+  }
+
+  it('fails on a pin the manifest disagrees with', async () => {
+    expect(await pinsMain(fakeRepo('use `demo-le-mcp@1.0.0`', '2.0.0'))).toBe(1)
+  })
+
+  it('passes when the pin matches', async () => {
+    expect(await pinsMain(fakeRepo('use `demo-le-mcp@2.0.0`', '2.0.0'))).toBe(0)
+  })
+
+  it('reports misuse when the root does not exist', async () => {
+    expect(await pinsMain(join(scratch, 'no-fleet-here'))).toBe(1)
   })
 })
 

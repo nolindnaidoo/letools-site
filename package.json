@@ -2,7 +2,7 @@
   "name": "letools-site",
   "version": "0.1.0",
   "private": true,
-  "description": "The hub site for the LE family of VS Code extensions — ten single-purpose devtools at letools.dev.",
+  "description": "The hub site for the LE family of VS Code extensions \u2014 ten single-purpose devtools at letools.dev.",
   "author": {
     "name": "Nolin Naidoo",
     "email": "nolin.naidoo@me.com",
@@ -44,7 +44,8 @@
     "sync:readmes": "bun scripts/sync-readmes.ts",
     "check:registry": "bun scripts/sync-registry.ts --check",
     "check:crates": "bun scripts/check-crates.ts",
-    "check:publication-claims": "bun scripts/check-publication-claims.ts"
+    "check:publication-claims": "bun scripts/check-publication-claims.ts",
+    "check:quoted-versions": "bun scripts/check-quoted-versions.ts"
   },
   "dependencies": {
     "@heroui/react": "^3.2.3",

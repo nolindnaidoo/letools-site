@@ -63,6 +63,13 @@ jobs:
         if: always()
         run: bun scripts/check-publication-claims.ts /tmp/fleet
 
+      # All ten READMEs told a reader to pin `<tool>-le-mcp@2.2.1` while the
+      # published package was 2.3.0 — one wrong number copied nine times and
+      # aged two releases, because nothing reads a version out of prose.
+      - name: Quoted versions match their manifest
+        if: always()
+        run: bun scripts/check-quoted-versions.ts /tmp/fleet
+
   readme-links:
     name: README links
     runs-on: ubuntu-latest

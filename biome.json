@@ -52,11 +52,14 @@
       "react": "recommended"
     },
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "correctness": {
         "noUnusedVariables": "warn",
         "noUnusedImports": "error",
         "useExhaustiveDependencies": "warn"
+      },
+      "performance": {
+        "noImgElement": "off"
       }
     }
   }

@@ -24,21 +24,39 @@ import { join } from 'node:path'
  * every sentence containing "publish". A release workflow that "refuses a
  * version the registry already carries" is describing a gate, not making a
  * claim about availability.
+ *
+ * Claims that read the same however the prose is wrapped. Matched against the
+ * document with newlines flattened, so every quantifier here is bounded — an
+ * unbounded `[^\n]*` stops meaning "the rest of the line" the moment the
+ * newlines are gone, and matches the rest of the file instead. That is not
+ * hypothetical: it fired on an ASCII architecture diagram the first time.
  */
-export const CLAIMS = [
+const WRAPPED = [
   /not on crates\.io/i,
   /not published to crates\.io/i,
-  /once published/i,
-  // "is unpublished", "Status: v0.1.0, unpublished" — an assertion about this
-  // crate. NOT a bare `\bunpublished\b`: every extension repo's release notes
-  // explain that "a merged extension pointing at an unpublished version is
-  // broken", which is a general statement about npm ordering and matched ten
-  // times on the first run. A gate with ten false positives is a gate people
-  // learn to ignore.
+  // `once published` did not match `once it is published`, which is what four
+  // repositories actually said — so this gate reported "no doc calls them
+  // unpublished" while five live claims sat under it. A literal phrase is the
+  // wrong shape for prose somebody will rewrite; allow the words in between.
+  /once\b[^.]{0,20}\bpublished\b/i,
+  /publishing shortly/i,
+  /until then it builds/i,
+  // "is unpublished" — an assertion about this crate. NOT a bare
+  // `\bunpublished\b`: every extension repo's release notes explain that "a
+  // merged extension pointing at an unpublished version is broken", which is a
+  // general statement about npm ordering and matched ten times on the first
+  // run. A gate with ten false positives is a gate people learn to ignore.
   /\b(?:is|was|are|were|remains?)\s+(?:still\s+)?unpublished\b/i,
-  /status[^\n]*\bunpublished\b/i,
-  /^\s*[-*]?\s*\*{0,2}not published\b/i,
+  // Bounded rather than `[^\n]*`: the newlines are gone by the time this
+  // runs. A dot has to be allowed through — "Status: v0.1.0, unpublished"
+  // carries two of them in the version alone.
+  /\bstatus\b.{0,40}?\bunpublished\b/i,
 ] as const
+
+/** Claims that mean something only at the start of a line. */
+const ANCHORED = [/^\s*[-*]?\s*\*{0,2}not published\b/i] as const
+
+export const CLAIMS = [...WRAPPED, ...ANCHORED] as const
 
 /**
  * Files that speak to a reader about availability. CHANGELOGs are excluded:
@@ -56,14 +74,40 @@ const DOCS = [
 
 export type Claim = Readonly<{ repo: string; file: string; line: number; text: string }>
 
-/** Every unpublished-claim in one document. */
+/**
+ * Every unpublished-claim in one document.
+ *
+ * Matched against the document with newlines flattened to spaces, not line by
+ * line. Every one of these files is hard-wrapped near 72 characters, so "once
+ * it is published; until / then it builds from `crate/`" is one claim split
+ * across two lines — and a per-line scan sees two halves of a sentence, each
+ * innocent. The offset is mapped back to a line number so the report still
+ * points at somewhere a person can open.
+ */
 export function claimsIn(repo: string, file: string, source: string): readonly Claim[] {
+  // One character in, one character out, so an index into `flat` is an index
+  // into `source`. Replacing the newline with a space rather than deleting it
+  // also keeps words on either side of a wrap from fusing.
+  const flat = source.replace(/\n/g, ' ')
   const found: Claim[] = []
+  const seen = new Set<number>()
+
+  const add = (line: number, text: string) => {
+    if (seen.has(line)) return
+    seen.add(line)
+    found.push({ repo, file, line, text: text.trim() })
+  }
+
+  for (const pattern of WRAPPED) {
+    for (const match of flat.matchAll(new RegExp(pattern.source, `${pattern.flags}g`))) {
+      add(source.slice(0, match.index ?? 0).split('\n').length, match[0])
+    }
+  }
   source.split('\n').forEach((text, index) => {
-    if (!CLAIMS.some(pattern => pattern.test(text))) return
-    found.push({ repo, file, line: index + 1, text: text.trim() })
+    if (ANCHORED.some(pattern => pattern.test(text))) add(index + 1, text)
   })
-  return found
+
+  return found.sort((a, b) => a.line - b.line)
 }
 
 export async function publishedVersion(name: string): Promise<string | undefined> {

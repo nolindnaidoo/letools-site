@@ -21,6 +21,7 @@ import { existsSync, readdirSync, readFileSync, statSync, unlinkSync, writeFileS
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { TOOLS } from '../lib/tools'
+import { REPOS } from './check-fleet'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const DEMOS = resolve(ROOT, 'public/demos')
@@ -46,9 +47,16 @@ const WIDTH = 800
  * the posters used to be.
  */
 export function sourceFor(toolId: string): string {
-  const extension = resolve(FLEET, toolId, 'src/assets/images/demo.gif')
-  if (existsSync(extension)) return extension
-  return resolve(FLEET, toolId, 'assets/demo.gif')
+  // Decided from the repo list, not from the filesystem. Asking `existsSync`
+  // made the answer depend on what happened to be checked out: on CI, where
+  // the sibling repos are absent, every tool fell through to the crate-only
+  // path and the test asserting the extension layout failed against a green
+  // local run. Which layout a repo has is a fact about the repo, not about
+  // the machine reading it.
+  const extension = (REPOS as readonly string[]).includes(toolId)
+  return extension
+    ? resolve(FLEET, toolId, 'src/assets/images/demo.gif')
+    : resolve(FLEET, toolId, 'assets/demo.gif')
 }
 
 /**
