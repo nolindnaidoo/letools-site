@@ -28,10 +28,10 @@ import {
   SHARED_WITH_EXCEPTIONS,
 } from './check-fleet'
 import { isMissing, main as linksMain, refsIn, scan } from './check-openvsx-links'
-import { claimsIn } from './check-publication-claims'
+import { claimsIn, main as claimsMain } from './check-publication-claims'
 import { expectedPaths, orphans, resolves, main as routesMain } from './check-routes'
 import { argsFor, destinationFor, FILTER, renderHashes, sourceFor } from './sync-demos'
-import { regenerate, summarise } from './sync-readmes'
+import { main as readmesMain, regenerate, summarise } from './sync-readmes'
 import { main as registryMain, render, factsFor as repoFacts } from './sync-registry'
 
 /**
@@ -268,6 +268,30 @@ describe('check-doc-paths', () => {
   it('reports every repo missing when nothing is checked out', () => {
     expect(docPathsMain(join(scratch, 'no-fleet-here'))).toBe(1)
   })
+
+  const fakeDocs = (doc: string, extra?: string) => {
+    const root = mkdtempSync(join(scratch, 'docs-'))
+    mkdirSync(join(root, 'demo-le'), { recursive: true })
+    writeFileSync(join(root, 'demo-le', 'AGENTS.md'), doc)
+    if (extra !== undefined) {
+      const full = join(root, 'demo-le', extra)
+      mkdirSync(join(full, '..'), { recursive: true })
+      writeFileSync(full, 'x')
+    }
+    return root
+  }
+
+  it('fails on a reference to a file that is not there', () => {
+    expect(docPathsMain(fakeDocs('see `crate/fixtures/nope.json`'))).toBe(1)
+  })
+
+  it('passes when the reference resolves', () => {
+    expect(docPathsMain(fakeDocs('see `notes/real.md`', 'notes/real.md'))).toBe(0)
+  })
+
+  it('reports misuse when the directory holds no tool repos', () => {
+    expect(docPathsMain(mkdtempSync(join(scratch, 'empty-')))).toBe(1)
+  })
 })
 
 describe('sync-readmes', () => {
@@ -285,6 +309,12 @@ describe('sync-readmes', () => {
     }))
     expect(outcome.ok).toBe(false)
     expect(outcome.detail).toBe('coverage/test-results.json not found')
+  })
+
+  it('runs every repo and fails the run when one of them does', () => {
+    // Injected rather than spawned: the point is the reporting, and a real
+    // regeneration here would run ten coverage suites.
+    expect(readmesMain(join(scratch, 'nowhere'), () => ({ status: 0, stderr: '' }))).toBe(1)
   })
 
   it('fails the run when any repo failed', () => {
@@ -322,6 +352,36 @@ describe('check-publication-claims', () => {
     expect(claimsIn('a', 'README.md', '0.1.0 is unpublished')).toHaveLength(1)
     expect(claimsIn('a', 'AGENTS.md', '**Status: v0.1.0, unpublished.**')).toHaveLength(1)
     expect(claimsIn('a', 'README.md', 'cargo install a  # once published')).toHaveLength(1)
+  })
+
+  const fakeRepo = (claim: string) => {
+    const root = mkdtempSync(join(scratch, 'pubclaims-'))
+    const crate = join(root, 'demo-le', 'crate')
+    mkdirSync(crate, { recursive: true })
+    writeFileSync(join(crate, 'Cargo.toml'), 'name = "demo-le"')
+    writeFileSync(join(root, 'demo-le', 'README.md'), claim)
+    return root
+  }
+
+  it('fails when a live crate is called unpublished', async () => {
+    const root = fakeRepo('## Install\n\n**Not on crates.io yet.**\n')
+    expect(await claimsMain(root, async () => '0.1.0')).toBe(1)
+  })
+
+  it('passes when the docs match the registry', async () => {
+    const root = fakeRepo('## Install\n\n`cargo install demo-le`\n')
+    expect(await claimsMain(root, async () => '0.1.0')).toBe(0)
+  })
+
+  it('says nothing about a crate that really is unpublished', async () => {
+    // The claim is true here, and an unreachable registry looks the same. An
+    // outage must not turn an accurate doc into a failure.
+    const root = fakeRepo('## Install\n\n**Not on crates.io yet.**\n')
+    expect(await claimsMain(root, async () => undefined)).toBe(0)
+  })
+
+  it('reports misuse when the root does not exist', async () => {
+    expect(await claimsMain(join(scratch, 'no-fleet-here'), async () => '0.1.0')).toBe(1)
   })
 })
 

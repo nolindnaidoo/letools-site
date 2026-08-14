@@ -29,6 +29,7 @@ export function regenerate(
   dir: string,
   run: (dir: string) => { status: number | null; stderr: string } = spawn,
 ): Outcome {
+  /* v8 ignore next -- the default is exercised only by the real entry point */
   const repo = dir.split('/').pop() ?? dir
   if (!existsSync(dir)) return { repo, ok: false, detail: 'not checked out' }
   const result = run(dir)
@@ -58,9 +59,12 @@ export function summarise(outcomes: readonly Outcome[]): number {
   return 1
 }
 
-export function main(root: string = process.argv[2] ?? '..'): number {
+export function main(
+  root: string = process.argv[2] ?? '..',
+  run?: (dir: string) => { status: number | null; stderr: string },
+): number {
   process.stdout.write(`Regenerating the Testing section in ${REPOS.length} repos:\n`)
-  return summarise(REPOS.map(repo => regenerate(join(root, repo))))
+  return summarise(REPOS.map(repo => regenerate(join(root, repo), run)))
 }
 
 /* v8 ignore start -- process entry point; unreachable when imported by a test */

@@ -80,7 +80,10 @@ export async function publishedVersion(name: string): Promise<string | undefined
   }
 }
 
-export async function main(root: string = process.argv[2] ?? '..'): Promise<number> {
+export async function main(
+  root: string = process.argv[2] ?? '..',
+  lookUp: (name: string) => Promise<string | undefined> = publishedVersion,
+): Promise<number> {
   if (!existsSync(root)) {
     process.stderr.write(`check-publication-claims: ${root} does not exist\n`)
     return 1
@@ -94,7 +97,7 @@ export async function main(root: string = process.argv[2] ?? '..'): Promise<numb
   let checked = 0
   for (const repo of repos) {
     if (!existsSync(join(root, repo, 'crate/Cargo.toml'))) continue
-    const live = await publishedVersion(repo)
+    const live = await lookUp(repo)
     if (live === undefined) continue // unpublished, or the registry is unreachable
     checked += 1
 
