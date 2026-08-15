@@ -31,7 +31,6 @@ const TYPES = Object.freeze([
   'revert',
 ])
 
-const MAX_SUBJECT = 100
 const SUBJECT = new RegExp(`^(${TYPES.join('|')})(\\([a-z0-9._/-]+\\))?!?: .+$`)
 
 const OK = 0
@@ -53,9 +52,6 @@ function problems(subject) {
   const found = []
   if (!SUBJECT.test(subject)) {
     found.push(`must match "type(scope): summary" with type one of ${TYPES.join(', ')}`)
-  }
-  if (subject.length > MAX_SUBJECT) {
-    found.push(`must be ${MAX_SUBJECT} characters or fewer (is ${subject.length})`)
   }
   if (subject.endsWith('.')) {
     found.push('must not end with a period')
