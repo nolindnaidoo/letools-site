@@ -67,14 +67,10 @@ describe('rejected subjects', () => {
     expect(check(subject).code).toBe(1)
   })
 
-  it('rejects a subject over 100 characters', () => {
-    expect(check(`feat: ${'x'.repeat(110)}`).code).toBe(1)
-  })
-
-  it('accepts a subject at exactly 100 characters', () => {
-    const subject = `feat: ${'x'.repeat(100 - 'feat: '.length)}`
-    expect(subject).toHaveLength(100)
-    expect(check(subject).code).toBe(0)
+  // The subject length cap was removed from the hook deliberately. This
+  // test outlived it and asserted a rejection nothing performs any more.
+  it('does not cap the subject length', () => {
+    expect(check(`feat: ${'x'.repeat(110)}`).code).toBe(0)
   })
 
   it('says nothing was committed, so the state is unambiguous', () => {
