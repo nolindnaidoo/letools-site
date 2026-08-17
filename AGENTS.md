@@ -191,6 +191,67 @@ literal hexes only in those files). Serve `out/` and click through:
 category tabs filter, FAQ expands, the copy button writes the clipboard,
 theme toggle flips. Security headers live in `vercel.json`.
 
+## Auditing a tool repo
+
+[`FLEET-AUDIT.md`](./FLEET-AUDIT.md) is the review procedure for the tool
+repos — the concrete defect checklist that batch codemods miss, and the rule
+that behaviour changes are reviewed one repo at a time. It lives here, not in
+each repo, because sixteen copies of a checklist drift. Read it before auditing
+or fixing any tool in the family.
+
+## The cross-repo gates live here
+
+Nothing inside a single tool repo can tell you a sibling drifted, so the
+cross-repo checks live in `scripts/` and run from a checkout of this site with
+the tool repos beside it:
+
+```bash
+bun run check:fleet ../      # shared files are byte-identical
+bun run check:doc-paths ../  # every path a governing doc names exists
+bun run sync:readmes ../     # regenerate the generated README section
+```
+
+`check-fleet` holds **three** lists and the distinction matters: `SHARED`
+across the ten extension repos, `CRATE_ONLY_SHARED` across the six crate-only
+ones (which share `.gitattributes`, the commit hook, dependabot and CodeQL
+config with *each other* and not with the ten), and `ALL_SHARED` across all
+sixteen — currently just `.editorconfig` and `scripts/check-agent-files.py`.
+`ci-crate.yml` and `release-crate.yml` are deliberately per-repo and outside
+every list: the crates stand on their own, and a job one needs and another does
+not is the point rather than a failure.
+
+**Never name a sibling repo inside a fleet-shared file.** `check-fleet` calls
+`normalize()` before hashing, which writes the repo's *own* name out — that is
+what lets one `release.yml` legitimately publish a differently-named MCP package
+from each repo. The consequence is not obvious: a byte-identical file that
+*mentions another tool by name* normalises differently in that tool's repo than
+everywhere else, so one file takes two or three shapes and the check reports
+drift that does not exist. This has been hit twice, both times in an
+explanatory comment. Write "one tool in this family" instead of the name.
+
+The cadence is weekly plus `workflow_dispatch`, not per-push, and that is
+deliberate. A per-push comparison would go red on nine of ten repos during any
+legitimate fleet-wide change until the tenth push landed, and `main` has no
+required status checks anyway — so "blocking" would mean a red X after the fact
+rather than a rejected push. The tight loop is the local command, not CI.
+
+## Why this family exists
+
+The pitch is **not** "sixteen tools, one job each" — that describes the shape
+and none of the reason. The front half of building real AI is a black box:
+getting data, testing it, validating it, sourcing it is laborious, manual, and
+mostly invisible. These tools make those steps fast **and** put engineering
+behind them so the output is trustable rather than merely produced. Lead with
+that problem and with the trustworthiness of the output; the tool count is a
+detail.
+
+The surface is also much larger than "VS Code extensions" — VS Code and VSIX,
+Zed, MCP servers, npm packages, and Rust crates. Detail pages should carry
+that, and it is why this site needs real interactive depth rather than a poster.
+
+Every claim still has to stay provable against the tool repos. `lib/tools.ts`
+is the registry, and no embellishment survives `check:registry`.
+
 ## Scope discipline
 
 When the requested change is done, stop. No unrequested components, pages,
