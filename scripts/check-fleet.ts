@@ -139,8 +139,12 @@ export const SHARED = [
  * Anything not listed here is a regression, not a decision.
  */
 export const SHARED_WITH_EXCEPTIONS: Record<string, readonly string[]> = {
-  // scrape-le uses the istanbul coverage provider, not v8.
-  'vitest.config.ts': ['scrape-le'],
+  // scrape-le uses the istanbul coverage provider, not v8. regex-le raises
+  // testTimeout to 30s: its ReDoS decider is a simulation, and deciding twenty
+  // patterns under v8 coverage instrumentation on a shared runner blows the 5s
+  // default even though the same file finishes in about 2s locally. The work is
+  // real, so the budget says so rather than the test being trimmed to fit.
+  'vitest.config.ts': ['regex-le', 'scrape-le'],
   // scrape-le adds "DOM" to lib for Playwright page-eval code.
   'tsconfig.json': ['scrape-le'],
   // scrape-le ships playwright-core beside the bundle, so its allow-list and
