@@ -12,11 +12,11 @@ export const WORDMARK = 'Limited Edition DevTools'
 export const TAGLINE = 'Get your data right before the model sees it.'
 
 // Combined Open VSX downloads + VS Code Marketplace acquisitions across the
-// published extensions. Hardcoded and rounded DOWN, because Marketplace acquisitions are
-// publisher-dashboard only — no public API exposes them, so this cannot be
-// derived at build time. Last measured 2026-08-04: 71,052 Open VSX +
-// 4,564 Marketplace = 75,616. Re-measure before raising it.
-export const INSTALL_COUNT = '75,000+'
+// published extensions. Hardcoded and rounded DOWN, because Marketplace acquisitions
+// (installs + web downloads) come only from the publisher stats API behind
+// VSCE_PAT, which the build does not hold. Last measured 2026-09-28: 98,525
+// Open VSX + 6,465 Marketplace = 104,990. Re-measure before raising it.
+export const INSTALL_COUNT = '100,000+'
 export const PUBLISHER = 'nolindnaidoo'
 /** The author's own site. Kept alongside GITHUB_URL, never in place of it —
  * both are properties in the same identity network, and swapping one for the

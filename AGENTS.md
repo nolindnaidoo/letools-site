@@ -117,8 +117,8 @@ to anyone.
   fails for half the audience. `OPENVSX_NAMESPACE` in `lib/site.ts` exists for
   exactly this and flips to `PUBLISHER` when the rename lands.
 - **Install count** (`INSTALL_COUNT`) is hardcoded and rounded down, because
-  Marketplace acquisitions are dashboard-only and cannot be fetched at build
-  time. The comment records the measurement and date — re-measure before
+  Marketplace acquisitions come only from the publisher stats API behind
+  `VSCE_PAT`, which the build does not hold. The comment records the measurement and date — re-measure before
   raising it.
 
 Tool summaries come from each tool's manifest — keep them in step, never
