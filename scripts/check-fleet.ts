@@ -81,6 +81,9 @@ export const ALL_SHARED = [
   // The agent-instruction rule itself. The ten call it from
   // `src/agent-files.test.ts`; the six call it from the `policy` job.
   'scripts/check-agent-files.py',
+  // One merge policy for every repository; the two groups held different
+  // copies, and neither merged SHA-pinned action bumps.
+  '.github/workflows/dependabot-auto-merge.yml',
 ] as const
 
 export const CRATE_ONLY_SHARED = [
@@ -89,7 +92,6 @@ export const CRATE_ONLY_SHARED = [
   '.github/dependabot.yml',
   '.github/codeql-config.yml',
   '.github/workflows/codeql.yml',
-  '.github/workflows/dependabot-auto-merge.yml',
 ] as const
 
 /**
@@ -105,7 +107,6 @@ export const SHARED = [
   '.github/workflows/ci.yml',
   '.github/workflows/release.yml',
   '.github/workflows/codeql.yml',
-  '.github/workflows/dependabot-auto-merge.yml',
   '.github/workflows/zed-sync.yml',
   '.github/dependabot.yml',
   '.github/codeql-config.yml',
