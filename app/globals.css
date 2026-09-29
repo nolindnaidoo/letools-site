@@ -1,5 +1,31 @@
 @import "tailwindcss";
-@import "@heroui/styles";
+/* HeroUI's own index, with only the component styles this site renders.
+ * The full import ships ~80 components the site never mounts; 3.2.5 grew
+ * them past the CSS budget. Order follows HeroUI's components/index.css,
+ * where it notes import order sets specificity. A new HeroUI
+ * component used here needs its line added, and its internal ones too:
+ * dropdown renders menu-item, menu-section and surface, and tabs renders
+ * scroll-shadow. heroui-styles.test.ts fails when this list drifts. */
+@import "tw-animate-css";
+@import "@heroui/styles/base/base.css" layer(base);
+@import "@heroui/styles/base/scrollbar.css" layer(base);
+@import "@heroui/styles/components/accordion.css" layer(components);
+@import "@heroui/styles/components/link.css" layer(components);
+@import "@heroui/styles/components/tabs.css" layer(components);
+@import "@heroui/styles/components/button.css" layer(components);
+@import "@heroui/styles/components/button-group.css" layer(components);
+@import "@heroui/styles/components/dropdown.css" layer(components);
+@import "@heroui/styles/components/menu-item.css" layer(components);
+@import "@heroui/styles/components/menu-section.css" layer(components);
+@import "@heroui/styles/components/chip.css" layer(components);
+@import "@heroui/styles/components/card.css" layer(components);
+@import "@heroui/styles/components/separator.css" layer(components);
+@import "@heroui/styles/components/surface.css" layer(components);
+@import "@heroui/styles/components/scroll-shadow.css" layer(components);
+@import "@heroui/styles/themes/shared/theme.css";
+@import "@heroui/styles/themes/default/variables.css" layer(theme);
+@import "@heroui/styles/utilities";
+@import "@heroui/styles/variants";
 
 /* The site rides HeroUI's default theme, with contrast-tuned overrides of
  * a few semantic tokens (unlayered, so they beat HeroUI's @layer'd

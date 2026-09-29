@@ -19,11 +19,15 @@ product decision, not a PR.
 - **Next.js 16** (App Router) on React 19, static export. `@/*` → repo root.
 - **Components: HeroUI v3** (`@heroui/react` + `@heroui/styles`, react-aria
   based) — and unlike the pixel sites, **the primitives are actually in use**:
-  Button, Card, Chip, Tabs, Accordion, Link, Separator. Compound API
+  Button, Card, Chip, Tabs, Accordion, Link, Separator, Dropdown. Compound API
   (`Card.Header`, `Tabs.Panel`, `Accordion.Trigger`, …). The default HeroUI
   theme is kept except for contrast-tuned token overrides in `globals.css`
   (accent/muted — every value clears WCAG AA, axe-verified both schemes);
-  otherwise only font wiring.
+  otherwise only font wiring. `globals.css` imports HeroUI's styles **one
+  component at a time**, not the whole package, which carries ~80 components
+  this site never mounts. A new primitive needs its stylesheet line there,
+  plus any component it renders internally; `scripts/heroui-styles.test.ts`
+  derives the list from the imports and fails when they disagree.
 - **Styling:** Tailwind v4 via PostCSS. HeroUI semantic tokens only
   (`bg-background`, `bg-surface`, `text-muted`, `border-border`,
   `*-soft` washes) — never hardcode a hex in a component.
