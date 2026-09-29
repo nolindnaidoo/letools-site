@@ -219,7 +219,8 @@ bun run sync:readmes ../     # regenerate the generated README section
 across the ten extension repos, `CRATE_ONLY_SHARED` across the six crate-only
 ones (which share `.gitattributes`, the commit hook, dependabot and CodeQL
 config with *each other* and not with the ten), and `ALL_SHARED` across all
-sixteen — currently just `.editorconfig` and `scripts/check-agent-files.py`.
+sixteen — `.editorconfig`, `scripts/check-agent-files.py` and the
+`dependabot-auto-merge.yml` workflow.
 `ci-crate.yml` and `release-crate.yml` are deliberately per-repo and outside
 every list: the crates stand on their own, and a job one needs and another does
 not is the point rather than a failure.
