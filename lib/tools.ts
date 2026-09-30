@@ -146,12 +146,12 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     mcpTool: 'extract_colors',
     zedPr: 7078,
     overview:
-      'Design systems drift one hard-coded hex at a time. Colors-LE extracts every color from a stylesheet, template or component file — hex, rgb/rgba, hsl/hsla and named colors — then analyses the result: distribution, clusters of near-duplicates, and contrast ratios against WCAG AA and AAA. It reads CSS, SCSS, LESS, Stylus, HTML, JavaScript, TypeScript and SVG.',
+      'Design systems drift one hard-coded hex at a time. Colors-LE extracts every color from a stylesheet, template or component file — hex, rgb/rgba, hsl/hsla, the CSS Color 4 functions (oklch, oklab, lab, lch, hwb, color()) and named colors — then analyses the result: distribution, clusters of near-duplicates, and contrast ratios against WCAG AA and AAA. It reads CSS, SCSS, LESS, Stylus, HTML, JavaScript, TypeScript and SVG.',
     useCases: [
       {
         title: 'Palette auditing',
         detail:
-          'Every hex, rgb()/rgba(), hsl()/hsla() and named color across stylesheets, markup and code.',
+          'Every hex, rgb()/rgba(), hsl()/hsla(), oklch(), lab(), color() and named color across stylesheets, markup and code.',
       },
       {
         title: 'Design-system review',
@@ -186,7 +186,8 @@ export const TOOLS: readonly Tool[] = Object.freeze([
       },
       {
         title: 'Config sweep',
-        detail: 'URLs in JSON strings, YAML values, Java properties, TOML/INI values and XML.',
+        detail:
+          'URLs in JSON strings (escaped https:\\/\\/ forms included), YAML values, Java properties, TOML/INI values and XML.',
       },
     ],
   },
@@ -199,7 +200,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     mcpTool: 'extract_dates',
     zedPr: 7079,
     overview:
-      'Timestamps arrive in a dozen notations and rarely the one you want. Dates-LE extracts every date and time value from logs, data files and code, reporting each with its format and, where resolvable, its epoch value. It recognises ISO 8601, syslog and Apache access-log formats, common regional notations and Unix timestamps.',
+      'Timestamps arrive in a dozen notations and rarely the one you want. Dates-LE extracts every date and time value from logs, data files and code, reporting each with its format and, where resolvable, its epoch value. It recognises ISO 8601, syslog and Apache access-log formats, numeric dates written day-first or month-first, dates with the month spelled out, and Unix timestamps.',
     useCases: [
       {
         title: 'Log analysis',
@@ -312,7 +313,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
       {
         title: 'Extract',
         detail:
-          'List every regex pattern found in the document, literals and RegExp constructors alike.',
+          'List every regex pattern found in the document: literals, and RegExp constructors built from strings, template literals or String.raw.',
       },
       {
         title: 'Test',
@@ -351,7 +352,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
       {
         title: 'Respect robots.txt',
         detail:
-          'The origin rules are fetched and reported alongside everything else. A scrapeability report is information, not permission.',
+          'The origin rules are fetched and reported alongside everything else, evaluated as your crawler when you name one. A scrapeability report is information, not permission.',
       },
     ],
   },
@@ -418,7 +419,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     summary: 'Find hardcoded credentials in a codebase, and never print one into the report',
     mcpTool: 'detect_secrets',
     overview:
-      'The cheapest place to catch a committed credential is before the commit. Secrets-LE scans your workspace for API keys, passwords, tokens and private keys, groups the findings by file with positions pointing at the value, and can replace them in place with a placeholder. Detection is regex-based over full text, so it works on code, configs, .env files, YAML, JSON and logs alike.',
+      'The cheapest place to catch a committed credential is before the commit. Secrets-LE scans your workspace for API keys, passwords, tokens and private keys, groups the findings by file with positions pointing at the value, names the issuer of a prefixed key — OpenAI, Anthropic, GitHub, Stripe, Hugging Face and more than twenty others — and can replace them in place with a placeholder. Detection is regex-based over full text, so it works on code, configs, .env files, YAML, JSON and logs alike.',
     useCases: [
       {
         title: 'Pre-commit safety net',
