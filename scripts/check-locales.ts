@@ -145,6 +145,7 @@ export function checkRoot(root: string, repos: readonly string[] = REPOS): reado
   return problems
 }
 
+/* v8 ignore start -- process entry point; unreachable when imported by a test */
 if (import.meta.main) {
   const problems = checkRoot(process.argv[2] ?? '..')
   for (const p of problems) {
@@ -156,3 +157,4 @@ if (import.meta.main) {
   }
   console.log(`Every translated string across ${REPOS.length} extensions is in its own language.`)
 }
+/* v8 ignore stop */

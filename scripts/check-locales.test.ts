@@ -30,6 +30,30 @@ describe('findLocaleProblems', () => {
   })
 })
 
+describe('findLocaleProblems edges', () => {
+  it('uses the key as the English of a runtime bundle, and ignores short or icon-only matches', () => {
+    expect(
+      findLocaleProblems('x', undefined, {
+        de: { 'Sort by length': 'Sort by length', '$(link) URLs-LE': '$(link) URLs-LE', OK: 'OK' },
+        fr: {
+          'Sort by length': 'Trier par longueur',
+          '$(link) URLs-LE': '$(link) URLs-LE',
+          OK: 'OK',
+        },
+      }).map(p => `${p.file} ${p.problem}`),
+    ).toEqual(['x.de still English'])
+  })
+
+  it('reads a locale missing a key as no match rather than a copy', () => {
+    expect(
+      findLocaleProblems('x', english, {
+        ru: { title: 'Открыть настройки' },
+        uk: { title: 'Відкрити налаштування', count: '{0} дати' },
+      }),
+    ).toEqual([])
+  })
+})
+
 describe('checkRoot', () => {
   const root = mkdtempSync(join(tmpdir(), 'check-locales-'))
   afterAll(() => rmSync(root, { recursive: true, force: true }))
