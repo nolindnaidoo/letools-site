@@ -109,20 +109,24 @@ export function findLocaleProblems(
   return found
 }
 
+/** `<prefix>.<locale>.json` files in `dir`, keyed by locale. */
 function readLocales(dir: string, prefix: string): Record<string, Catalogue> {
   if (!existsSync(dir)) return {}
   const out: Record<string, Catalogue> = {}
   for (const file of readdirSync(dir)) {
-    const match = new RegExp(`^${prefix.replace(/\./g, '\\.')}\\.([a-z-]+)\\.json$`).exec(file)
-    if (match?.[1]) out[match[1]] = JSON.parse(readFileSync(join(dir, file), 'utf8'))
+    if (!file.startsWith(`${prefix}.`) || !file.endsWith('.json')) continue
+    const locale = file.slice(prefix.length + 1, -'.json'.length)
+    if (/^[a-z]+(?:-[a-z]+)?$/.test(locale)) {
+      out[locale] = JSON.parse(readFileSync(join(dir, file), 'utf8'))
+    }
   }
   return out
 }
 
-if (import.meta.main) {
-  const root = process.argv[2] ?? '..'
+/** Every problem across the extension repos under `root`. */
+export function checkRoot(root: string, repos: readonly string[] = REPOS): readonly Finding[] {
   const problems: Finding[] = []
-  for (const repo of REPOS) {
+  for (const repo of repos) {
     const base = join(root, repo)
     const manifestEnglish = JSON.parse(readFileSync(join(base, 'package.nls.json'), 'utf8'))
     problems.push(
@@ -138,12 +142,15 @@ if (import.meta.main) {
       ),
     )
   }
+  return problems
+}
+
+if (import.meta.main) {
+  const problems = checkRoot(process.argv[2] ?? '..')
+  for (const p of problems) {
+    console.error(`${p.file}: ${p.problem}: ${JSON.stringify(p.key)} = ${JSON.stringify(p.value)}`)
+  }
   if (problems.length > 0) {
-    for (const p of problems) {
-      console.error(
-        `${p.file}: ${p.problem}: ${JSON.stringify(p.key)} = ${JSON.stringify(p.value)}`,
-      )
-    }
     console.error(`\n${problems.length} string(s) are not in their file's language.`)
     process.exit(1)
   }

@@ -1,5 +1,8 @@
-import { describe, expect, it } from 'vitest'
-import { findLocaleProblems } from './check-locales'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { afterAll, describe, expect, it } from 'vitest'
+import { checkRoot, findLocaleProblems } from './check-locales'
 
 const english = { title: 'Open Settings', brand: 'Colors-LE', count: '{0} dates' }
 
@@ -24,5 +27,35 @@ describe('findLocaleProblems', () => {
         'pt-br': { title: 'Abrir configuración', brand: 'Colors-LE', count: '{0} datas' },
       }),
     ).toEqual([])
+  })
+})
+
+describe('checkRoot', () => {
+  const root = mkdtempSync(join(tmpdir(), 'check-locales-'))
+  afterAll(() => rmSync(root, { recursive: true, force: true }))
+
+  const write = (path: string, value: unknown) => {
+    mkdirSync(join(root, path, '..'), { recursive: true })
+    writeFileSync(join(root, path), JSON.stringify(value))
+  }
+  write('good/package.nls.json', { title: 'Open Settings' })
+  write('good/src/i18n/package.nls.de.json', { title: 'Einstellungen öffnen' })
+  write('good/l10n/bundle.l10n.de.json', { 'Sort by length': 'Nach Länge sortieren' })
+  write('good/l10n/notes.txt.json', {})
+  write('bad/package.nls.json', { title: 'Open Settings' })
+  write('bad/src/i18n/package.nls.it.json', { title: 'Buka Pengaturan' })
+  write('bad/src/i18n/package.nls.id.json', { title: 'Buka Pengaturan' })
+  write('bad/l10n/bundle.l10n.fr.json', { 'Sort by length': 'Sort by length' })
+
+  it('reads both catalogues of every repo it is given', () => {
+    expect(checkRoot(root, ['good'])).toEqual([])
+    expect(
+      checkRoot(root, ['bad'])
+        .map(p => `${p.file} ${p.problem}`)
+        .sort(),
+    ).toEqual([
+      'bad/l10n/bundle.l10n.fr still English',
+      'bad/src/i18n/package.nls.id identical to it',
+    ])
   })
 })
