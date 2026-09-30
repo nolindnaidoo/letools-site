@@ -212,6 +212,7 @@ the tool repos beside it:
 ```bash
 bun run check:fleet ../      # shared files are byte-identical
 bun run check:doc-paths ../  # every path a governing doc names exists
+bun run check:locales ../    # every translation is in its own language
 bun run sync:readmes ../     # regenerate the generated README section
 ```
 

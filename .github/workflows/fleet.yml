@@ -78,6 +78,13 @@ jobs:
         if: always()
         run: bun scripts/check-readme-pillars.ts /tmp/fleet
 
+      # dates-le shipped an Italian catalogue that was Indonesian, and
+      # string-le two labels in English in ten locales. Key parity passed
+      # both: the keys were there, and nothing read the values.
+      - name: Every translation is in its own language
+        if: always()
+        run: bun scripts/check-locales.ts /tmp/fleet
+
   readme-links:
     name: README links
     runs-on: ubuntu-latest
