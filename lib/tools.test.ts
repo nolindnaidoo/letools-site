@@ -197,7 +197,7 @@ describe('the link builders', () => {
   })
 
   it('offers no Zed link for a tool with nothing submitted', () => {
-    const unsubmitted = { ...tool, zedPr: undefined }
+    const { zedPr: _none, ...unsubmitted } = { ...tool, zedPr: 0 }
     expect(zedPrUrl(unsubmitted)).toBeUndefined()
   })
 
