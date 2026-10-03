@@ -471,12 +471,12 @@ export const TOOLS: readonly Tool[] = Object.freeze([
       'Find the Unicode that hides meaning — bidi controls, invisibles, homoglyphs, mixed scripts',
     mcpTool: 'detect_unicode_risks',
     overview:
-      'Some characters are not what they look like. Unicode-LE scans a tree for the ones that hide meaning: the bidirectional controls behind CVE-2021-42574, zero-width and other invisibles, homoglyphs, words no single script accounts for, text that is not in Normalization Form C, and the spaces that are not the space. It reports codepoints and never the characters themselves, because a report that pasted one raw would reorder the terminal, the diff and the pull request of whoever read it. It rewrites nothing. A file plainly written in another script is refused for the homoglyph checks rather than judged by them, which is what lets the screen stay on in an internationalised repository instead of being switched off for noise.',
+      'Some characters are not what they look like. Unicode-LE screens the active file, or the whole workspace, for the ones that hide meaning: the bidirectional controls behind CVE-2021-42574, zero-width and other invisibles, homoglyphs, words no single script accounts for, text that is not in Normalization Form C, and the spaces that are not the space. The report names each finding by line, column and codepoint — never the character itself, because a report that pasted one raw would reorder the screen of whoever read it — and, in JSON, YAML, TOML and the other config formats, the key it sits under. It rewrites nothing. A file plainly written in another script is refused for the homoglyph checks rather than judged by them, which is what lets the screen stay on in a translated codebase instead of being switched off for noise.',
     useCases: [
       {
-        title: 'Gate CI on Trojan Source',
+        title: 'Review for Trojan Source',
         detail:
-          'Fail the build on the bidirectional-control class alone, or on every finding — the exit code is the interface.',
+          'A right-to-left override makes the code a reviewer reads differ from the code that runs. One keystroke names every one in the file.',
       },
       {
         title: 'Screen for forged names',

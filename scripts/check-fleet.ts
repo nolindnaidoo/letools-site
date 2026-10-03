@@ -28,6 +28,7 @@ export const REPOS = [
   'scrape-le',
   'secrets-le',
   'string-le',
+  'unicode-le',
   'urls-le',
 ] as const
 
@@ -44,14 +45,7 @@ export const REPOS = [
  * list against the site registry is what makes that a failure rather than an
  * omission: a tool cannot be in one list and neither of the other two.
  */
-export const EXTENSION_PENDING = [
-  'i18n-le',
-  'ids-le',
-  'ips-le',
-  'unicode-le',
-  'units-le',
-  'versions-le',
-] as const
+export const EXTENSION_PENDING = ['i18n-le', 'ids-le', 'ips-le', 'units-le', 'versions-le'] as const
 
 /**
  * Files the crate-only repos share **with each other**.
