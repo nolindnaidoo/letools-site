@@ -136,6 +136,9 @@ export const SHARED = [
   // The npm README held against the tools it documents. Seven of ten were
   // published describing another package's tool before this existed.
   'src/mcp/readme.test.ts',
+  // Both servers' definition of the shared MCP tool, held identical. Six of
+  // the ten had drifted, and nothing compared them.
+  'scripts/check-mcp-definition.ts',
 ] as const
 
 /**
