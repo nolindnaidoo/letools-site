@@ -12,8 +12,8 @@
  */
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { REPOS } from './check-fleet'
 import { TOOLS } from '../lib/tools'
+import { REPOS } from './check-fleet'
 
 const PULL = /github\.com\/zed-industries\/extensions\/pull\/(\d+)/g
 
@@ -23,9 +23,12 @@ export function linkedPulls(text: string): readonly number[] {
 }
 
 async function state(pull: number): Promise<string> {
-  const response = await fetch(`https://api.github.com/repos/zed-industries/extensions/pulls/${pull}`, {
-    headers: { accept: 'application/vnd.github+json', 'user-agent': 'letools-fleet-check' },
-  })
+  const response = await fetch(
+    `https://api.github.com/repos/zed-industries/extensions/pulls/${pull}`,
+    {
+      headers: { accept: 'application/vnd.github+json', 'user-agent': 'letools-fleet-check' },
+    },
+  )
   if (!response.ok) throw new Error(`GitHub answered ${response.status} for pull ${pull}`)
   const body = (await response.json()) as { state: string; merged: boolean }
   return body.merged ? 'merged' : body.state
@@ -35,8 +38,10 @@ async function state(pull: number): Promise<string> {
 if (import.meta.main) {
   const root = process.argv[2] ?? '..'
   const claims = new Map<number, string[]>()
-  const note = (pull: number, where: string) => claims.set(pull, [...(claims.get(pull) ?? []), where])
-  for (const tool of TOOLS) if (tool.zedPr !== undefined) note(tool.zedPr, `lib/tools.ts (${tool.id})`)
+  const note = (pull: number, where: string) =>
+    claims.set(pull, [...(claims.get(pull) ?? []), where])
+  for (const tool of TOOLS)
+    if (tool.zedPr !== undefined) note(tool.zedPr, `lib/tools.ts (${tool.id})`)
   for (const repo of REPOS) {
     for (const file of ['README.md', 'mcp/README.md']) {
       const path = join(root, repo, file)
@@ -47,7 +52,8 @@ if (import.meta.main) {
   const stale: string[] = []
   for (const [pull, where] of claims) {
     const now = await state(pull)
-    if (now !== 'open') stale.push(`zed-industries/extensions#${pull} is ${now}, linked from ${where.join(', ')}`)
+    if (now !== 'open')
+      stale.push(`zed-industries/extensions#${pull} is ${now}, linked from ${where.join(', ')}`)
   }
   if (stale.length > 0) {
     console.error(stale.join('\n'))
