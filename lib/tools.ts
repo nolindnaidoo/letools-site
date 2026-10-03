@@ -144,7 +144,6 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     category: 'extract',
     summary: 'Extract every color in a codebase, and say which ones are not in your palette',
     mcpTool: 'extract_colors',
-    zedPr: 7078,
     overview:
       'Design systems drift one hard-coded hex at a time. Colors-LE extracts every color from a stylesheet, template or component file — hex, rgb/rgba, hsl/hsla, the CSS Color 4 functions (oklch, oklab, lab, lch, hwb, color()) and named colors — then analyses the result: distribution, clusters of near-duplicates, and contrast ratios against WCAG AA and AAA. It reads CSS, SCSS, LESS, Stylus, HTML, JavaScript, TypeScript and SVG.',
     useCases: [
@@ -170,7 +169,6 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     category: 'extract',
     summary: 'Extract every URL in a codebase, with its protocol and exact position',
     mcpTool: 'extract_urls',
-    zedPr: 7077,
     overview:
       'Links rot quietly, and the ones in your code and docs are the hardest to inventory. URLs-LE pulls every URL out of the active document with its real line and column, so a link audit is a list rather than a grep. It reads Markdown, HTML, CSS, JavaScript, TypeScript, JSON, YAML, Properties, TOML, INI and XML, and excludes code blocks and comments where the format defines them.',
     useCases: [
@@ -198,7 +196,6 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     category: 'extract',
     summary: 'Extract every date and timestamp, and the exact instant each one resolves to',
     mcpTool: 'extract_dates',
-    zedPr: 7079,
     overview:
       'Timestamps arrive in a dozen notations and rarely the one you want. Dates-LE extracts every date and time value from logs, data files and code, reporting each with its format and, where resolvable, its epoch value. It recognises ISO 8601, syslog and Apache access-log formats, numeric dates written day-first or month-first, dates with the month spelled out, and Unix timestamps.',
     useCases: [

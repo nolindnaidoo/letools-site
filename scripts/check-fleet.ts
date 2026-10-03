@@ -133,6 +133,9 @@ export const SHARED = [
   '.cursor/rules/project.mdc',
   '.github/copilot-instructions.md',
   'src/agent-files.test.ts',
+  // The npm README held against the tools it documents. Seven of ten were
+  // published describing another package's tool before this existed.
+  'src/mcp/readme.test.ts',
 ] as const
 
 /**
