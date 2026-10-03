@@ -190,18 +190,14 @@ describe('the link builders', () => {
   it('points the Zed link at the pull request, not a listing', () => {
     // The extensions are submitted, not merged. Linking a listing that does
     // not exist would be the dishonest version of this.
-    const submitted = TOOLS.find(current => current.zedPr !== undefined)
-    expect(submitted, 'no tool has an open Zed pull request').toBeDefined()
-    if (submitted === undefined) return
-    expect(zedPrUrl(submitted)).toBe(
-      `https://github.com/zed-industries/extensions/pull/${submitted.zedPr}`,
-    )
+    // A synthetic submission, so the link shape is tested whether or not any
+    // tool has a pull request open today.
+    const submitted = { ...tool, zedPr: 7077 }
+    expect(zedPrUrl(submitted)).toBe('https://github.com/zed-industries/extensions/pull/7077')
   })
 
   it('offers no Zed link for a tool with nothing submitted', () => {
-    const unsubmitted = TOOLS.find(current => current.zedPr === undefined)
-    expect(unsubmitted, 'every tool claims an open Zed pull request').toBeDefined()
-    if (unsubmitted === undefined) return
+    const unsubmitted = { ...tool, zedPr: undefined }
     expect(zedPrUrl(unsubmitted)).toBeUndefined()
   })
 
