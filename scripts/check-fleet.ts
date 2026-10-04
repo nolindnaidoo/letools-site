@@ -137,6 +137,13 @@ export const SHARED = [
   // Both servers' definition of the shared MCP tool, held identical. Six of
   // the ten had drifted, and nothing compared them.
   'scripts/check-mcp-definition.ts',
+  // The rating prompt: when to ask, and which registry Rate opens. A copy
+  // that drifts asks one tool's users on a different schedule, or sends them
+  // to the wrong listing, and nothing inside that repo would say so.
+  'src/rating/policy.ts',
+  'src/rating/policy.test.ts',
+  'src/ui/ratingPrompt.ts',
+  'src/ui/ratingPrompt.test.ts',
 ] as const
 
 /**
