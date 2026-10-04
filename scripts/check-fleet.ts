@@ -24,6 +24,7 @@ export const REPOS = [
   'envsync-le',
   'i18n-le',
   'ids-le',
+  'ips-le',
   'numbers-le',
   'paths-le',
   'regex-le',
@@ -47,7 +48,7 @@ export const REPOS = [
  * list against the site registry is what makes that a failure rather than an
  * omission: a tool cannot be in one list and neither of the other two.
  */
-export const EXTENSION_PENDING = ['ips-le', 'units-le', 'versions-le'] as const
+export const EXTENSION_PENDING = ['units-le', 'versions-le'] as const
 
 /**
  * Files the crate-only repos share **with each other**.
