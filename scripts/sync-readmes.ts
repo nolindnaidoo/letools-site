@@ -12,7 +12,7 @@
  * rather than reimplementing it, so there is one definition of how the block
  * is produced and this cannot drift from it.
  *
- * Only the thirteen carry a generated README; the crate-only three have no coverage
+ * Only the fourteen carry a generated README; the crate-only two have no coverage
  * block to write.
  *
  * Run: bun run sync:readmes [root]
