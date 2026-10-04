@@ -66,6 +66,29 @@ function translatableWords(value: string): string {
   )
 }
 
+/**
+ * Whether a value is made only of names the English source already holds —
+ * "ObjectId MongoDB" for "MongoDB ObjectIds". Two locales reordering the same
+ * product names coincide without either copying the other, and a catalogue
+ * copied from another locale always brings that locale's own words with it.
+ * A value with any character outside printable ASCII, or any word the source lacks, is
+ * still compared.
+ */
+function onlyCarriedOver(value: string, source: string): boolean {
+  if (/[^ -~]/.test(value)) return false
+  const stem = (word: string) => word.toLowerCase().replace(/s$/, '')
+  const sourceWords = new Set(
+    source
+      .split(/[^A-Za-z]+/)
+      .filter(Boolean)
+      .map(stem),
+  )
+  return value
+    .split(/[^A-Za-z]+/)
+    .filter(Boolean)
+    .every(word => word === word.toUpperCase() || sourceWords.has(stem(word)))
+}
+
 export function findLocaleProblems(
   label: string,
   english: Catalogue | undefined,
@@ -97,6 +120,7 @@ export function findLocaleProblems(
       for (const [key, value] of Object.entries(a)) {
         if (value !== b[key] || letterCount(value) < MIN_COPIED_LETTERS) continue
         if (value.toLowerCase() === sourceOf(key).toLowerCase()) continue
+        if (onlyCarriedOver(value, sourceOf(key))) continue
         found.push({
           file: `${label}.${locale}`,
           key,

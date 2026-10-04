@@ -44,6 +44,19 @@ describe('findLocaleProblems edges', () => {
     ).toEqual(['x.de still English'])
   })
 
+  it('allows two locales to reorder the English names, and nothing more', () => {
+    const names = { mongo: 'MongoDB ObjectIds', flake: 'Snowflake IDs' }
+    expect(
+      findLocaleProblems('x', names, {
+        fr: { mongo: 'ObjectId MongoDB', flake: 'Identifiants Snowflake' },
+        id: { mongo: 'ObjectId MongoDB', flake: 'ID Snowflake' },
+        vi: { mongo: 'ObjectId của MongoDB', flake: 'ID Snowflake' },
+        de: { mongo: 'MongoDB-Kennungen', flake: 'Snowflake-Kennungen' },
+        it: { mongo: 'Identificatori MongoDB', flake: 'Snowflake-Kennungen' },
+      }).map(p => `${p.file} ${p.key} ${p.problem}`),
+    ).toEqual(['x.de flake identical to it'])
+  })
+
   it('reads a locale missing a key as no match rather than a copy', () => {
     expect(
       findLocaleProblems('x', english, {
