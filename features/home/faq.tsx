@@ -16,7 +16,7 @@ const FAQ_ITEMS = [
     id: 'forks',
     question: 'I use Cursor or VSCodium — where do I install from?',
     answer:
-      'Open VSX. The ids there currently use the OffensiveEdge namespace rather than nolindnaidoo — the install commands above use the right one for each editor.',
+      'Open VSX. The ids there are the same as on the VS Code Marketplace, and the install commands above have one for each editor.',
   },
   {
     id: 'agents',

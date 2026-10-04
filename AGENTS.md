@@ -130,11 +130,11 @@ to anyone.
   repos by `scripts/sync-registry.ts` — do not restate it as prose.
 - **Bundling.** Nine ship a self-contained bundle; Scrape-LE ships
   `playwright-core` alongside it.
-- **Registry ids are NOT interchangeable.** VS Code resolves
-  `nolindnaidoo.<id>`; Cursor and VSCodium resolve Open VSX, currently
-  `OffensiveEdge.<id>`. An install command that uses one id for both simply
-  fails for half the audience. `OPENVSX_NAMESPACE` in `lib/site.ts` exists for
-  exactly this and flips to `PUBLISHER` when the rename lands.
+- **Two registries, one name.** VS Code resolves the Marketplace and Cursor
+  and VSCodium resolve Open VSX, and both use `nolindnaidoo.<id>`. Open VSX
+  used a different namespace until its extensions were moved, which is why
+  `OPENVSX_NAMESPACE` in `lib/site.ts` is its own constant. Build an Open VSX
+  link or id from it, never from `PUBLISHER`.
 - **Install count** (`INSTALL_COUNT`) is hardcoded and rounded down, because
   Marketplace acquisitions come only from the publisher stats API behind
   `VSCE_PAT`, which the build does not hold. The comment records the measurement and date — re-measure before

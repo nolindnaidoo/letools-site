@@ -26,10 +26,9 @@ type Surface = Readonly<{
   trackLabel?: string
 }>
 
-// The two registries use different namespaces, so the ids are NOT
-// interchangeable: VS Code resolves nolindnaidoo.*, while Cursor and VSCodium
-// pull from Open VSX and resolve OffensiveEdge.*. One id for both is a command
-// that simply fails for half the audience.
+// VS Code resolves the Marketplace and Cursor and VSCodium resolve Open VSX.
+// The ids match today, and each is still built from its own registry's
+// constant, because they have differed before.
 function surfacesFor(tool: Tool): readonly Surface[] {
   const pending = extensionPending(tool)
   const crate = crateFor(tool)

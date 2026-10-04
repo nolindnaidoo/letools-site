@@ -90,7 +90,7 @@ describe('the registry', () => {
 
   it('uses ids that are safe in a URL and a registry id', () => {
     // The id is spliced into `/tools/<id>`, into `nolindnaidoo.<id>` for the
-    // Marketplace, and into `OffensiveEdge.<id>` for Open VSX. Anything needing
+    // Marketplace, and into the same for Open VSX. Anything needing
     // escaping in one of those breaks a link nobody would test by hand.
     for (const tool of TOOLS) {
       expect(tool.id, `${tool.id} is not a clean slug`).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/)
@@ -143,11 +143,11 @@ describe('the registry', () => {
 })
 
 describe('the identity constants', () => {
-  it('keeps the two registry namespaces distinct', () => {
-    // VS Code resolves `nolindnaidoo.<id>`; Open VSX currently resolves
-    // `OffensiveEdge.<id>`. Using one id for both fails for half the audience,
-    // which is why they are separate constants rather than one.
-    expect(OPENVSX_NAMESPACE).not.toBe(PUBLISHER)
+  it('uses one name on both registries', () => {
+    // Open VSX moved to the Marketplace publisher's name. A value that differs
+    // again gives every fork user a dead install command, so a change here has
+    // to be made on purpose.
+    expect(OPENVSX_NAMESPACE).toBe(PUBLISHER)
   })
 
   it('exposes an origin the canonical tags can be built from', () => {
@@ -162,9 +162,8 @@ describe('the identity constants', () => {
  * a wrong one is invisible: the link renders, looks plausible, and 404s only
  * for the visitor who clicks it.
  *
- * The two registry namespaces are the trap. VS Code resolves
- * `nolindnaidoo.<id>` and Open VSX currently resolves `OffensiveEdge.<id>`;
- * using one for both fails for half the audience.
+ * Each registry's link is built from that registry's own constant. They hold
+ * the same name today and have not always.
  */
 describe('the link builders', () => {
   const tool = TOOLS[0]
@@ -180,10 +179,8 @@ describe('the link builders', () => {
     )
   })
 
-  it('uses the Open VSX namespace for Open VSX, not the publisher', () => {
-    const url = openVsxUrl(tool)
-    expect(url).toBe(`https://open-vsx.org/extension/${OPENVSX_NAMESPACE}/${tool.id}`)
-    expect(url).not.toContain(`/${PUBLISHER}/`)
+  it('uses the Open VSX namespace for Open VSX', () => {
+    expect(openVsxUrl(tool)).toBe(`https://open-vsx.org/extension/${OPENVSX_NAMESPACE}/${tool.id}`)
   })
 
   it('derives the MCP package and registry id from the tool id', () => {

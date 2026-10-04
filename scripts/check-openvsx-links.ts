@@ -4,15 +4,14 @@
  *
  * A generic link checker cannot do this. open-vsx.org is a single-page app: it
  * returns HTTP 200 for
- *   https://open-vsx.org/extension/nolindnaidoo/paths-le
+ *   https://open-vsx.org/extension/nolindnaidoo/no-such-tool
  * even though that extension does not exist, and renders "Extension not found"
  * client-side. Only the API tells the truth:
- *   https://open-vsx.org/api/nolindnaidoo/paths-le  ->  {"error": "..."}
+ *   https://open-vsx.org/api/nolindnaidoo/no-such-tool  ->  {"error": "..."}
  *
- * Every Open VSX link in the family currently points at the OffensiveEdge
- * namespace, because the nolindnaidoo namespace is empty pending
- * EclipseFdn/open-vsx.org#12345. When that rename lands these all move, and
- * this is what proves the move was complete.
+ * This is what proved the family's move between Open VSX namespaces was
+ * complete: every link was rewritten first, and the check stayed red until the
+ * registry had every extension at its new address.
  *
  *   bun scripts/check-openvsx-links.ts <dir-of-markdown>
  */

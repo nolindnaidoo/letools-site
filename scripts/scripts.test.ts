@@ -564,16 +564,16 @@ describe('check-readme-pillars', () => {
 
 describe('check-openvsx-links', () => {
   it('extracts namespace and name from a link', () => {
-    expect(refsIn('see https://open-vsx.org/extension/OffensiveEdge/paths-le now')).toEqual([
-      'OffensiveEdge/paths-le',
+    expect(refsIn('see https://open-vsx.org/extension/nolindnaidoo/paths-le now')).toEqual([
+      'nolindnaidoo/paths-le',
     ])
   })
 
   it('stops at an HTML attribute delimiter', () => {
     // In built HTML the link is followed by a quote. Capturing it produced a
     // bogus "does not exist" for an extension that was perfectly fine.
-    expect(refsIn('<a href="https://open-vsx.org/extension/OffensiveEdge/urls-le">')).toEqual([
-      'OffensiveEdge/urls-le',
+    expect(refsIn('<a href="https://open-vsx.org/extension/nolindnaidoo/urls-le">')).toEqual([
+      'nolindnaidoo/urls-le',
     ])
   })
 
@@ -583,8 +583,8 @@ describe('check-openvsx-links', () => {
     // where the quote is escaped. Capturing the backslash reported six of ten
     // links dead while every one resolved.
     expect(
-      refsIn(String.raw`{"href":"https://open-vsx.org/extension/OffensiveEdge/colors-le\",`),
-    ).toEqual(['OffensiveEdge/colors-le'])
+      refsIn(String.raw`{"href":"https://open-vsx.org/extension/nolindnaidoo/colors-le\",`),
+    ).toEqual(['nolindnaidoo/colors-le'])
   })
 
   it('treats an error body as missing, even though the API returns 200', () => {
@@ -597,11 +597,11 @@ describe('check-openvsx-links', () => {
 
   it('finds links in markdown and built HTML, and ignores other files', () => {
     const root = fakeBuild({
-      'README.md': 'https://open-vsx.org/extension/OffensiveEdge/a',
-      'out/index.html': '<a href="https://open-vsx.org/extension/OffensiveEdge/b">',
-      'notes.txt': 'https://open-vsx.org/extension/OffensiveEdge/ignored',
+      'README.md': 'https://open-vsx.org/extension/nolindnaidoo/a',
+      'out/index.html': '<a href="https://open-vsx.org/extension/nolindnaidoo/b">',
+      'notes.txt': 'https://open-vsx.org/extension/nolindnaidoo/ignored',
     })
-    expect([...scan(root).keys()].sort()).toEqual(['OffensiveEdge/a', 'OffensiveEdge/b'])
+    expect([...scan(root).keys()].sort()).toEqual(['nolindnaidoo/a', 'nolindnaidoo/b'])
   })
 
   it('reports misuse without a directory', async () => {
@@ -613,7 +613,7 @@ describe('check-openvsx-links', () => {
   })
 
   it('fails on a dead link and passes on a live one', async () => {
-    const root = fakeBuild({ 'README.md': 'https://open-vsx.org/extension/OffensiveEdge/a' })
+    const root = fakeBuild({ 'README.md': 'https://open-vsx.org/extension/nolindnaidoo/a' })
     await expect(linksMain(root, async () => ({ error: 'gone' }))).resolves.toBe(1)
     await expect(linksMain(root, async () => ({ version: '2.2.3' }))).resolves.toBe(0)
   })
