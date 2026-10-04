@@ -217,9 +217,9 @@ bun run sync:readmes ../     # regenerate the generated README section
 ```
 
 `check-fleet` holds **three** lists and the distinction matters: `SHARED`
-across the twelve extension repos, `CRATE_ONLY_SHARED` across the four crate-only
+across the thirteen extension repos, `CRATE_ONLY_SHARED` across the three crate-only
 ones (which share `.gitattributes`, the commit hook, dependabot and CodeQL
-config with *each other* and not with the twelve), and `ALL_SHARED` across all
+config with *each other* and not with the thirteen), and `ALL_SHARED` across all
 sixteen — `.editorconfig`, `scripts/check-agent-files.py` and the
 `dependabot-auto-merge.yml` workflow.
 `ci-crate.yml` and `release-crate.yml` are deliberately per-repo and outside
