@@ -25,13 +25,11 @@ export const AUTHOR_URL = 'https://nolindnaidoo.com'
 
 export const GITHUB_URL = `https://github.com/${PUBLISHER}`
 
-// Open VSX still publishes under the old namespace. On that registry the
-// namespace IS the extension id, so these links cannot move until the rename
-// (EclipseFdn/open-vsx.org#12345) is actioned — pointing them at
-// `nolindnaidoo` early gives a dead link per tool, because that namespace is
-// empty.
-// Change this to PUBLISHER on the day the rename lands.
-export const OPENVSX_NAMESPACE = 'OffensiveEdge'
+// Open VSX and the Marketplace are separate registries that happen to use the
+// same name. It stays its own constant because the two have differed before:
+// on Open VSX the namespace IS the extension id, and for a long while it was
+// not the Marketplace publisher.
+export const OPENVSX_NAMESPACE = PUBLISHER
 
 // Mirrors of @heroui/styles `--background` in each scheme, as literals —
 // the browser-chrome theme-color meta cannot read CSS custom properties.

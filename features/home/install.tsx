@@ -10,10 +10,9 @@ import { Tabs } from '@/ui/tabs'
 // One representative command per surface; the placeholder id is swappable
 // for any tool id from the grid above.
 //
-// The two registries use different namespaces, so the ids are NOT
-// interchangeable: VS Code resolves nolindnaidoo.*, while Cursor and VSCodium
-// pull from Open VSX and resolve OffensiveEdge.*. Using one id for both is a
-// command that simply fails for half the audience.
+// VS Code resolves the Marketplace and Cursor and VSCodium resolve Open VSX.
+// The ids match today, and each is still built from its own registry's
+// constant, because they have differed before.
 const EXAMPLE_ID = 'paths-le'
 const MARKETPLACE_ID = `${PUBLISHER}.${EXAMPLE_ID}`
 const OPENVSX_ID = `${OPENVSX_NAMESPACE}.${EXAMPLE_ID}`
@@ -29,7 +28,7 @@ const SURFACES = [
     id: 'cursor',
     label: 'Cursor / VSCodium',
     command: `cursor --install-extension ${OPENVSX_ID}`,
-    note: 'VS Code forks pull from Open VSX, where the namespace is OffensiveEdge rather than nolindnaidoo.',
+    note: 'VS Code forks pull from Open VSX. The id is the same as on the Marketplace.',
   },
   {
     // Labelled plain "CLI" until five tools shipped an actual Rust CLI, at
