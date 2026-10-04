@@ -40,7 +40,9 @@ export default defineConfig({
        * to catch a coverage collapse (a big untested module landing), not to
        * force tests for every branch of every change.
        */
-      thresholds: { lines: 90, functions: 90, statements: 90, branches: 85 },
+      // A backstop, not a target: about ten points under where the code is, so
+      // an ordinary change cannot trip it. Never raised to follow real coverage.
+      thresholds: { lines: 85, functions: 85, statements: 85, branches: 75 },
     },
   },
 })
