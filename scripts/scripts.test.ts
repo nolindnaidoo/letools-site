@@ -29,6 +29,7 @@ import {
   SHARED,
   SHARED_WITH_EXCEPTIONS,
 } from './check-fleet'
+
 import { main as npmMain, refsIn as refsInNpm, scan as scanNpm } from './check-npm-links'
 import { isMissing, main as linksMain, refsIn, scan } from './check-openvsx-links'
 import { claimsIn, main as claimsMain } from './check-publication-claims'
@@ -38,6 +39,9 @@ import { expectedPaths, orphans, resolves, main as routesMain } from './check-ro
 import { argsFor, destinationFor, FILTER, renderHashes, sourceFor } from './sync-demos'
 import { main as readmesMain, regenerate, summarise } from './sync-readmes'
 import { main as registryMain, render, factsFor as repoFacts } from './sync-registry'
+
+/** Two crate-only repos for the tests: the family has none today, and the comparison still has to work. */
+const CRATE_ONLY = ['crate-a-le', 'crate-b-le'] as const
 
 /**
  * The gate scripts. Run once and seen to print a tick, they prove the happy
@@ -753,10 +757,10 @@ describe('the failure paths', () => {
     // The crate-only repos share a different set with each other, and are not
     // compared against the ten — a Rust codeql config and a TypeScript one are
     // not the same document.
-    plant(EXTENSION_PENDING, CRATE_ONLY_SHARED)
+    plant(CRATE_ONLY, CRATE_ONLY_SHARED)
     // And a third set belongs to every repo in the family.
-    plant([...REPOS, ...EXTENSION_PENDING], ALL_SHARED)
-    expect(fleetMain(root)).toBe(0)
+    plant([...REPOS, ...CRATE_ONLY], ALL_SHARED)
+    expect(fleetMain(root, CRATE_ONLY)).toBe(0)
   })
 
   it('catches a file that differs between the two generations', () => {
@@ -775,12 +779,12 @@ describe('the failure paths', () => {
       }
       for (const file of ALL_SHARED) write(repo, file, `shared ${file}`)
     }
-    for (const repo of EXTENSION_PENDING) {
+    for (const repo of CRATE_ONLY) {
       for (const file of CRATE_ONLY_SHARED) write(repo, file, `shared ${file}`)
       // Internally consistent across the six, and different from the ten.
       for (const file of ALL_SHARED) write(repo, file, 'the other generation')
     }
-    expect(fleetMain(root)).toBe(1)
+    expect(fleetMain(root, CRATE_ONLY)).toBe(1)
   })
 
   it('check-fleet catches drift among the crate-only repos', () => {
@@ -788,20 +792,29 @@ describe('the failure paths', () => {
     // list: uncompared, both claims survived because neither was checkable.
     const root = mkdtempSync(join(scratch, 'crate-fleet-'))
     for (const repo of REPOS) {
-      for (const file of [...SHARED, ...Object.keys(SHARED_WITH_EXCEPTIONS)]) {
+      for (const file of [...SHARED, ...Object.keys(SHARED_WITH_EXCEPTIONS), ...ALL_SHARED]) {
         const full = join(root, repo, file)
         mkdirSync(join(full, '..'), { recursive: true })
         writeFileSync(full, `shared ${file}`)
       }
     }
-    for (const [index, repo] of EXTENSION_PENDING.entries()) {
+    for (const [index, repo] of CRATE_ONLY.entries()) {
+      for (const file of ALL_SHARED) {
+        const full = join(root, repo, file)
+        mkdirSync(join(full, '..'), { recursive: true })
+        writeFileSync(full, `shared ${file}`)
+      }
       for (const file of CRATE_ONLY_SHARED) {
         const full = join(root, repo, file)
         mkdirSync(join(full, '..'), { recursive: true })
         writeFileSync(full, index === 0 ? 'drifted' : `shared ${file}`)
       }
     }
-    expect(fleetMain(root)).toBe(1)
+    expect(fleetMain(root, CRATE_ONLY)).toBe(1)
+    // And the same tree without the drift passes, so the 1 above is the drift.
+    for (const file of CRATE_ONLY_SHARED)
+      writeFileSync(join(root, 'crate-a-le', file), `shared ${file}`)
+    expect(fleetMain(root, CRATE_ONLY)).toBe(0)
   })
 
   it('check-routes fails on a page the registry does not claim', () => {
