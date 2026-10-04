@@ -1,5 +1,5 @@
 # Checks that span the whole LE family and therefore cannot live in any single
-# extension repo: shared-config drift, and the links in all fifteen READMEs.
+# extension repo: shared-config drift, and the links in all sixteen READMEs.
 #
 # Runs weekly rather than per-push because nothing here depends on this repo's
 # code — it watches the other ten. Dispatchable when you have just copied a
@@ -31,9 +31,8 @@ jobs:
         with:
           bun-version: 1.3.13
 
-      # Shallow, no history — only the working tree is compared. All sixteen:
-      # the crate-only one shares a set with each other, and their docs are
-      # checked for paths that are not there.
+      # Shallow, no history — only the working tree is compared. All sixteen,
+      # and their docs are checked for paths that are not there.
       - name: Clone the sixteen tool repos
         run: |
           mkdir -p /tmp/fleet
@@ -102,7 +101,7 @@ jobs:
       # links (AGENTS.md, CHANGELOG.md, src/assets/images/*), and a README
       # sitting alone in a temp directory reports every one of them as broken.
       # With the repo around it, those links are checked for real.
-      - name: Clone the fifteen extension repos
+      - name: Clone the sixteen extension repos
         run: |
           mkdir -p /tmp/fleet
           for r in colors-le dates-le envsync-le i18n-le ids-le ips-le numbers-le paths-le \

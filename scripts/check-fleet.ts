@@ -32,6 +32,7 @@ export const REPOS = [
   'secrets-le',
   'string-le',
   'unicode-le',
+  'units-le',
   'urls-le',
   'versions-le',
 ] as const
@@ -49,7 +50,7 @@ export const REPOS = [
  * list against the site registry is what makes that a failure rather than an
  * omission: a tool cannot be in one list and neither of the other two.
  */
-export const EXTENSION_PENDING = ['units-le'] as const
+export const EXTENSION_PENDING: readonly string[] = []
 
 /**
  * Files the crate-only repos share **with each other**.
@@ -229,16 +230,23 @@ export function problemsIn(
   return problems
 }
 
-export function main(root: string = process.argv[2] ?? '..'): number {
+/**
+ * `pending` is the crate-only list, a parameter so a test can hold the
+ * crate-only comparison to account while the family has no crate-only repo.
+ */
+export function main(
+  root: string = process.argv[2] ?? '..',
+  pending: readonly string[] = EXTENSION_PENDING,
+): number {
   const problems: string[] = []
   for (const file of SHARED) problems.push(...problemsIn(file, fingerprint(root, file), []))
   for (const [file, allowed] of Object.entries(SHARED_WITH_EXCEPTIONS)) {
     problems.push(...problemsIn(file, fingerprint(root, file), allowed))
   }
   for (const file of CRATE_ONLY_SHARED) {
-    problems.push(...problemsIn(file, fingerprint(root, file, EXTENSION_PENDING), []))
+    problems.push(...problemsIn(file, fingerprint(root, file, pending), []))
   }
-  const everyRepo = [...REPOS, ...EXTENSION_PENDING]
+  const everyRepo = [...REPOS, ...pending]
   for (const file of ALL_SHARED) {
     problems.push(...problemsIn(file, fingerprint(root, file, everyRepo), []))
   }
@@ -248,7 +256,7 @@ export function main(root: string = process.argv[2] ?? '..'): number {
     for (const problem of problems) process.stderr.write(`  ${problem}\n`)
     process.stderr.write(
       '\nThese files are meant to be identical across the repos that carry them — ' +
-        `the ${REPOS.length} extension repos, or the ${EXTENSION_PENDING.length} crate-only ` +
+        `the ${REPOS.length} extension repos, or the ${pending.length} crate-only ` +
         'ones. Copy the canonical version across, or add a documented exception to ' +
         'scripts/check-fleet.ts if the difference is deliberate.\n',
     )
@@ -258,8 +266,8 @@ export function main(root: string = process.argv[2] ?? '..'): number {
   const count = SHARED.length + Object.keys(SHARED_WITH_EXCEPTIONS).length
   process.stdout.write(
     `Fleet check passed: ${count} shared files consistent across ${REPOS.length} extension ` +
-      `repos, ${CRATE_ONLY_SHARED.length} across the ${EXTENSION_PENDING.length} crate-only ` +
-      `ones, and ${ALL_SHARED.length} across all ${REPOS.length + EXTENSION_PENDING.length}.\n`,
+      `repos, ${CRATE_ONLY_SHARED.length} across the ${pending.length} crate-only ` +
+      `ones, and ${ALL_SHARED.length} across all ${REPOS.length + pending.length}.\n`,
   )
   return 0
 }
