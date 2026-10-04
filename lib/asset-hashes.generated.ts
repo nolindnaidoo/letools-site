@@ -17,7 +17,7 @@ export const ASSET_HASHES: Readonly<Record<string, { demo: string; poster: strin
     'scrape-le': { demo: 'ea25c1f6', poster: '8a71e148' },
     'versions-le': { demo: '33d7fc81', poster: '63a1dd56' },
     'i18n-le': { demo: '38632b69', poster: '700fc995' },
-    'jevlint-le': { demo: 'afea0a9f', poster: '5d306740' },
+    'jevlint-le': { demo: 'b797f553', poster: '0930ed1e' },
     'secrets-le': { demo: '78688215', poster: 'd0d08739' },
     'envsync-le': { demo: '32b7bcfa', poster: 'e07a144b' },
     'unicode-le': { demo: 'f80dd4a0', poster: '9468625d' },

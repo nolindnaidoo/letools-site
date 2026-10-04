@@ -74,7 +74,7 @@ export function Featured() {
         {poster === undefined ? null : (
           <img
             src={poster}
-            alt={`A small Jev request printed at the command line, about to be checked by ${tool.name}`}
+            alt={`${tool.name} in VS Code, underlining three questions in a file`}
             width={800}
             loading="lazy"
             decoding="async"
