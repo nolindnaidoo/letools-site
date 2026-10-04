@@ -4,6 +4,7 @@ import {
   marketplaceUrl,
   mcpRegistryUrl,
   mcpServerName,
+  npmPackage,
   npmUrl,
   openVsxUrl,
   type Tool,
@@ -36,9 +37,22 @@ export function ToolLinks({ tool }: { readonly tool: Tool }) {
         {
           label: 'npm',
           href: npmUrl(tool),
-          detail: `${tool.id}-mcp`,
+          detail: npmPackage(tool),
         },
       ] as const)
+
+  // A registry search that finds nothing is a dead link with a 200 on it, so
+  // the row waits for the listing.
+  const registry =
+    tool.mcpRegistryPending === true
+      ? []
+      : [
+          {
+            label: 'MCP registry',
+            href: mcpRegistryUrl(tool),
+            detail: mcpServerName(tool),
+          },
+        ]
 
   const links = [
     ...published,
@@ -47,11 +61,7 @@ export function ToolLinks({ tool }: { readonly tool: Tool }) {
       href: githubUrl(tool),
       detail: 'source, issues, changelog',
     },
-    {
-      label: 'MCP registry',
-      href: mcpRegistryUrl(tool),
-      detail: mcpServerName(tool),
-    },
+    ...registry,
   ] as const
 
   return (

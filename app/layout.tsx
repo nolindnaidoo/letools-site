@@ -6,6 +6,7 @@ import { Providers } from '@/app/providers'
 import { SiteFooter } from '@/components/site-footer'
 import { SiteHeader } from '@/components/site-header'
 import { SITE_NAME, SITE_URL, TAGLINE, THEME_COLORS } from '@/lib/site'
+import { FAMILY_SIZE } from '@/lib/tools'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -14,21 +15,18 @@ export const metadata: Metadata = {
     default: `${SITE_NAME} — ${TAGLINE}`,
     template: `%s — ${SITE_NAME}`,
   },
-  description:
-    'Sixteen free, single-purpose devtools that extract, check, and guard strings, numbers, paths, units, ids, IP addresses, env keys, regexes, secrets, colors, URLs, dates, dependency versions, translations, and Unicode — local by default, MIT.',
+  description: `${FAMILY_SIZE} free, single-purpose devtools that extract, check, and guard strings, numbers, paths, units, ids, IP addresses, env keys, regexes, secrets, colors, URLs, dates, dependency versions, translations, Unicode, and the questions sent to a decision model — local by default, MIT.`,
   openGraph: {
     type: 'website',
     url: SITE_URL,
     siteName: SITE_NAME,
     title: `${SITE_NAME} — ${TAGLINE}`,
-    description:
-      'Sixteen free, single-purpose devtools for VS Code, the terminal, and AI agents — local by default, MIT.',
+    description: `${FAMILY_SIZE} free, single-purpose devtools for VS Code, the terminal, and AI agents — local by default, MIT.`,
   },
   twitter: {
     card: 'summary_large_image',
     title: `${SITE_NAME} — ${TAGLINE}`,
-    description:
-      'Sixteen free, single-purpose devtools for VS Code, the terminal, and AI agents — local by default, MIT.',
+    description: `${FAMILY_SIZE} free, single-purpose devtools for VS Code, the terminal, and AI agents — local by default, MIT.`,
   },
 }
 

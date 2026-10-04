@@ -53,6 +53,20 @@ export const REPOS = [
 export const EXTENSION_PENDING: readonly string[] = []
 
 /**
+ * Extension repos that are deliberately not compared.
+ *
+ * A linter, not an extractor: it has no crate, no `mcp/` package, no
+ * translations and its own release workflow, so most of the shared files
+ * either do not exist there or differ on purpose. Comparing would report that
+ * as drift on every run. Its own AGENTS.md lists which of the family's files
+ * it copies unchanged, and those are kept in step by hand.
+ *
+ * Listed here, and pinned against the registry with the other two lists, so a
+ * tool is still in exactly one of them and never in none.
+ */
+export const OUTSIDE_FLEET: readonly string[] = ['jevlint-le']
+
+/**
  * Files the crate-only repos share **with each other**.
  *
  * They are outside `SHARED` because none of them is the same document as the

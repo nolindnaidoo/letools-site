@@ -5,11 +5,15 @@ import { OPENVSX_NAMESPACE, PUBLISHER, SITE_URL } from './site'
 import {
   CATEGORIES,
   CRATE_TOOLS,
+  capitalize,
   cargoInstallCommand,
+  countWord,
   crateFor,
   crateUrl,
   demoSrc,
   extensionPending,
+  FAMILY_SIZE,
+  FEATURED,
   factsFor,
   findTool,
   githubUrl,
@@ -18,9 +22,13 @@ import {
   marketplaceUrl,
   mcpCommand,
   mcpInvocation,
+  mcpPackageFor,
   mcpRegistryUrl,
   mcpServerName,
+  npmPackage,
   npmUrl,
+  OFFLINE_TOOLS,
+  openVsxId,
   openVsxUrl,
   PUBLISHED_CRATES,
   posterSrc,
@@ -45,7 +53,8 @@ describe('the registry', () => {
   it('describes the whole family', () => {
     // The family size is a product fact the copy states out loud; a mismatch
     // means the site is claiming a size it does not list.
-    expect(TOOLS).toHaveLength(16)
+    expect(TOOLS).toHaveLength(17)
+    expect(FAMILY_SIZE).toBe('Seventeen')
   })
 
   it('gives every tool a unique id', () => {
@@ -297,7 +306,16 @@ describe('factsFor', () => {
         expect(command.title, command.id).not.toMatch(/^%.*%$/)
         expect(command.id.startsWith(tool.id), command.id).toBe(true)
       }
+      // A tool that ships one package for its command line and its server has
+      // no `mcp/` directory and no Zed extension to read either from.
+      if (tool.cliPackage !== undefined) {
+        expect(facts.mcpPackage, tool.id).toBeUndefined()
+        expect(facts.zedId, tool.id).toBeUndefined()
+        expect(mcpPackageFor(tool), tool.id).toBe(tool.cliPackage)
+        continue
+      }
       expect(facts.mcpPackage, tool.id).toBe(`${tool.id}-mcp`)
+      expect(mcpPackageFor(tool), tool.id).toBe(npmPackage(tool))
       expect(facts.zedId, tool.id).toBe(tool.id)
     }
   })
@@ -310,8 +328,12 @@ describe('factsFor', () => {
       const absent = [facts.version, facts.locales, facts.mcpPackage, facts.zedId].filter(
         fact => fact === undefined,
       ).length
+      // The one other state that exists: an extension with a manifest and none
+      // of the family's other three, which is what `cliPackage` declares.
+      const standalone =
+        tool.cliPackage !== undefined && absent === 3 && facts.version !== undefined
       expect(
-        absent === 0 || absent === 4,
+        absent === 0 || absent === 4 || standalone,
         `${tool.id} has ${absent} of 4 extension facts missing`,
       ).toBe(true)
       expect(extensionPending(tool), tool.id).toBe(absent === 4)
@@ -325,9 +347,9 @@ describe('factsFor', () => {
       const { command, args } = mcpInvocation(tool)
       expect(command, tool.id).not.toContain('undefined')
       expect(args.join(' '), tool.id).not.toContain('undefined')
-      expect(mcpCommand(tool), tool.id).toBe(
-        extensionPending(tool) ? `${tool.id} mcp` : `npx -y ${tool.id}-mcp`,
-      )
+      const published =
+        tool.cliPackage === undefined ? `npx -y ${tool.id}-mcp` : `npx -y ${tool.cliPackage} --mcp`
+      expect(mcpCommand(tool), tool.id).toBe(extensionPending(tool) ? `${tool.id} mcp` : published)
     }
   })
 
@@ -348,6 +370,51 @@ describe('the network claim', () => {
     expect(TOOLS.filter(tool => tool.fetchesTarget === true).map(tool => tool.id)).toEqual([
       'scrape-le',
     ])
+  })
+})
+
+describe('the tool that sends on request', () => {
+  it('is the only one that says so, and is not counted as offline', () => {
+    // A pin, like the one above: no manifest states it, so a second tool that
+    // gains a command which sends something has to be looked at by a person.
+    expect(TOOLS.filter(tool => tool.sendsOnRequest !== undefined).map(tool => tool.id)).toEqual([
+      'jevlint-le',
+    ])
+    expect(OFFLINE_TOOLS).toHaveLength(TOOLS.length - 2)
+    expect(OFFLINE_TOOLS.map(tool => tool.id)).not.toContain('scrape-le')
+    expect(OFFLINE_TOOLS.map(tool => tool.id)).not.toContain('jevlint-le')
+  })
+
+  it('installs from Open VSX under the namespace it is published to', () => {
+    const tool = findTool('jevlint-le')
+    if (tool === undefined) throw new Error('jevlint-le is not in the registry')
+    expect(openVsxUrl(tool)).toBe(`https://open-vsx.org/extension/${PUBLISHER}/jevlint-le`)
+    expect(openVsxId(tool)).toBe(`${PUBLISHER}.jevlint-le`)
+    const sibling = findTool('regex-le')
+    if (sibling === undefined) throw new Error('regex-le is not in the registry')
+    expect(openVsxId(sibling)).toBe(`${OPENVSX_NAMESPACE}.regex-le`)
+  })
+
+  it('names its one npm package, and no registry listing it does not have', () => {
+    const tool = findTool('jevlint-le')
+    if (tool === undefined) throw new Error('jevlint-le is not in the registry')
+    expect(npmUrl(tool)).toBe('https://www.npmjs.com/package/jevlint-le')
+    expect(mcpInvocation(tool)).toEqual({ command: 'npx', args: ['-y', 'jevlint-le', '--mcp'] })
+    expect(TOOLS.filter(t => t.mcpRegistryPending === true).map(t => t.id)).toEqual(['jevlint-le'])
+  })
+})
+
+describe('the featured tool', () => {
+  it('is one of the tools in the grid', () => {
+    expect(TOOLS).toContain(FEATURED)
+  })
+})
+
+describe('the counts the prose states', () => {
+  it('writes a count as a word, and refuses one it has no word for', () => {
+    expect(countWord(15)).toBe('fifteen')
+    expect(capitalize(countWord(17))).toBe('Seventeen')
+    expect(() => countWord(21)).toThrow(/COUNT_WORDS/)
   })
 })
 

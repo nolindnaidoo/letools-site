@@ -40,6 +40,11 @@ const KB = 1024
  * 1560 is that plus the usual sliver. **If the deploy fails on HTML, take the
  * number from the build log rather than adding another round guess.**
  *
+ * It moved to 1680 KB when the seventeenth tool was added: one more page, one
+ * more sibling card on each of the others, and the featured section on the
+ * home page. That measured 1523 KB locally across twenty files, which the
+ * same per-page delta puts near 1623 KB deployed.
+ *
  * Raising any ceiling needs the reason in the commit body. That is the only
  * way these move up.
  *
@@ -55,7 +60,7 @@ const KB = 1024
 const BUDGETS = Object.freeze([
   { label: 'client JS', match: (p: string) => p.endsWith('.js'), ceiling: 900 * KB },
   { label: 'CSS', match: (p: string) => p.endsWith('.css'), ceiling: 430 * KB },
-  { label: 'HTML', match: (p: string) => p.endsWith('.html'), ceiling: 1_560 * KB },
+  { label: 'HTML', match: (p: string) => p.endsWith('.html'), ceiling: 1_680 * KB },
   { label: 'fonts', match: (p: string) => p.endsWith('.woff2'), ceiling: 160 * KB },
   // Raised from 8600 when the six crate-only tools got terminal demos. The
   // sixteen fit under the old ceiling at 97%, which is not headroom — it is

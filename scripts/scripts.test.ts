@@ -24,6 +24,7 @@ import {
   main as fleetMain,
   hash,
   normalize,
+  OUTSIDE_FLEET,
   problemsIn,
   REPOS,
   SHARED,
@@ -205,7 +206,7 @@ describe('check-fleet', () => {
     // still only a crate has none of them and is deliberately not compared.
     // Pinning the two lists against the registry is what stops that becoming
     // a tool nobody checks: it has to be in exactly one of them.
-    const covered = [...REPOS, ...EXTENSION_PENDING].sort()
+    const covered = [...REPOS, ...EXTENSION_PENDING, ...OUTSIDE_FLEET].sort()
     expect(covered).toEqual(TOOLS.map(tool => tool.id).sort())
     expect(new Set(covered).size).toBe(covered.length)
     expect(SHARED.length).toBeGreaterThan(5)
@@ -1035,9 +1036,9 @@ describe('the derived registry facts', () => {
     for (const tool of TOOLS) {
       // A tool whose extension is unwritten has no l10n/ to count. Reading it
       // as a zero would break the invariant and put "0 languages" on the page.
-      expect(factsFor(tool).locales, tool.id).toBe(
-        extensionPending(tool) ? undefined : LOCALE_COUNT,
-      )
+      // A tool outside the fleet does not carry the family's catalogues.
+      const untranslated = extensionPending(tool) || OUTSIDE_FLEET.includes(tool.id)
+      expect(factsFor(tool).locales, tool.id).toBe(untranslated ? undefined : LOCALE_COUNT)
     }
   })
 })

@@ -45,7 +45,7 @@ product decision, not a PR.
 app/          routes (shims), fonts, providers, globals.css, not-found,
               sitemap.ts (generated from the registry), tools/[id] (one
               static page per tool, emitted by generateStaticParams)
-features/     home/ — hero, tool-grid, principles, install, faq
+features/     home/ — hero, featured, tool-grid, principles, install, faq
               tool/ — hero, install, links, siblings (the per-tool page)
 components/   shared UI: site-header, site-footer, theme-toggle, command-snippet
 ui/           thin @heroui/react re-exports, one file per primitive —
@@ -107,6 +107,21 @@ to anyone.
   the home hero says "Local by default", and a tool page reads the badge from
   `fetchesTarget` in the registry rather than stating it for all ten. Hand-set
   like `cratePublished`, and pinned by a test — no manifest states it.
+- **Sends on request.** JevLint-LE lints offline and has one command, run by
+  the user with their own key, that sends the questions in a file to TypeSafe.
+  `sendsOnRequest` in the registry is its badge, and it is what keeps that tool
+  out of `OFFLINE_TOOLS`, the count the home page and the FAQ state. "File
+  contents never leave your machine" was true of every tool until this one,
+  and now reads "unless you send it".
+- **The family size is never typed.** `FAMILY_SIZE` and `countWord` write it
+  from the registry. It was a word in five places, each found by hand.
+- **Not every tool has every surface.** JevLint-LE has no crate, no `mcp/`
+  package, no Zed extension, no translations and no MCP registry listing. Its
+  command line and MCP server are one npm package, declared by `cliPackage`.
+  `mcpRegistryPending` keeps the pages from linking a listing that is not
+  there, and `openVsxNamespace` states the one it is published under. The
+  translated count is read from `TRANSLATED_TOOLS`, so the sentence says
+  "sixteen of the seventeen" and not "every".
 - **Locales.** All ten ship the same 12 translated bundles (plus the English
   source, which is not a translation — counting it gives 13 and is wrong). This
   used to vary, and the site said so long after it stopped being true: copy
@@ -215,6 +230,11 @@ bun run check:doc-paths ../  # every path a governing doc names exists
 bun run check:locales ../    # every translation is in its own language
 bun run sync:readmes ../     # regenerate the generated README section
 ```
+
+`OUTSIDE_FLEET` in `check-fleet.ts` names the extension repos that are
+deliberately not compared, which today is JevLint-LE. A test holds `REPOS`,
+`EXTENSION_PENDING` and `OUTSIDE_FLEET` against the registry, so a tool is in
+exactly one of them.
 
 `check-fleet` holds **three** lists and the distinction matters: `SHARED`
 across the sixteen extension repos, `CRATE_ONLY_SHARED` across the crate-only

@@ -1,4 +1,5 @@
 import { Faq } from '@/features/home/faq'
+import { Featured } from '@/features/home/featured'
 import { Hero } from '@/features/home/hero'
 import { Install } from '@/features/home/install'
 import { McpConfig } from '@/features/home/mcp-config'
@@ -12,6 +13,7 @@ export default function HomePage() {
     <>
       <Hero />
       <Thesis />
+      <Featured />
       <ToolGrid />
       <Principles />
       <Install />

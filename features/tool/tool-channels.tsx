@@ -7,8 +7,10 @@ import {
   githubUrl,
   marketplaceUrl,
   mcpCommand,
+  mcpPackageFor,
   mcpServerName,
   npmUrl,
+  openVsxNamespace,
   openVsxUrl,
   type Tool,
   ZED_MCP_DOCS,
@@ -72,16 +74,22 @@ function channelsFor(tool: Tool): readonly Channel[] {
       value: mcpCommand(tool),
       // Without the extension there is no npm package; the crate answers `mcp`
       // on stdio instead, and that is what the command above already says.
-      href: facts.mcpPackage === undefined ? githubUrl(tool) : npmUrl(tool),
-      ...(facts.mcpPackage === undefined
+      href: mcpPackageFor(tool) === undefined ? githubUrl(tool) : npmUrl(tool),
+      ...(mcpPackageFor(tool) === undefined
         ? { pending: 'shipped by the binary, not by npm — no package to link yet' }
         : {}),
     },
     {
       label: 'MCP registry',
-      detail: 'discoverable by name',
+      detail:
+        tool.mcpRegistryPending === true
+          ? 'the name it will be listed under'
+          : 'discoverable by name',
       value: mcpServerName(tool),
       href: githubUrl(tool),
+      ...(tool.mcpRegistryPending === true
+        ? { pending: 'not listed yet — this links the source' }
+        : {}),
     },
     ...(crate === undefined
       ? []
@@ -125,8 +133,10 @@ export function ToolChannels({ tool }: { readonly tool: Tool }) {
       <div className="mb-6 flex flex-col gap-2">
         <h2 className="text-2xl font-bold tracking-tight">Where it ships</h2>
         <p className="text-muted">
-          One engine, {channels.length} places to get it. The ids differ by registry — copy the one
-          for the editor you use.
+          One engine, {channels.length} places to get it.{' '}
+          {openVsxNamespace(tool) === PUBLISHER
+            ? 'Copy the one for the editor you use.'
+            : 'The ids differ by registry — copy the one for the editor you use.'}
         </p>
       </div>
 

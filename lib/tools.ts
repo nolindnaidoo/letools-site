@@ -54,6 +54,37 @@ export interface Tool {
    * tool page do the same.
    */
   readonly fetchesTarget?: boolean
+  /**
+   * Set on a tool with a command the user runs to send something out.
+   *
+   * It is the badge the tool page shows in place of "No network access", so
+   * it has to say both halves: what runs offline, and what the one command
+   * sends. Hand-set, for the same reason as `fetchesTarget`.
+   */
+  readonly sendsOnRequest?: string
+  /**
+   * The npm package that is both this tool's command line and its MCP server.
+   *
+   * Most tools publish the server alone as `<id>-mcp`, read from the repo's
+   * `mcp/` directory. A tool with this set has one package named for itself,
+   * and starts the server with `--mcp`.
+   */
+  readonly cliPackage?: string
+  /**
+   * Set while the tool is not listed in the MCP registry.
+   *
+   * Availability, so hand-set like `cratePublished`: while it is true the
+   * pages show the name the listing will take and never link a search that
+   * finds nothing.
+   */
+  readonly mcpRegistryPending?: boolean
+  /**
+   * The Open VSX namespace, for a tool not under the family's.
+   *
+   * On Open VSX the namespace is the extension id, so a tool published under
+   * another one needs it stated or its install command installs nothing.
+   */
+  readonly openVsxNamespace?: string
   // Long-form copy for the tool's own page. Paraphrased from that tool's
   // README — the content-truth rule applies here as everywhere: a claim on
   // this site must be provable against the extension repo.
@@ -409,6 +440,37 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     ],
   },
   {
+    id: 'jevlint-le',
+    name: 'JevLint-LE',
+    category: 'check',
+    summary:
+      "Lint the questions you send to TypeSafe's Jev model as you type, with no API key and no network calls. An optional command asks Jev itself to check a file",
+    mcpTool: 'lint_text',
+    cliPackage: 'jevlint-le',
+    openVsxNamespace: PUBLISHER,
+    mcpRegistryPending: true,
+    sendsOnRequest: 'Lints offline · one opt-in command calls Jev',
+    overview:
+      "Jev answers the question you wrote, which is not always the one you meant. JevLint-LE finds the questions a project sends to TypeSafe's Jev model, in JSON, JavaScript, TypeScript, Python, Rust and Go, and reports the ones written in a way documented to fail: a choice with no fallback option, a score given a map where it takes a list, a type that does not exist, a question that turns on a word with no stated line. Linting runs as you type with no API key and no network. A part of a question that is built at runtime is counted as not read, never guessed at. One command, run by you with your own key, asks Jev itself to check a file.",
+    useCases: [
+      {
+        title: 'Catch it while typing',
+        detail:
+          'Findings appear in the editor as a question is written, with a quick fix where the fix is not a guess.',
+      },
+      {
+        title: 'Check a pull request',
+        detail:
+          'The same checks run from the command line, with output for a terminal, as JSON, or as GitHub annotations.',
+      },
+      {
+        title: 'Hand it to an agent',
+        detail:
+          'The MCP server offers lint_text, lint_paths and list_rules, so an agent can check the questions it writes.',
+      },
+    ],
+  },
+  {
     id: 'secrets-le',
     cratePublished: true,
     name: 'Secrets-LE',
@@ -496,6 +558,68 @@ export function findTool(id: string): Tool | undefined {
   return TOOLS.find(tool => tool.id === id)
 }
 
+/**
+ * The tool the home page leads with, above the grid.
+ *
+ * It is still in the grid, in its category. Resolved here so a featured id
+ * that is not in the registry fails the build, not the page.
+ */
+export const FEATURED: Tool = (() => {
+  const tool = findTool('jevlint-le')
+  if (tool === undefined) throw new Error('the featured tool is not in the registry')
+  return tool
+})()
+
+const COUNT_WORDS = [
+  'zero',
+  'one',
+  'two',
+  'three',
+  'four',
+  'five',
+  'six',
+  'seven',
+  'eight',
+  'nine',
+  'ten',
+  'eleven',
+  'twelve',
+  'thirteen',
+  'fourteen',
+  'fifteen',
+  'sixteen',
+  'seventeen',
+  'eighteen',
+  'nineteen',
+  'twenty',
+] as const
+
+/**
+ * A count as the prose writes it.
+ *
+ * The family size was typed as a word in five places, and each one had to be
+ * found by hand when a tool was added. Throwing past the table fails the build
+ * the day the family outgrows it, where a digit in a sentence would only read
+ * oddly.
+ */
+export function countWord(count: number): string {
+  const word = COUNT_WORDS[count]
+  if (word === undefined) throw new Error(`no word for ${count} — extend COUNT_WORDS`)
+  return word
+}
+
+export function capitalize(word: string): string {
+  return `${word.charAt(0).toUpperCase()}${word.slice(1)}`
+}
+
+/** "Seventeen", for the sentences that open with the family size. */
+export const FAMILY_SIZE: string = capitalize(countWord(TOOLS.length))
+
+/** The tools that make no network request under any command. */
+export const OFFLINE_TOOLS: readonly Tool[] = TOOLS.filter(
+  tool => tool.fetchesTarget !== true && tool.sendsOnRequest === undefined,
+)
+
 // The tool's own page on this site. Every other link here points off-site;
 // this is the one that keeps a visitor here, and it is what the sitemap
 // enumerates.
@@ -525,8 +649,17 @@ export function marketplaceUrl(tool: Tool): string {
   return `https://marketplace.visualstudio.com/items?itemName=${PUBLISHER}.${tool.id}`
 }
 
+export function openVsxNamespace(tool: Tool): string {
+  return tool.openVsxNamespace ?? OPENVSX_NAMESPACE
+}
+
 export function openVsxUrl(tool: Tool): string {
-  return `https://open-vsx.org/extension/${OPENVSX_NAMESPACE}/${tool.id}`
+  return `https://open-vsx.org/extension/${openVsxNamespace(tool)}/${tool.id}`
+}
+
+/** The id Cursor and VSCodium install by. */
+export function openVsxId(tool: Tool): string {
+  return `${openVsxNamespace(tool)}.${tool.id}`
 }
 
 export function githubUrl(tool: Tool): string {
@@ -537,7 +670,12 @@ export function githubUrl(tool: Tool): string {
 // without the editor in the loop. The npm package and the registry id are both
 // derived from the tool id — one naming rule, no table to keep in step.
 export function npmUrl(tool: Tool): string {
-  return `https://www.npmjs.com/package/${tool.id}-mcp`
+  return `https://www.npmjs.com/package/${npmPackage(tool)}`
+}
+
+/** The npm package a tool's MCP server is installed from. */
+export function npmPackage(tool: Tool): string {
+  return tool.cliPackage ?? `${tool.id}-mcp`
 }
 
 /**
@@ -554,9 +692,12 @@ export function mcpInvocation(tool: Tool): {
   readonly command: string
   readonly args: readonly string[]
 } {
-  const npmPackage = factsFor(tool).mcpPackage
-  if (npmPackage === undefined) return { command: tool.id, args: ['mcp'] }
-  return { command: 'npx', args: ['-y', npmPackage] }
+  if (tool.cliPackage !== undefined) {
+    return { command: 'npx', args: ['-y', tool.cliPackage, '--mcp'] }
+  }
+  const serverPackage = factsFor(tool).mcpPackage
+  if (serverPackage === undefined) return { command: tool.id, args: ['mcp'] }
+  return { command: 'npx', args: ['-y', serverPackage] }
 }
 
 /** Zed's own instructions, for a tool with no submission to link. */
@@ -662,6 +803,11 @@ export function factsFor(tool: Tool): (typeof TOOL_FACTS)[string] {
  * zero would break the one-count invariant and put "0 languages" on the page,
  * which is a claim about a catalogue nobody has written rather than a fact.
  */
+/** The extensions that ship a translated interface. */
+export const TRANSLATED_TOOLS: readonly Tool[] = TOOLS.filter(
+  tool => factsFor(tool).locales !== undefined,
+)
+
 export const LOCALE_COUNT: number = (() => {
   const counts = new Set(
     TOOLS.map(tool => factsFor(tool).locales).filter(count => count !== undefined),
@@ -674,7 +820,7 @@ export const LOCALE_COUNT: number = (() => {
 
 /** The npm package that carries this tool's MCP server, once one is published. */
 export function mcpPackageFor(tool: Tool): string | undefined {
-  return factsFor(tool).mcpPackage
+  return tool.cliPackage ?? factsFor(tool).mcpPackage
 }
 
 /** The crate a tool ships, or undefined for the ones that ship none. */

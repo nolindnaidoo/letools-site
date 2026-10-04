@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { SITE_NAME, TAGLINE } from '@/lib/site'
+import { FAMILY_SIZE } from '@/lib/tools'
 
 // The share card: LE tile + site name + tagline on the dark canvas.
 // Hexes are literal (Satori cannot read CSS custom properties) and mirror
@@ -56,7 +57,7 @@ export default function OpengraphImage() {
         {TAGLINE}
       </div>
       <div style={{ display: 'flex', fontSize: 30, color: '#a1a1aa' }}>
-        Sixteen free, single-purpose devtools · letools.dev
+        {FAMILY_SIZE} free, single-purpose devtools · letools.dev
       </div>
     </div>,
     { ...size },

@@ -1,3 +1,4 @@
+import { capitalize, countWord, OFFLINE_TOOLS, TOOLS } from '@/lib/tools'
 import { Accordion } from '@/ui/accordion'
 
 const FAQ_ITEMS = [
@@ -9,8 +10,7 @@ const FAQ_ITEMS = [
   {
     id: 'privacy',
     question: 'Do they send my code anywhere?',
-    answer:
-      'No. Your file contents are never transmitted. Fifteen of the sixteen tools make no network requests at all; Scrape-LE fetches the page you point it at, because that is what checking scrapeability means — it still never uploads your files. The optional telemetry setting only writes to a local output channel inside your editor, and it is off by default.',
+    answer: `Not unless you ask one to. ${capitalize(countWord(OFFLINE_TOOLS.length))} of the ${countWord(TOOLS.length)} tools make no network requests at all. Scrape-LE fetches the page you point it at, because that is what checking scrapeability means — it still never uploads your files. JevLint-LE lints offline, and its one optional command, run by you with your own TypeSafe key, sends the questions in the open file to Jev. The optional telemetry setting only writes to a local output channel inside your editor, and it is off by default.`,
   },
   {
     id: 'forks',
@@ -22,7 +22,7 @@ const FAQ_ITEMS = [
     id: 'agents',
     question: 'Can my AI agent use these?',
     answer:
-      'Yes. Every tool ships its engine as an MCP server, so an agent can call it with no editor in the loop. Where the extension has shipped, npx -y <tool>-mcp wires it into Claude Code, Cursor, Windsurf or Zed, and VS Code 1.101+ needs nothing at all — installing the extension registers the tool with agent mode. The newest tools carry the server inside their binary instead: <tool> mcp speaks the same protocol with no Node involved. Each tool page prints the exact command for that tool.',
+      'Yes. Every tool ships its engine as an MCP server, so an agent can call it with no editor in the loop. Where the extension has shipped, npx -y <tool>-mcp wires most of them into Claude Code, Cursor, Windsurf or Zed, and VS Code 1.101+ needs nothing at all — installing the extension registers the tool with agent mode. The newest tools carry the server inside their binary instead: <tool> mcp speaks the same protocol with no Node involved. Each tool page prints the exact command for that tool.',
   },
   {
     id: 'split',

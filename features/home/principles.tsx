@@ -1,4 +1,17 @@
-import { LOCALE_COUNT } from '@/lib/tools'
+import {
+  capitalize,
+  countWord,
+  LOCALE_COUNT,
+  OFFLINE_TOOLS,
+  TOOLS,
+  TRANSLATED_TOOLS,
+} from '@/lib/tools'
+
+const TRANSLATED =
+  TRANSLATED_TOOLS.length === TOOLS.length
+    ? 'Every published extension ships its interface'
+    : `${capitalize(countWord(TRANSLATED_TOOLS.length))} of the ${countWord(TOOLS.length)} extensions ship their interface`
+
 import { Card } from '@/ui/card'
 
 // Every line here must stay provable against the extension repos: local-only
@@ -9,7 +22,7 @@ import { Card } from '@/ui/card'
 const PRINCIPLES = [
   {
     title: 'Local by design',
-    body: 'File contents never leave your machine. Fifteen of the sixteen tools make no network requests at all; Scrape-LE is the exception by design, since checking whether a page is scrapeable means fetching that page. Telemetry is off by default and only ever writes to a local output channel you can read.',
+    body: `Nothing leaves your machine unless you send it. ${capitalize(countWord(OFFLINE_TOOLS.length))} of the ${countWord(TOOLS.length)} tools make no network requests at all. Scrape-LE fetches the page it is checking, because that is the job. JevLint-LE lints offline, and has one command, run by you with your own key, that sends the questions in a file to TypeSafe. Telemetry is off by default and only ever writes to a local output channel you can read.`,
   },
   {
     title: 'One job each',
@@ -17,11 +30,11 @@ const PRINCIPLES = [
   },
   {
     title: 'Held to the same bar',
-    body: 'Every extension ships a single bundled file with no runtime dependencies — except Scrape-LE, which ships the browser driver it needs — and every Rust tool ships one binary. All sixteen run CI on Linux, macOS, and Windows: the extensions against a real extension host and an installed VSIX, the crates against a fixture corpus that ships inside the crate so anyone can rerun it.',
+    body: `Every extension ships bundled, with no runtime dependencies — except Scrape-LE, which ships the browser driver it needs — and every Rust tool ships one binary. All ${countWord(TOOLS.length)} run CI on Linux, macOS, and Windows: the extensions against a real extension host and an installed VSIX, the crates against a fixture corpus that ships inside the crate so anyone can rerun it.`,
   },
   {
     title: 'Yours to read',
-    body: `MIT licensed with every repo public. Every published extension ships its interface translated into ${LOCALE_COUNT} languages.`,
+    body: `MIT licensed with every repo public. ${TRANSLATED} translated into ${LOCALE_COUNT} languages.`,
   },
 ] as const
 

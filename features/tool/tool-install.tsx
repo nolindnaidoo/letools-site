@@ -1,10 +1,12 @@
 import { CommandSnippet } from '@/components/command-snippet'
-import { OPENVSX_NAMESPACE, PUBLISHER } from '@/lib/site'
+import { PUBLISHER } from '@/lib/site'
 import {
   crateFor,
   extensionPending,
   githubUrl,
   mcpCommand,
+  openVsxId,
+  openVsxNamespace,
   type Tool,
   ZED_MCP_DOCS,
   zedPrUrl,
@@ -50,10 +52,12 @@ function surfacesFor(tool: Tool): readonly Surface[] {
     {
       id: 'forks',
       label: 'Cursor / VSCodium',
-      command: `cursor --install-extension ${OPENVSX_NAMESPACE}.${tool.id}`,
+      command: `cursor --install-extension ${openVsxId(tool)}`,
       note: pending
         ? 'Same again for the forks, which resolve Open VSX rather than the Marketplace.'
-        : 'VS Code forks pull from Open VSX, where the namespace is OffensiveEdge.',
+        : openVsxNamespace(tool) === PUBLISHER
+          ? 'VS Code forks pull from Open VSX. The id is the same as on the Marketplace.'
+          : `VS Code forks pull from Open VSX, where the namespace is ${openVsxNamespace(tool)}.`,
       ...(pending ? { pending: true, track: githubUrl(tool) } : {}),
     },
   ]

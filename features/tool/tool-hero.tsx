@@ -24,7 +24,8 @@ function badgesFor(tool: Tool): readonly string[] {
     'Free',
     'Open source',
     'MIT',
-    tool.fetchesTarget === true ? 'Only fetches the page you check' : 'No network access',
+    tool.sendsOnRequest ??
+      (tool.fetchesTarget === true ? 'Only fetches the page you check' : 'No network access'),
   ]
 }
 
