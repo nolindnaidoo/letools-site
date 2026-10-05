@@ -939,6 +939,20 @@ describe('sync-registry', () => {
 })
 
 describe('the derived registry facts', () => {
+  it('refuses a manifest that binds a key by default', () => {
+    // The tool pages state that nothing is bound. This is what keeps that true.
+    const repo = fakeBuild({
+      'package.json': JSON.stringify({
+        version: '1.0.0',
+        contributes: {
+          commands: [{ command: 'k-le.run', title: 'Run' }],
+          keybindings: [{ command: 'k-le.run', key: 'ctrl+alt+k' }],
+        },
+      }),
+    })
+    expect(() => repoFacts(repo)).toThrow(/default keybinding/)
+  })
+
   it('gives every tool in the registry a generated entry', () => {
     for (const tool of TOOLS) {
       expect(() => factsFor(tool), tool.id).not.toThrow()
