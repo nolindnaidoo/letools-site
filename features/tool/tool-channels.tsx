@@ -3,7 +3,6 @@ import {
   crateFor,
   crateUrl,
   extensionPending,
-  factsFor,
   githubUrl,
   marketplaceUrl,
   mcpCommand,
@@ -13,8 +12,6 @@ import {
   openVsxNamespace,
   openVsxUrl,
   type Tool,
-  ZED_MCP_DOCS,
-  zedPrUrl,
 } from '@/lib/tools'
 import { Card } from '@/ui/card'
 import { Link } from '@/ui/link'
@@ -42,7 +39,6 @@ type Channel = Readonly<{
 }>
 
 function channelsFor(tool: Tool): readonly Channel[] {
-  const facts = factsFor(tool)
   const crate = crateFor(tool)
   // Everything the extension repo publishes is absent while the extension is
   // unwritten. The row still appears, carrying the id the listing will take
@@ -106,22 +102,6 @@ function channelsFor(tool: Tool): readonly Channel[] {
               : { pending: `v${crate.version} — not on crates.io yet; this links the source` }),
           },
         ]),
-    {
-      label: 'Zed',
-      detail:
-        facts.zedId === undefined
-          ? 'as a custom MCP server today'
-          : 'built from Rust in the tool repo',
-      value: facts.zedId ?? mcpCommand(tool),
-      // Submitted, not merged — and for most tools not submitted at all,
-      // because Zed caps a contributor at three open pull requests. Both
-      // states are said plainly; neither implies a listing that exists.
-      href: zedPrUrl(tool) ?? ZED_MCP_DOCS,
-      pending:
-        tool.zedPr === undefined
-          ? 'no listing yet — this links Zed’s instructions for adding it by hand'
-          : 'listing pending — this links to the open pull request',
-    },
   ]
 }
 

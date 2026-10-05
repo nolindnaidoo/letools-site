@@ -53,7 +53,7 @@ describe('configFor', () => {
   })
 
   it('emits nothing for the editors that need no config', () => {
-    // VS Code and Zed install the server with the extension. A block here
+    // VS Code installs the server with the extension. A block here
     // would be worse than none: it would look like the required step.
     expect(configFor(clientById('editor'), TOOLS)).toBe('')
   })

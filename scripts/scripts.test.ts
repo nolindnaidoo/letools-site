@@ -372,7 +372,7 @@ describe('check-publication-claims', () => {
     // npm ordering advice, not a claim about this crate — and a bare
     // /unpublished/ matched it in ten repos on the first run.
     const generic =
-      'npm must be published before any Zed PR merges — a merged extension ' +
+      'npm must be published before the registry listing moves — a merged extension ' +
       'pointing at an unpublished version is broken for everyone.'
     expect(claimsIn('colors-le', 'AGENTS.md', generic)).toEqual([])
   })
@@ -848,7 +848,6 @@ describe('sync-registry', () => {
       }),
       'package.nls.json': JSON.stringify({ 'manifest.command.run.title': 'Run It' }),
       'mcp/package.json': JSON.stringify({ name: 'x-le-mcp' }),
-      'zed/extension.toml': 'id = "x-le"\nname = "X-LE"\n',
       'l10n/bundle.l10n.json': '{}',
       'l10n/bundle.l10n.de.json': '{}',
       'l10n/bundle.l10n.pt-br.json': '{}',
@@ -864,7 +863,6 @@ describe('sync-registry', () => {
       ],
       locales: 2,
       mcpPackage: 'x-le-mcp',
-      zedId: 'x-le',
     })
   })
 
@@ -883,7 +881,6 @@ describe('sync-registry', () => {
       }),
       'package.nls.json': '{}',
       'mcp/package.json': JSON.stringify({ name: 'q-le-mcp' }),
-      'zed/extension.toml': 'id = "q-le"\n',
       'l10n/bundle.l10n.json': '{}',
     })
     expect(repoFacts(repo).commands).toEqual([
@@ -894,7 +891,7 @@ describe('sync-registry', () => {
 
   it('reads a repo that holds only a crate, rather than refusing it', () => {
     // The newest tools land the crate first, so for a while the repo has no
-    // manifest, no l10n/, no mcp/ and no zed/. Every one of those used to be
+    // manifest, no l10n/ and no mcp/. Every one of those used to be
     // read unconditionally, and each threw.
     const repo = fakeBuild({
       'crate/Cargo.toml': 'name = "c-le"\nversion = "0.1.0"\n',
@@ -914,22 +911,10 @@ describe('sync-registry', () => {
       'package.json': JSON.stringify({ version: '1.0.0' }),
       'package.nls.json': '{}',
       'mcp/package.json': JSON.stringify({ name: 'y-le-mcp' }),
-      'zed/extension.toml': 'id = "y-le"\n',
       'l10n/bundle.l10n.json': '{}',
     })
     expect(repoFacts(repo).commands).toEqual([])
     expect(repoFacts(repo).locales).toBe(0)
-  })
-
-  it('refuses a Zed manifest with no id rather than emitting undefined', () => {
-    const repo = fakeBuild({
-      'package.json': JSON.stringify({ version: '1.0.0' }),
-      'package.nls.json': '{}',
-      'mcp/package.json': JSON.stringify({ name: 'z-le-mcp' }),
-      'zed/extension.toml': 'name = "Z-LE"\n',
-      'l10n/bundle.l10n.json': '{}',
-    })
-    expect(() => repoFacts(repo)).toThrow(/no id/)
   })
 
   it('renders a file that declares its own provenance', () => {
@@ -942,7 +927,6 @@ describe('sync-registry', () => {
             commands: [{ id: 'a-le.run', title: 'Run' }],
             locales: 12,
             mcpPackage: 'a-le-mcp',
-            zedId: 'a-le',
           },
         ],
       ]),
@@ -987,7 +971,6 @@ describe('the derived registry facts', () => {
         }),
         'package.nls.json': '{}',
         'mcp/package.json': JSON.stringify({ name: `${tool.id}-mcp` }),
-        'zed/extension.toml': `id = "${tool.id}"\n`,
         'l10n/bundle.l10n.json': '{}',
         'l10n/bundle.l10n.de.json': '{}',
       }

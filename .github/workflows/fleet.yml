@@ -61,8 +61,6 @@ jobs:
       - name: No doc calls a published crate unpublished
         if: always()
         run: bun scripts/check-publication-claims.ts /tmp/fleet
-      - name: Every linked Zed pull request is still open
-        run: bun scripts/check-zed-claims.ts /tmp/fleet
 
       # All ten READMEs told a reader to pin `<tool>-le-mcp@2.2.1` while the
       # published package was 2.3.0 — one wrong number copied nine times and

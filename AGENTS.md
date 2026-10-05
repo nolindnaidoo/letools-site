@@ -89,8 +89,6 @@ declaration, so unflipped copy cannot assert anything:
   CLI and links its source, and never links a crates.io URL that would 404.
 - `EXTENSION_PENDING` in `scripts/check-fleet.ts` — a repo with no extension
   yet, deliberately not compared against the ten.
-- `zedPr` — absent means there is no open submission to link, so the page says
-  the listing does not exist.
 
 Flip the flag in the same commit as the release. `bun run check:crates`
 reconciles the declaration against the live registry, and its asymmetry is the
@@ -116,7 +114,7 @@ to anyone.
 - **The family size is never typed.** `FAMILY_SIZE` and `countWord` write it
   from the registry. It was a word in five places, each found by hand.
 - **Not every tool has every surface.** JevLint-LE has no crate, no `mcp/`
-  package, no Zed extension, no translations and no MCP registry listing. Its
+  package, no translations and no MCP registry listing. Its
   command line and MCP server are one npm package, declared by `cliPackage`.
   `mcpRegistryPending` keeps the pages from linking a listing that is not
   there, and `openVsxNamespace` states the one it is published under. The
@@ -272,7 +270,7 @@ that problem and with the trustworthiness of the output; the tool count is a
 detail.
 
 The surface is also much larger than "VS Code extensions" — VS Code and VSIX,
-Zed, MCP servers, npm packages, and Rust crates. Detail pages should carry
+MCP servers, npm packages, and Rust crates. Detail pages should carry
 that, and it is why this site needs real interactive depth rather than a poster.
 
 Every claim still has to stay provable against the tool repos. `lib/tools.ts`

@@ -34,7 +34,6 @@ import {
   posterSrc,
   TOOLS,
   toolPath,
-  zedPrUrl,
 } from './tools'
 import { transcriptFor } from './transcripts'
 
@@ -120,22 +119,6 @@ describe('the registry', () => {
     }
   })
 
-  it('points every Zed PR at a real pull-request number', () => {
-    // The field exists to say "submitted, not merged" honestly. A zero or a
-    // negative would render a link to nothing.
-    for (const tool of TOOLS) {
-      if (tool.zedPr === undefined) continue
-      expect(Number.isInteger(tool.zedPr), `${tool.id} zedPr`).toBe(true)
-      expect(tool.zedPr, `${tool.id} zedPr`).toBeGreaterThan(0)
-    }
-  })
-
-  it('carries no more open Zed pull requests than Zed allows', () => {
-    // Zed caps a contributor at three open pull requests. A fourth here means
-    // one of them has closed and the page is linking a dead review as pending.
-    expect(TOOLS.filter(tool => tool.zedPr !== undefined).length).toBeLessThanOrEqual(3)
-  })
-
   it('is frozen, so a render body cannot reshape a fact', () => {
     expect(Object.isFrozen(TOOLS)).toBe(true)
     expect(Object.isFrozen(CATEGORIES)).toBe(true)
@@ -193,20 +176,6 @@ describe('the link builders', () => {
     expect(installCommand(tool)).toBe(`ext install ${PUBLISHER}.${tool.id}`)
   })
 
-  it('points the Zed link at the pull request, not a listing', () => {
-    // The extensions are submitted, not merged. Linking a listing that does
-    // not exist would be the dishonest version of this.
-    // A synthetic submission, so the link shape is tested whether or not any
-    // tool has a pull request open today.
-    const submitted = { ...tool, zedPr: 7077 }
-    expect(zedPrUrl(submitted)).toBe('https://github.com/zed-industries/extensions/pull/7077')
-  })
-
-  it('offers no Zed link for a tool with nothing submitted', () => {
-    const { zedPr: _none, ...unsubmitted } = { ...tool, zedPr: 0 }
-    expect(zedPrUrl(unsubmitted)).toBeUndefined()
-  })
-
   it('builds asset paths that match what the repo ships', () => {
     expect(iconSrc(tool)).toBe(`/icons/${tool.id}.png`)
     // Demos and posters carry eight characters of their own hash, so that a
@@ -255,13 +224,10 @@ describe('the link builders', () => {
   })
 
   it('produces a parseable absolute URL for every off-site link, for every tool', () => {
-    const builders = [marketplaceUrl, openVsxUrl, githubUrl, npmUrl, zedPrUrl, mcpRegistryUrl]
+    const builders = [marketplaceUrl, openVsxUrl, githubUrl, npmUrl, mcpRegistryUrl]
     for (const current of TOOLS) {
       for (const build of builders) {
         const url = build(current)
-        // zedPrUrl answers undefined when nothing is submitted; that is the
-        // absence of a link, not a malformed one.
-        if (url === undefined) continue
         expect(() => new URL(url), `${current.id}: ${url}`).not.toThrow()
         expect(url.startsWith('https://'), `${current.id}: ${url}`).toBe(true)
       }
@@ -304,36 +270,34 @@ describe('factsFor', () => {
         expect(command.id.startsWith(tool.id), command.id).toBe(true)
       }
       // A tool that ships one package for its command line and its server has
-      // no `mcp/` directory and no Zed extension to read either from.
+      // no `mcp/` directory to read one from.
       if (tool.cliPackage !== undefined) {
         expect(facts.mcpPackage, tool.id).toBeUndefined()
-        expect(facts.zedId, tool.id).toBeUndefined()
         expect(mcpPackageFor(tool), tool.id).toBe(tool.cliPackage)
         continue
       }
       expect(facts.mcpPackage, tool.id).toBe(`${tool.id}-mcp`)
       expect(mcpPackageFor(tool), tool.id).toBe(npmPackage(tool))
-      expect(facts.zedId, tool.id).toBe(tool.id)
     }
   })
 
   it('reports the extension surfaces as absent together, or not at all', () => {
-    // They come from one repo and land in one commit, so a tool with a Zed id
-    // and no manifest is a half-read repo rather than a state that exists.
+    // They come from one repo and land in one commit, so a tool with an MCP
+    // package and no manifest is a half-read repo rather than a state that exists.
     for (const tool of TOOLS) {
       const facts = factsFor(tool)
-      const absent = [facts.version, facts.locales, facts.mcpPackage, facts.zedId].filter(
+      const absent = [facts.version, facts.locales, facts.mcpPackage].filter(
         fact => fact === undefined,
       ).length
       // The one other state that exists: an extension with a manifest and none
-      // of the family's other three, which is what `cliPackage` declares.
+      // of the family's other two, which is what `cliPackage` declares.
       const standalone =
-        tool.cliPackage !== undefined && absent === 3 && facts.version !== undefined
+        tool.cliPackage !== undefined && absent === 2 && facts.version !== undefined
       expect(
-        absent === 0 || absent === 4 || standalone,
-        `${tool.id} has ${absent} of 4 extension facts missing`,
+        absent === 0 || absent === 3 || standalone,
+        `${tool.id} has ${absent} of 3 extension facts missing`,
       ).toBe(true)
-      expect(extensionPending(tool), tool.id).toBe(absent === 4)
+      expect(extensionPending(tool), tool.id).toBe(absent === 3)
     }
   })
 

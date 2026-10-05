@@ -14,7 +14,7 @@ import { Card } from '@/ui/card'
  * READMEs and merging ten JSON fragments by hand.
  *
  * The output is a function of two choices, which is why this is a component
- * and not a code block: the shape differs by client, and VS Code and Zed take
+ * and not a code block: the shape differs by client, and VS Code takes
  * no configuration at all — the extension carries the server. Saying that
  * plainly is more useful than emitting a block that would do nothing.
  */

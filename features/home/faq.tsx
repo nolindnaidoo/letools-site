@@ -22,7 +22,7 @@ const FAQ_ITEMS = [
     id: 'agents',
     question: 'Can my AI agent use these?',
     answer:
-      'Yes. Every tool ships its engine as an MCP server, so an agent can call it with no editor in the loop. Where the extension has shipped, npx -y <tool>-mcp wires most of them into Claude Code, Cursor, Windsurf or Zed, and VS Code 1.101+ needs nothing at all — installing the extension registers the tool with agent mode. The newest tools carry the server inside their binary instead: <tool> mcp speaks the same protocol with no Node involved. Each tool page prints the exact command for that tool.',
+      'Yes. Every tool ships its engine as an MCP server, so an agent can call it with no editor in the loop. Where the extension has shipped, npx -y <tool>-mcp wires most of them into Claude Code, Cursor or Windsurf, and VS Code 1.101+ needs nothing at all — installing the extension registers the tool with agent mode. The newest tools carry the server inside their binary instead: <tool> mcp speaks the same protocol with no Node involved. Each tool page prints the exact command for that tool.',
   },
   {
     id: 'split',

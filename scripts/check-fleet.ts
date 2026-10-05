@@ -120,7 +120,6 @@ export const SHARED = [
   '.github/workflows/ci.yml',
   '.github/workflows/release.yml',
   '.github/workflows/codeql.yml',
-  '.github/workflows/zed-sync.yml',
   '.github/dependabot.yml',
   '.github/codeql-config.yml',
   'scripts/coverage-readme.js',
