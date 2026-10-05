@@ -67,6 +67,16 @@ export function factsFor(repo: string): ToolFacts {
   const manifest = maybe(resolve(repo, 'package.json'), json)
   const contributes = (manifest?.contributes ?? {}) as {
     commands?: { command: string; title?: string }[]
+    keybindings?: unknown[]
+  }
+
+  // Every tool page says nothing is bound to a key by default. All sixteen
+  // once bound one each, three of them the same key, while the page said so.
+  // A manifest that declares one again fails here, not in front of a reader.
+  if ((contributes.keybindings ?? []).length > 0) {
+    throw new Error(
+      `${repo}: the manifest declares a default keybinding, and the site says none is bound`,
+    )
   }
   const mcp = maybe(resolve(repo, 'mcp/package.json'), json)
 
