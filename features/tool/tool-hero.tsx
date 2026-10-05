@@ -108,7 +108,7 @@ export function ToolHero({ tool }: { readonly tool: Tool }) {
 
       {/* The commands lead the sentence rather than ending it: a code span
           carries its own padding, so a period after one renders as "scrape-le
-          ." — the same trap the Zed note hit in the install section. */}
+          ." — the same trap a note in the install section hit. */}
       <p className="max-w-2xl text-pretty text-sm text-muted">
         No editor in the loop?{' '}
         <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs">

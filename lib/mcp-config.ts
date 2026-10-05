@@ -8,9 +8,9 @@ import { mcpInvocation, type Tool } from './tools'
  * a config that silently does not work — and the failure lands in someone
  * else's editor, where nothing points back here.
  *
- * The important case is the last one: VS Code and Zed need no JSON at all. The
+ * The important case is the last one: VS Code needs no JSON at all. The
  * extension carries the server and registers it. Emitting a config block for
- * them would be worse than emitting nothing, so the generator says so instead.
+ * it would be worse than emitting nothing, so the generator says so instead.
  */
 
 export type ClientId = 'claude-code' | 'json' | 'editor'
@@ -38,7 +38,7 @@ export const CLIENTS: readonly Client[] = Object.freeze([
   },
   {
     id: 'editor',
-    label: 'VS Code, Zed',
+    label: 'VS Code',
     detail: 'Nothing to configure — the extension carries the server.',
     language: 'none',
   },

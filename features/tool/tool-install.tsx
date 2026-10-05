@@ -8,8 +8,6 @@ import {
   openVsxId,
   openVsxNamespace,
   type Tool,
-  ZED_MCP_DOCS,
-  zedPrUrl,
 } from '@/lib/tools'
 import { Chip } from '@/ui/chip'
 import { Link } from '@/ui/link'
@@ -32,7 +30,6 @@ type Surface = Readonly<{
 function surfacesFor(tool: Tool): readonly Surface[] {
   const pending = extensionPending(tool)
   const crate = crateFor(tool)
-  const zedReview = zedPrUrl(tool)
 
   // While the extension is unwritten there is nothing on either Marketplace
   // and no npm package, so the editor rows carry the command they *will* take
@@ -81,18 +78,6 @@ function surfacesFor(tool: Tool): readonly Surface[] {
     ...cli,
     ...editors,
     {
-      id: 'zed',
-      label: 'Zed',
-      command: mcpCommand(tool),
-      ...(zedReview === undefined
-        ? {}
-        : { pending: true, track: zedReview, trackLabel: 'Track the review' }),
-      note:
-        tool.zedPr === undefined
-          ? `Works in Zed today — add the command above as a custom MCP server from the agent panel, and ${tool.mcpTool} appears in its tool list. There is no one-click listing in Zed's extension registry yet.`
-          : `Works in Zed today — add the command above as a custom MCP server from the agent panel, and ${tool.mcpTool} appears in its tool list. The one-click listing in Zed's extension registry is a pull request awaiting review.`,
-    },
-    {
       id: 'agents',
       label: 'AI agents',
       command: mcpCommand(tool),
@@ -128,7 +113,7 @@ export function ToolInstall({ tool }: { readonly tool: Tool }) {
                 <>
                   {' '}
                   {/* No newline before the period, or JSX renders "review ." */}
-                  <Link href={surface.track ?? ZED_MCP_DOCS} target="_blank" rel="noreferrer">
+                  <Link href={surface.track ?? githubUrl(tool)} target="_blank" rel="noreferrer">
                     {surface.trackLabel ?? 'Follow the repository'}
                   </Link>
                   {'.'}

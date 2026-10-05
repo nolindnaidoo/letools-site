@@ -23,7 +23,7 @@ Non-negotiables, restated so they are visible without a second file:
 
 **Provable is about behaviour and numbers, not availability.** Copy for a
 release about to be made is *staged*, never forbidden: write it, leave
-`cratePublished` / `zedPr` unset, and flip the flag in the release commit. The
+`cratePublished` unset, and flip the flag in the release commit. The
 page renders from the flag, so unflipped copy asserts nothing to anyone.
 
 Everything else is in AGENTS.md. Do not grow a second copy of the standard

@@ -40,16 +40,10 @@ const SURFACES = [
     note: 'Scriptable extension installs for dotfiles and machine setup. For the standalone binaries, see the Rust CLI below.',
   },
   {
-    id: 'zed',
-    label: 'Zed',
-    command: `npx -y ${EXAMPLE_ID}-mcp`,
-    note: "Works in Zed today: add the command above as a custom MCP server from the agent panel and the tool appears in its list. The one-click listings are pull requests awaiting review in Zed's extension registry — each tool page links its own.",
-  },
-  {
     id: 'agents',
     label: 'AI agents',
     command: `npx -y ${EXAMPLE_ID}-mcp`,
-    note: 'Every tool also runs as an MCP server, so an agent can call the same engine with no editor involved — Claude Code, Cursor, Windsurf, Zed. In VS Code 1.101+ the extension registers it for you. Swap the id for any tool.',
+    note: 'Every tool also runs as an MCP server, so an agent can call the same engine with no editor involved — Claude Code, Cursor, Windsurf. In VS Code 1.101+ the extension registers it for you. Swap the id for any tool.',
   },
 ] as const
 

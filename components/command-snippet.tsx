@@ -12,7 +12,7 @@ export function CommandSnippet({
   label,
 }: {
   readonly command: string
-  // Disambiguates the region when a page shows the same command twice — Zed
+  // Disambiguates the region when a page shows the same command twice —
   // and the agent surfaces both run `npx -y <tool>-mcp`, and two landmarks
   // with one accessible name is an axe landmark-unique failure.
   readonly label?: string
