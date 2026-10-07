@@ -210,11 +210,13 @@ theme toggle flips. Security headers live in `vercel.json`.
 
 ## Auditing a tool repo
 
-[`FLEET-AUDIT.md`](./FLEET-AUDIT.md) is the review procedure for the tool
-repos — the concrete defect checklist that batch codemods miss, and the rule
-that behaviour changes are reviewed one repo at a time. It lives here, not in
-each repo, because sixteen copies of a checklist drift. Read it before auditing
-or fixing any tool in the family.
+[`fleet-pass/`](./fleet-pass/README.md) is the review procedure for the tool
+repos: one repo at a time, one document per defect class, every file re-read
+under each, and a pull request at the end. `fleet-pass/LEDGER.md` records which
+repos have had a pass. It lives here, not in each repo, because sixteen copies
+of a procedure drift. Read `fleet-pass/README.md` before auditing or fixing any
+tool in the family. `scripts/fleet-pass.test.ts` holds the read rule identical
+across the documents and the ledger against `REPOS`.
 
 ## The cross-repo gates live here
 
