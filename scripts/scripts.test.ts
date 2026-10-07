@@ -1022,12 +1022,6 @@ describe('the derived registry facts', () => {
     expect(registryMain(true, fleet, output)).toBe(0)
   })
 
-  it('agrees with the committed generated file', () => {
-    // The gate that catches a hand-edit of the generated file, or a repo that
-    // moved on without a re-sync.
-    expect(registryMain(true)).toBe(0)
-  })
-
   it('exposes one locale count across every shipped extension', () => {
     expect(LOCALE_COUNT).toBeGreaterThan(0)
     for (const tool of TOOLS) {

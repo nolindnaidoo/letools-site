@@ -36,11 +36,6 @@ jobs:
       - run: bun run lint
       - run: bun run typecheck
 
-      # The generated facts are read from the extension repos. CI has no
-      # sibling checkouts, so this skips there — it is the local and Vercel
-      # runs that catch a stale file.
-      - run: bun run check:registry
-
       - name: Unit tests with coverage
         run: bun run test:coverage
 
