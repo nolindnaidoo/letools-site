@@ -173,18 +173,21 @@ keeps serving. CI runs the same steps individually, so a failure names itself
 in the job list. The two mean the same thing on purpose: they used to not, and
 a green badge told you less than it appeared to.
 
-The chain: lint → typecheck → registry drift → coverage → build → routes →
-payload budget. It deliberately omits `e2e`, which needs browsers the build
+The chain: lint → typecheck → coverage → build → routes → payload budget. It deliberately omits `e2e`, which needs browsers the build
 image does not have, and the Open VSX check, which reaches a registry — an
 outage there must not be able to block a deploy. Both stay in CI.
 
 - **Coverage** is enforced over `lib/` and `scripts/`. Components are excluded:
   a coverage number over markup measures templating, not behaviour, and their
   assurance is the Playwright suite against the real export.
-- **`bun run check:registry`** fails when `lib/tool-facts.generated.ts` drifts
-  from the extension repos. It skips where the repos are not checked out, which
-  is normal in CI. Never hand-edit the generated file, and never let biome
-  format it — reformatting breaks the byte comparison the check depends on.
+- **`bun run check:registry`** reports when `lib/tool-facts.generated.ts` is
+  behind the extension repos checked out beside this one. It is **not in the
+  chain and not in the test suite**: it measures the sibling repos, not the
+  change in hand, so it went red on unrelated work every time a tool moved, and
+  it could only ever run on a dev machine because CI and Vercel have no sibling
+  checkouts. `bun run sync:registry` brings the file up to date when the site
+  should show the new facts. Never hand-edit the generated file, and never let
+  biome format it — reformatting breaks the byte comparison the check uses.
 - **`lib/asset-hashes.generated.ts`** is the other generated file, written by
   `sync:demos`. It is biome-formatted, and a test pins it byte-for-byte to what
   the renderer emits — the two used to disagree, so every sync left a lint error
