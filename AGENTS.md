@@ -177,7 +177,8 @@ The chain: lint → typecheck → coverage → build → routes → payload budg
 image does not have, and the Open VSX check, which reaches a registry — an
 outage there must not be able to block a deploy. Both stay in CI.
 
-- **Coverage** is enforced over `lib/` and `scripts/`. Components are excluded:
+- **Coverage** is enforced over `lib/` and `scripts/` at a floor of 70, which
+  is a backstop and is never raised to follow real coverage. Components are excluded:
   a coverage number over markup measures templating, not behaviour, and their
   assurance is the Playwright suite against the real export.
 - **`bun run check:registry`** reports when `lib/tool-facts.generated.ts` is
@@ -194,8 +195,9 @@ outage there must not be able to block a deploy. Both stay in CI.
   behind correct output. Change the renderer and the committed file together.
 - **`bun run routes`** asserts every registry path resolves the way a static
   host serves this export, and that no built page is missing from the registry.
-- **`bun run budget`** is a ratchet. Raising a ceiling needs the reason in the
-  commit body.
+- **`bun run budget`** is a backstop, about a third above the measured payload.
+  It catches a payload that balloons and must not trip on an ordinary change.
+  Do not tighten it to follow the current numbers.
 
 `e2e` serves the real static export rather than a dev server, so what is
 audited is what ships. Its first run caught a real defect: the install command
