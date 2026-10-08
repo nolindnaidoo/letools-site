@@ -1,3 +1,5 @@
+import { displayInstalls } from './install-count'
+
 export const SITE_URL = 'https://letools.dev'
 export const SITE_NAME = 'LE Tools'
 /**
@@ -12,11 +14,11 @@ export const WORDMARK = 'Limited Edition DevTools'
 export const TAGLINE = 'Get your data right before the model sees it.'
 
 // Combined Open VSX downloads + VS Code Marketplace acquisitions across the
-// published extensions. Hardcoded and rounded DOWN, because Marketplace acquisitions
-// (installs + web downloads) come only from the publisher stats API behind
-// VSCE_PAT, which the build does not hold. Last measured 2026-09-28: 98,525
-// Open VSX + 6,465 Marketplace = 104,990. Re-measure before raising it.
-export const INSTALL_COUNT = '100,000+'
+// published extensions, rounded DOWN to the ten thousand. `next.config.ts`
+// measures it once per build and passes it in here, so every deploy shows the
+// current figure. Outside a build, and when neither registry answers, this is
+// the floor in `lib/install-count.ts`.
+export const INSTALL_COUNT = displayInstalls(Number(process.env.LETOOLS_INSTALLS))
 export const PUBLISHER = 'nolindnaidoo'
 /** The author's own site. Kept alongside GITHUB_URL, never in place of it —
  * both are properties in the same identity network, and swapping one for the

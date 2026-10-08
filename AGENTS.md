@@ -10,7 +10,8 @@ sites' terminal-poster aesthetic.
 
 The hub site for the LE family of VS Code extensions (`~/dev/extensions/*-le`),
 at **https://letools.dev**. A fully static one-pager: `output: "export"`, no
-API routes, no server actions, no fetches. Deploy is `git push` to `main` →
+API routes, no server actions, no fetches from a page. The one network read is
+at build time, in `next.config.ts`, for the install count. Deploy is `git push` to `main` →
 Vercel. **One page** (plus the 404) is a product rule — a second page is a
 product decision, not a PR.
 
@@ -133,10 +134,15 @@ to anyone.
   used a different namespace until its extensions were moved, which is why
   `OPENVSX_NAMESPACE` in `lib/site.ts` is its own constant. Build an Open VSX
   link or id from it, never from `PUBLISHER`.
-- **Install count** (`INSTALL_COUNT`) is hardcoded and rounded down, because
-  Marketplace acquisitions come only from the publisher stats API behind
-  `VSCE_PAT`, which the build does not hold. The comment records the measurement and date — re-measure before
-  raising it.
+- **Install count** (`INSTALL_COUNT`) is measured on every build and rounded
+  down to the ten thousand, so `133,056` shows as `130,000+`. `next.config.ts`
+  reads Open VSX downloads and Marketplace installs plus web downloads from the
+  two public registries, once per build, and passes the sum to `lib/site.ts`.
+  `INSTALL_FLOOR` in `lib/install-count.ts` is the lowest figure the page will
+  show: a registry that does not answer counts as zero, the floor absorbs the
+  shortfall, and the build never fails on an outage. Nothing needs raising by
+  hand. `lib/tools.ts` imports `./site` relatively because the config loader
+  does not resolve `@/`.
 
 Tool summaries come from each tool's manifest — keep them in step, never
 embellish. No invented download counts, stars, or testimonials.

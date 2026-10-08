@@ -1,5 +1,7 @@
-import { OPENVSX_NAMESPACE, PUBLISHER } from '@/lib/site'
 import { ASSET_HASHES, ICONS } from './asset-hashes.generated'
+// Relative, not `@/`: `next.config.ts` loads this file to list the published
+// extensions, and the config loader does not resolve the alias.
+import { OPENVSX_NAMESPACE, PUBLISHER } from './site'
 import { TOOL_FACTS } from './tool-facts.generated'
 
 // THE tool registry. The grid, the category tabs, the install examples,
