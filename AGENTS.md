@@ -127,6 +127,11 @@ to anyone.
   named Regex-LE and Secrets-LE as English-only while both shipped twelve
   translations. The count is now read from `LOCALE_COUNT`, derived from the
   repos by `scripts/sync-registry.ts` — do not restate it as prose.
+- **Positions.** Whether editor output carries a line and column is a setting
+  that is on by default in some tools and off in others, and one tool gives the
+  line alone. Each tool page prints its own setting, wording and default from
+  `positions` in the generated facts, so do not write "with its position" as a
+  sentence about the family. A tool with no such setting gets no line.
 - **Bundling.** Nine ship a self-contained bundle; Scrape-LE ships
   `playwright-core` alongside it.
 - **Two registries, one name.** VS Code resolves the Marketplace and Cursor

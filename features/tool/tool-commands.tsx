@@ -13,7 +13,7 @@ import { Card } from '@/ui/card'
  * it: a visitor had to install the extension to find out.
  */
 export function ToolCommands({ tool }: { readonly tool: Tool }) {
-  const { commands } = factsFor(tool)
+  const { commands, positions } = factsFor(tool)
 
   // No extension, no palette. Rendering "0 commands in the palette" over an
   // empty card would read as a tool that does nothing, when what it has is a
@@ -30,6 +30,15 @@ export function ToolCommands({ tool }: { readonly tool: Tool }) {
           Open the command palette and type the name. Nothing is bound to a shortcut by default —
           the editor's keymap is the user's, not ours.
         </p>
+        {/* Read from the manifest, default included. Positions are on in some
+            tools and off in others, and one of them means a line where the
+            rest mean a line and column, so this cannot be a sentence typed once. */}
+        {positions === undefined ? null : (
+          <p className="text-muted">
+            <code className="font-mono text-sm">{positions.setting}</code>: {positions.says}.{' '}
+            {positions.shown ? 'On' : 'Off'} by default.
+          </p>
+        )}
       </div>
 
       <Card className="divide-y divide-border">
