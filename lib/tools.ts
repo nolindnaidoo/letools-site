@@ -90,7 +90,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     cratePublished: true,
     name: 'String-LE',
     category: 'extract',
-    summary: 'Extract every string in a codebase, with its position, so a person can read them',
+    summary: 'Extract every string in a codebase, so a person can read them',
     mcpTool: 'extract_strings',
     overview:
       'Locale files, config files and CSV exports all bury their string values in structure. String-LE flattens that structure away: run one command and every string value in the document lands in a new editor, ready to paste into a translation tool or scan by eye. It parses JSON, YAML, CSV, TOML, INI and .env, and streams large CSVs rather than loading them whole. Line and column are a setting in the editor, off by default, and exist for source code, JSON and plain text. Values in YAML, TOML, INI, CSV, JSONC and .env files have no position to give, and the tool says so.',
