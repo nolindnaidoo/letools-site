@@ -143,7 +143,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     summary: 'Extract every file path in a codebase, and say whether it still points at anything',
     mcpTool: 'extract_paths',
     overview:
-      'A path in an import, an asset reference or a config value is a dependency you cannot see until something breaks. Paths-LE extracts every file and directory path from the active document and classifies each one, so a refactor or an asset audit starts from a list rather than a search. It reads JS/TS imports including multi-line statements, HTML and CSS references, and JSON, TOML, CSV and .env values.',
+      'A path in an import, an asset reference or a config value is a dependency you cannot see until something breaks. Paths-LE extracts every file and directory path from the active document, a folder or the whole workspace and classifies each one, so a refactor or an asset audit starts from a list rather than a search. It reads JS/TS imports including multi-line statements, HTML and CSS references, and JSON, TOML, CSV and .env values.',
     useCases: [
       {
         title: 'Import analysis',
@@ -193,7 +193,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     summary: 'Extract every URL in a codebase, with its protocol and exact position',
     mcpTool: 'extract_urls',
     overview:
-      'Links rot quietly, and the ones in your code and docs are the hardest to inventory. URLs-LE pulls every URL out of the active document with its real line and column, so a link audit is a list rather than a grep. It reads Markdown, HTML, CSS, JavaScript, TypeScript, JSON, YAML, Properties, TOML, INI and XML, and excludes code blocks and comments where the format defines them.',
+      'Links rot quietly, and the ones in your code and docs are the hardest to inventory. URLs-LE pulls every URL out of the active document, a folder or the whole workspace with its real line and column, so a link audit is a list rather than a grep. It reads Markdown, HTML, CSS, JavaScript, TypeScript, JSON, YAML, Properties, TOML, INI and XML, and excludes code blocks and comments where the format defines them.',
     useCases: [
       {
         title: 'Link auditing',
@@ -220,7 +220,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     summary: 'Extract every date and timestamp, and the exact instant each one resolves to',
     mcpTool: 'extract_dates',
     overview:
-      'Timestamps arrive in a dozen notations and rarely the one you want. Dates-LE extracts every date and time value from logs, data files and code, reporting each with its format and, where resolvable, its epoch value. It recognises ISO 8601, syslog and Apache access-log formats, numeric dates written day-first or month-first, dates with the month spelled out, and Unix timestamps.',
+      'Timestamps arrive in a dozen notations and rarely the one you want. Dates-LE extracts every date and time value from logs, data files and code, reporting each with its format and, where resolvable, its epoch value. It recognises ISO 8601, syslog and Apache access-log formats, numeric dates written day-first or month-first, and dates with the month spelled out. Unix timestamps are a kind you switch on, because a bare ten-digit number is more often something else.',
     useCases: [
       {
         title: 'Log analysis',
@@ -228,7 +228,8 @@ export const TOOLS: readonly Tool[] = Object.freeze([
       },
       {
         title: 'Data review',
-        detail: 'Dates and epochs from JSON, YAML, CSV and XML.',
+        detail:
+          'Dates from JSON, YAML, CSV and XML, and Unix epochs once that kind is switched on.',
       },
       {
         title: 'Code audit',
@@ -328,7 +329,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
       'Find every regex in a codebase, and report which can be driven into catastrophic backtracking',
     mcpTool: 'extract_patterns',
     overview:
-      'A regular expression is easy to write and hard to trust. Regex-LE finds every pattern in the current file, runs one against the document to show real matches with line and column positions and capture groups, and screens each pattern for the shapes that cause catastrophic backtracking. Three commands: extract, test, validate.',
+      'A regular expression is easy to write and hard to trust. Regex-LE finds every pattern in the current file, a folder or the whole workspace, runs one against the document to show real matches with line and column positions and capture groups, and screens each pattern for the shapes that cause catastrophic backtracking. Three jobs: extract, test, validate.',
     useCases: [
       {
         title: 'Extract',
@@ -530,7 +531,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
       {
         title: 'Review for Trojan Source',
         detail:
-          'A right-to-left override makes the code a reviewer reads differ from the code that runs. One keystroke names every one in the file.',
+          'A right-to-left override makes the code a reviewer reads differ from the code that runs. One command names every one in the file.',
       },
       {
         title: 'Screen for forged names',
