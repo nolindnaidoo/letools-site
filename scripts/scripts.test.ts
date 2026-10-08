@@ -953,6 +953,54 @@ describe('the derived registry facts', () => {
     expect(() => repoFacts(repo)).toThrow(/default keybinding/)
   })
 
+  const withPositions = (setting: Record<string, unknown>, nls = '{}') =>
+    fakeBuild({
+      'package.json': JSON.stringify({
+        version: '1.0.0',
+        contributes: { configuration: { properties: { 'p-le.showPositions': setting } } },
+      }),
+      'package.nls.json': nls,
+    })
+
+  it('reads the positions setting with its default and the manifest wording', () => {
+    const off = withPositions(
+      { default: false, description: '%setting.positions%' },
+      JSON.stringify({ 'setting.positions': 'Show the line and column of each URL' }),
+    )
+    expect(repoFacts(off).positions).toEqual({
+      setting: 'p-le.showPositions',
+      says: 'Show the line and column of each URL',
+      shown: false,
+    })
+    const on = withPositions({ default: true, markdownDescription: 'Show the line' })
+    expect(repoFacts(on).positions).toEqual({
+      setting: 'p-le.showPositions',
+      says: 'Show the line',
+      shown: true,
+    })
+  })
+
+  it('leaves positions out for a tool with no such setting', () => {
+    const repo = fakeBuild({
+      'package.json': JSON.stringify({ version: '1.0.0', contributes: { commands: [] } }),
+    })
+    expect(repoFacts(repo).positions).toBeUndefined()
+    expect(render(new Map([['p-le', repoFacts(repo)]]))).not.toContain('positions:')
+  })
+
+  it('refuses a positions setting with no default or no description', () => {
+    // The page prints the default as a fact, so a missing one is not "off".
+    expect(() => repoFacts(withPositions({ description: 'Show the line' }))).toThrow(/default/)
+    expect(() => repoFacts(withPositions({ default: true }))).toThrow(/description/)
+  })
+
+  it('writes the positions setting into the generated file', () => {
+    const repo = withPositions({ default: false, description: 'Show the line' })
+    expect(render(new Map([['p-le', repoFacts(repo)]]))).toContain(
+      'positions: {"setting":"p-le.showPositions","says":"Show the line","shown":false}',
+    )
+  })
+
   it('gives every tool in the registry a generated entry', () => {
     for (const tool of TOOLS) {
       expect(() => factsFor(tool), tool.id).not.toThrow()

@@ -93,7 +93,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     summary: 'Extract every string in a codebase, with its position, so a person can read them',
     mcpTool: 'extract_strings',
     overview:
-      'Locale files, config files and CSV exports all bury their string values in structure. String-LE flattens that structure away: run one command and every string value in the document lands in a new editor, ready to paste into a translation tool or scan by eye. It parses JSON, YAML, CSV, TOML, INI and .env, and streams large CSVs rather than loading them whole.',
+      'Locale files, config files and CSV exports all bury their string values in structure. String-LE flattens that structure away: run one command and every string value in the document lands in a new editor, ready to paste into a translation tool or scan by eye. It parses JSON, YAML, CSV, TOML, INI and .env, and streams large CSVs rather than loading them whole. Line and column are a setting in the editor, off by default, and exist for source code, JSON and plain text. Values in YAML, TOML, INI, CSV, JSONC and .env files have no position to give, and the tool says so.',
     useCases: [
       {
         title: 'i18n prep',
@@ -193,7 +193,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     summary: 'Extract every URL in a codebase, with its protocol and exact position',
     mcpTool: 'extract_urls',
     overview:
-      'Links rot quietly, and the ones in your code and docs are the hardest to inventory. URLs-LE pulls every URL out of the active document, a folder or the whole workspace with its real line and column, so a link audit is a list rather than a grep. It reads Markdown, HTML, CSS, JavaScript, TypeScript, JSON, YAML, Properties, TOML, INI and XML, and excludes code blocks and comments where the format defines them.',
+      'Links rot quietly, and the ones in your code and docs are the hardest to inventory. URLs-LE pulls every URL out of the active document, a folder or the whole workspace, so a link audit is a list rather than a grep. The editor lists the URLs alone by default, and a setting adds the line and column of each. The CLI and the MCP server always report them. It reads Markdown, HTML, CSS, JavaScript, TypeScript, JSON, YAML, Properties, TOML, INI and XML, and excludes code blocks and comments where the format defines them.',
     useCases: [
       {
         title: 'Link auditing',
