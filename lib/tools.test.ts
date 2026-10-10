@@ -356,12 +356,13 @@ describe('the tool that sends on request', () => {
     expect(openVsxId(sibling)).toBe(`${OPENVSX_NAMESPACE}.regex-le`)
   })
 
-  it('names its one npm package, and no registry listing it does not have', () => {
+  it('names its one npm package, and its registry listing now that it has one', () => {
     const tool = findTool('jevlint-le')
     if (tool === undefined) throw new Error('jevlint-le is not in the registry')
     expect(npmUrl(tool)).toBe('https://www.npmjs.com/package/jevlint-le')
     expect(mcpInvocation(tool)).toEqual({ command: 'npx', args: ['-y', 'jevlint-le', '--mcp'] })
-    expect(TOOLS.filter(t => t.mcpRegistryPending === true).map(t => t.id)).toEqual(['jevlint-le'])
+    // Listed on 2026-10-10 as io.github.nolindnaidoo/jevlint-le 0.6.0, so no tool waits on a listing.
+    expect(TOOLS.filter(t => t.mcpRegistryPending === true).map(t => t.id)).toEqual([])
   })
 })
 
