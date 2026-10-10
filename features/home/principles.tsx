@@ -22,7 +22,7 @@ import { Card } from '@/ui/card'
 const PRINCIPLES = [
   {
     title: 'Local by design',
-    body: `Nothing leaves your machine unless you send it. ${capitalize(countWord(OFFLINE_TOOLS.length))} of the ${countWord(TOOLS.length)} tools make no network requests at all. Scrape-LE fetches the page it is checking, because that is the job. JevLint-LE lints offline, and has one command, run by you with your own key, that sends the questions in a file to TypeSafe. Telemetry is off by default and only ever writes to a local output channel you can read.`,
+    body: `Nothing leaves your machine unless you send it. ${capitalize(countWord(OFFLINE_TOOLS.length))} of the ${countWord(TOOLS.length)} tools make no network requests at all. Scrape-LE fetches the page it is checking, because that is the job. JevLint-LE lints offline, and sends questions to TypeSafe or OpenAI only when you ask it to, with your own key: one editor command, one command-line flag, and two MCP tools whose descriptions say they cost money. Telemetry is off by default and only ever writes to a local output channel you can read.`,
   },
   {
     title: 'One job each',

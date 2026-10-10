@@ -114,11 +114,13 @@ to anyone.
   and now reads "unless you send it".
 - **The family size is never typed.** `FAMILY_SIZE` and `countWord` write it
   from the registry. It was a word in five places, each found by hand.
-- **Not every tool has every surface.** JevLint-LE has no crate, no `mcp/`
-  package, no translations and no MCP registry listing. Its
-  command line and MCP server are one npm package, declared by `cliPackage`.
-  `mcpRegistryPending` keeps the pages from linking a listing that is not
-  there, and `openVsxNamespace` states the one it is published under. The
+- **Not every tool has every surface.** JevLint-LE has no crate and no
+  translations. Its MCP server is `jevlint-le-mcp` from its `mcp/`, read by
+  the sync like every other tool's, and its command line is a second npm
+  package, `jevlint-le`, declared by `cliPackage`, which is what its npm link
+  points at. `mcpRegistryPending` keeps the pages from linking a listing that
+  is not there yet, which was JevLint-LE's until 0.6.0 and is now no tool's,
+  and `openVsxNamespace` states the namespace it is published under. The
   translated count is read from `TRANSLATED_TOOLS`, so the sentence says
   "sixteen of the seventeen" and not "every".
 - **Locales.** All ten ship the same 12 translated bundles (plus the English

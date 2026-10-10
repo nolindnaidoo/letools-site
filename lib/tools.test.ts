@@ -22,6 +22,7 @@ import {
   marketplaceUrl,
   mcpCommand,
   mcpInvocation,
+  mcpNpmUrl,
   mcpPackageFor,
   mcpRegistryUrl,
   mcpServerName,
@@ -269,15 +270,12 @@ describe('factsFor', () => {
         expect(command.title, command.id).not.toMatch(/^%.*%$/)
         expect(command.id.startsWith(tool.id), command.id).toBe(true)
       }
-      // A tool that ships one package for its command line and its server has
-      // no `mcp/` directory to read one from.
-      if (tool.cliPackage !== undefined) {
-        expect(facts.mcpPackage, tool.id).toBeUndefined()
-        expect(mcpPackageFor(tool), tool.id).toBe(tool.cliPackage)
-        continue
-      }
+      // Every shipped extension publishes its server as `<id>-mcp` from its
+      // `mcp/`. A tool with a command line on npm as well names that second
+      // package with `cliPackage`, and that is the one its npm link shows.
       expect(facts.mcpPackage, tool.id).toBe(`${tool.id}-mcp`)
-      expect(mcpPackageFor(tool), tool.id).toBe(npmPackage(tool))
+      expect(mcpPackageFor(tool), tool.id).toBe(facts.mcpPackage)
+      expect(npmPackage(tool), tool.id).toBe(tool.cliPackage ?? facts.mcpPackage)
     }
   })
 
@@ -289,10 +287,10 @@ describe('factsFor', () => {
       const absent = [facts.version, facts.locales, facts.mcpPackage].filter(
         fact => fact === undefined,
       ).length
-      // The one other state that exists: an extension with a manifest and none
-      // of the family's other two, which is what `cliPackage` declares.
+      // The one other state that exists: an extension with a manifest and a
+      // server package but no translations, which is what `cliPackage` marks.
       const standalone =
-        tool.cliPackage !== undefined && absent === 2 && facts.version !== undefined
+        tool.cliPackage !== undefined && absent === 1 && facts.locales === undefined
       expect(
         absent === 0 || absent === 3 || standalone,
         `${tool.id} has ${absent} of 3 extension facts missing`,
@@ -308,9 +306,9 @@ describe('factsFor', () => {
       const { command, args } = mcpInvocation(tool)
       expect(command, tool.id).not.toContain('undefined')
       expect(args.join(' '), tool.id).not.toContain('undefined')
-      const published =
-        tool.cliPackage === undefined ? `npx -y ${tool.id}-mcp` : `npx -y ${tool.cliPackage} --mcp`
-      expect(mcpCommand(tool), tool.id).toBe(extensionPending(tool) ? `${tool.id} mcp` : published)
+      expect(mcpCommand(tool), tool.id).toBe(
+        extensionPending(tool) ? `${tool.id} mcp` : `npx -y ${tool.id}-mcp`,
+      )
     }
   })
 
@@ -356,12 +354,18 @@ describe('the tool that sends on request', () => {
     expect(openVsxId(sibling)).toBe(`${OPENVSX_NAMESPACE}.regex-le`)
   })
 
-  it('names its one npm package, and no registry listing it does not have', () => {
+  it('names its two npm packages, and its registry listing now that it has one', () => {
     const tool = findTool('jevlint-le')
     if (tool === undefined) throw new Error('jevlint-le is not in the registry')
+    // The command line is the package named for the tool; the server is the
+    // family's `<id>-mcp`, read from its `mcp/` by the sync since 0.7.0.
+    expect(npmPackage(tool)).toBe('jevlint-le')
     expect(npmUrl(tool)).toBe('https://www.npmjs.com/package/jevlint-le')
-    expect(mcpInvocation(tool)).toEqual({ command: 'npx', args: ['-y', 'jevlint-le', '--mcp'] })
-    expect(TOOLS.filter(t => t.mcpRegistryPending === true).map(t => t.id)).toEqual(['jevlint-le'])
+    expect(mcpPackageFor(tool)).toBe('jevlint-le-mcp')
+    expect(mcpNpmUrl(tool)).toBe('https://www.npmjs.com/package/jevlint-le-mcp')
+    expect(mcpInvocation(tool)).toEqual({ command: 'npx', args: ['-y', 'jevlint-le-mcp'] })
+    // Listed on 2026-10-10 as io.github.nolindnaidoo/jevlint-le 0.6.0, so no tool waits on a listing.
+    expect(TOOLS.filter(t => t.mcpRegistryPending === true).map(t => t.id)).toEqual([])
   })
 })
 
