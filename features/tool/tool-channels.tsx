@@ -6,9 +6,9 @@ import {
   githubUrl,
   marketplaceUrl,
   mcpCommand,
+  mcpNpmUrl,
   mcpPackageFor,
   mcpServerName,
-  npmUrl,
   openVsxNamespace,
   openVsxUrl,
   type Tool,
@@ -70,7 +70,7 @@ function channelsFor(tool: Tool): readonly Channel[] {
       value: mcpCommand(tool),
       // Without the extension there is no npm package; the crate answers `mcp`
       // on stdio instead, and that is what the command above already says.
-      href: mcpPackageFor(tool) === undefined ? githubUrl(tool) : npmUrl(tool),
+      href: mcpNpmUrl(tool) ?? githubUrl(tool),
       ...(mcpPackageFor(tool) === undefined
         ? { pending: 'shipped by the binary, not by npm — no package to link yet' }
         : {}),

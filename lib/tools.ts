@@ -55,11 +55,13 @@ export interface Tool {
    */
   readonly sendsOnRequest?: string
   /**
-   * The npm package that is both this tool's command line and its MCP server.
+   * The npm package that is this tool's command line, for a tool that has
+   * one on npm.
    *
-   * Most tools publish the server alone as `<id>-mcp`, read from the repo's
-   * `mcp/` directory. A tool with this set has one package named for itself,
-   * and starts the server with `--mcp`.
+   * Every tool publishes its server alone as `<id>-mcp`, read from the repo's
+   * `mcp/` directory. Most ship the command line as a crate instead; a tool
+   * with this set ships it as a second npm package, named for itself, which
+   * is what the npm link on its page points at.
    */
   readonly cliPackage?: string
   /**
@@ -441,7 +443,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     mcpTool: 'lint_text',
     cliPackage: 'jevlint-le',
     openVsxNamespace: PUBLISHER,
-    sendsOnRequest: 'Lints offline · one opt-in command calls Jev',
+    sendsOnRequest: 'Lints offline · asks Jev only when you do',
     overview:
       "Jev answers the question you wrote, which is not always the one you meant. JevLint-LE finds the questions a project sends to TypeSafe's Jev model, in JSON, JavaScript, TypeScript, Python, Rust and Go, and reports the ones written in a way documented to fail: a choice with no fallback option, a score given a map where it takes a list, a type that does not exist, a question that turns on a word with no stated line. Linting runs as you type with no API key and no network. A part of a question that is built at runtime is counted as not read, never guessed at. One command, run by you with your own key, asks Jev itself to check a file.",
     useCases: [
@@ -665,9 +667,15 @@ export function npmUrl(tool: Tool): string {
   return `https://www.npmjs.com/package/${npmPackage(tool)}`
 }
 
-/** The npm package a tool's MCP server is installed from. */
+/** The npm package a tool's page links as "npm": its command line where it has one there, else its server. */
 export function npmPackage(tool: Tool): string {
   return tool.cliPackage ?? `${tool.id}-mcp`
+}
+
+/** The listing of the server package itself, for the row that shows how an agent starts it. */
+export function mcpNpmUrl(tool: Tool): string | undefined {
+  const serverPackage = mcpPackageFor(tool)
+  return serverPackage === undefined ? undefined : `https://www.npmjs.com/package/${serverPackage}`
 }
 
 /**
@@ -684,10 +692,7 @@ export function mcpInvocation(tool: Tool): {
   readonly command: string
   readonly args: readonly string[]
 } {
-  if (tool.cliPackage !== undefined) {
-    return { command: 'npx', args: ['-y', tool.cliPackage, '--mcp'] }
-  }
-  const serverPackage = factsFor(tool).mcpPackage
+  const serverPackage = mcpPackageFor(tool)
   if (serverPackage === undefined) return { command: tool.id, args: ['mcp'] }
   return { command: 'npx', args: ['-y', serverPackage] }
 }
@@ -804,7 +809,7 @@ export const LOCALE_COUNT: number = (() => {
 
 /** The npm package that carries this tool's MCP server, once one is published. */
 export function mcpPackageFor(tool: Tool): string | undefined {
-  return tool.cliPackage ?? factsFor(tool).mcpPackage
+  return factsFor(tool).mcpPackage
 }
 
 /** The crate a tool ships, or undefined for the ones that ship none. */
