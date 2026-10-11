@@ -40,7 +40,7 @@ export function CommandSnippet({
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface px-4 py-2.5">
+    <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-surface py-2 pr-2 pl-4 transition-colors focus-within:border-foreground">
       {/*
         The command overflows on narrow viewports, making this a scrollable
         region — and a scrollable region that cannot take focus is unreachable

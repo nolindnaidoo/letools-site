@@ -27,31 +27,57 @@
 @import "@heroui/styles/utilities";
 @import "@heroui/styles/variants";
 
-/* The site rides HeroUI's default theme, with contrast-tuned overrides of
- * a few semantic tokens (unlayered, so they beat HeroUI's @layer'd
- * definitions). Every value clears WCAG AA 4.5:1 against the surfaces it
- * sits on — verified by axe in both schemes:
- *   --accent        white button/tile text was 3.58:1 on the stock accent
- *   --muted (light) body-muted text was 4.05–4.43:1 on tinted surfaces
- *   --accent-soft-foreground (light) was 4.46:1 on the soft wash
+/* The site's own palette, written onto HeroUI's semantic token names so the
+ * primitives keep their behaviour and every component keeps reading
+ * `bg-surface`, `text-muted` and the rest. Warm paper in light, warm
+ * near-black (not pure black) in dark, one teal accent in place of the stock
+ * blue that every HeroUI site ships with.
+ *
+ * Being unlayered, these beat BOTH schemes' layered definitions — so every
+ * token set for light here is restated for dark, or dark inherits light's.
+ * HeroUI derives its washes (`*-soft`, `*-hover`, `surface-hover`) from these
+ * with color-mix, so only the base tokens are set.
+ *
+ * Every text pair clears WCAG AA 4.5:1 on the surfaces it sits on, measured
+ * before the values landed and verified by axe in both schemes in e2e:
+ *   light  foreground 18:1 · muted 7.1:1 · accent text 5.2:1 · on-accent 5.4:1
+ *   dark   foreground 17:1 · muted 7.9:1 · accent text 10:1  · on-accent 10:1
  */
-
-/* Being unlayered, these beat BOTH schemes' layered definitions — so any
- * token set for light here must also be restated for dark (verbatim HeroUI
- * dark values where no override is needed), or dark inherits light's. */
 :root,
 .light {
-  --accent: #1d6bd8;
-  --accent-hover: #1a60c2;
-  --muted: #52525b;
-  --accent-soft-foreground: #15599c;
+  --background: oklch(98.5% 0.004 90);
+  --foreground: oklch(18% 0.01 260);
+  --surface: oklch(100% 0 0);
+  --surface-secondary: oklch(96.5% 0.004 90);
+  --surface-tertiary: oklch(94.5% 0.004 90);
+  --overlay: oklch(100% 0 0);
+  --field-background: oklch(100% 0 0);
+  --default: oklch(94% 0.004 90);
+  --muted: oklch(45% 0.012 260);
+  --border: oklch(89% 0.006 80);
+  --separator: oklch(91% 0.006 80);
+  --accent: oklch(50% 0.12 195);
+  --accent-foreground: oklch(100% 0 0);
+  --accent-hover: oklch(46% 0.12 195);
+  --accent-soft-foreground: oklch(38% 0.1 195);
 }
 
 .dark {
-  --accent: #1d6bd8;
-  --accent-hover: #2f7ae4;
-  --muted: oklch(70.5% 0.015 286.067);
-  --accent-soft-foreground: color-mix(in oklab, var(--accent) 80%, var(--foreground) 30%);
+  --background: oklch(15% 0.008 260);
+  --foreground: oklch(96% 0.004 90);
+  --surface: oklch(20% 0.008 260);
+  --surface-secondary: oklch(24% 0.008 260);
+  --surface-tertiary: oklch(27% 0.008 260);
+  --overlay: oklch(20% 0.008 260);
+  --field-background: oklch(20% 0.008 260);
+  --default: oklch(27% 0.008 260);
+  --muted: oklch(72% 0.012 260);
+  --border: oklch(28% 0.008 260);
+  --separator: oklch(25% 0.008 260);
+  --accent: oklch(80% 0.11 195);
+  --accent-foreground: oklch(15% 0.008 260);
+  --accent-hover: oklch(85% 0.11 195);
+  --accent-soft-foreground: oklch(84% 0.1 195);
 }
 
 @theme inline {
@@ -67,7 +93,7 @@
  * read soft to the point of looking consumer-toy rather than developer-tool,
  * which is the wrong signal for a page selling auditable extensions.
  *
- * Small but non-zero: square corners read as unfinished, and the demo tiles
+ * Small but non-zero: square corners read as unfinished, and the demo frames
  * still need to clip their GIFs. These land near a 3–6px band, which is where
  * technical products sit. */
 :root {
@@ -76,6 +102,24 @@
   --radius-md: 0.1875rem;
   --radius-lg: 0.25rem;
   --radius-2xl: 0.375rem;
+}
+
+/* One container for every section, home and tool pages alike. The width used
+ * to vary by section (install and the FAQ sat in a narrower column), so the
+ * left edge jumped in and out three times down the page. Text that wants a
+ * measure gets `max-w-prose` inside it; the edge stays put. */
+@layer components {
+  .wrap {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 72rem;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 40rem) {
+    .wrap {
+      padding-inline: 1.5rem;
+    }
+  }
 }
 
 html {
@@ -92,4 +136,8 @@ body {
   font-family: var(--font-sans);
   background: var(--background);
   color: var(--foreground);
+}
+
+::selection {
+  background: var(--accent-soft);
 }

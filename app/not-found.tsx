@@ -3,9 +3,10 @@ import { Link } from '@/ui/link'
 
 export default function NotFound() {
   return (
-    <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-6 px-4 py-32 text-center sm:px-6">
-      <h1 className="text-4xl font-bold tracking-tight">Page not found</h1>
-      <p className="text-muted">This site is one page — everything lives on it.</p>
+    <section className="wrap flex flex-col items-start gap-6 py-32">
+      <p className="font-mono text-muted text-xs uppercase tracking-[0.18em]">404</p>
+      <h1 className="font-semibold text-4xl tracking-tighter sm:text-5xl">Page not found</h1>
+      <p className="text-muted">Every tool has a page; everything else is on the home page.</p>
       <Link href="/" className={buttonVariants({ variant: 'primary' })}>
         Back home
       </Link>

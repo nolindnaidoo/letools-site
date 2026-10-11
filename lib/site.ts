@@ -33,9 +33,10 @@ export const GITHUB_URL = `https://github.com/${PUBLISHER}`
 // not the Marketplace publisher.
 export const OPENVSX_NAMESPACE = PUBLISHER
 
-// Mirrors of @heroui/styles `--background` in each scheme, as literals —
-// the browser-chrome theme-color meta cannot read CSS custom properties.
+// Mirrors of `--background` in each scheme from app/globals.css, as sRGB
+// literals — the browser-chrome theme-color meta cannot read CSS custom
+// properties. Change them together.
 export const THEME_COLORS = {
-  light: '#ffffff',
-  dark: '#000000',
+  light: '#fbfaf7',
+  dark: '#090b0f',
 } as const

@@ -1,3 +1,4 @@
+import { SectionHeading } from '@/components/section-heading'
 import { capitalize, countWord, OFFLINE_TOOLS, TOOLS } from '@/lib/tools'
 import { Accordion } from '@/ui/accordion'
 
@@ -33,32 +34,32 @@ const FAQ_ITEMS = [
   {
     id: 'bugs',
     question: 'Where do I report a bug?',
-    answer: "Each tool's GitHub Issues — the GitHub link is on every card above.",
+    answer: "Each tool's GitHub Issues — the GitHub link is on every row above.",
   },
 ] as const
 
 export function Faq() {
   return (
-    <section id="faq" className="mx-auto w-full max-w-3xl scroll-mt-20 px-4 py-16 sm:px-6">
-      <div className="mb-8 flex flex-col gap-2">
-        <h2 className="text-3xl font-bold tracking-tight">FAQ</h2>
-      </div>
+    <section id="faq" className="wrap scroll-mt-20 py-16 sm:py-24">
+      <div className="grid gap-10 lg:grid-cols-12">
+        <SectionHeading eyebrow="FAQ" title="Short answers." className="lg:col-span-4" />
 
-      <Accordion variant="surface">
-        {FAQ_ITEMS.map(item => (
-          <Accordion.Item key={item.id} id={item.id}>
-            <Accordion.Heading>
-              <Accordion.Trigger>
-                {item.question}
-                <Accordion.Indicator />
-              </Accordion.Trigger>
-            </Accordion.Heading>
-            <Accordion.Panel>
-              <Accordion.Body className="text-pretty text-muted">{item.answer}</Accordion.Body>
-            </Accordion.Panel>
-          </Accordion.Item>
-        ))}
-      </Accordion>
+        <Accordion variant="surface" className="lg:col-span-8">
+          {FAQ_ITEMS.map(item => (
+            <Accordion.Item key={item.id} id={item.id}>
+              <Accordion.Heading>
+                <Accordion.Trigger>
+                  {item.question}
+                  <Accordion.Indicator />
+                </Accordion.Trigger>
+              </Accordion.Heading>
+              <Accordion.Panel>
+                <Accordion.Body className="text-pretty text-muted">{item.answer}</Accordion.Body>
+              </Accordion.Panel>
+            </Accordion.Item>
+          ))}
+        </Accordion>
+      </div>
     </section>
   )
 }

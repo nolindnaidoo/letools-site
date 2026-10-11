@@ -1,8 +1,8 @@
 import { ImageResponse } from 'next/og'
 
-// The favicon is the site's own header mark: the LE monogram on the
-// HeroUI accent tile. Hexes are literal — Satori cannot read CSS custom
-// properties; #3b82f6-family blue approximates the accent oklch token.
+// The favicon is the site's own mark: the LE monogram on the accent tile.
+// Hexes are literal — Satori cannot read CSS custom properties; this is the
+// light-scheme `--accent` from globals.css in sRGB.
 // Emitted as a static PNG at build time.
 export const dynamic = 'force-static'
 export const size = { width: 64, height: 64 }
@@ -17,7 +17,7 @@ export default function Icon() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#3178e6',
+        background: '#007778',
         borderRadius: 14,
         color: '#ffffff',
         fontSize: 30,
