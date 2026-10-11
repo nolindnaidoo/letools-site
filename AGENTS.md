@@ -215,8 +215,9 @@ verify at 375px. `min-h-dvh`, skip link first-focusable, one
 `<main id="main-content">`, focus rings stay, `prefers-reduced-motion`
 respected (scroll-behavior included). Both schemes must remain readable —
 screenshots in light, dark, and mobile before shipping visual changes.
-`e2e/pages.e2e.ts` also asserts that no page scrolls sideways, on every
-route in both projects, because axe does not flag overflow.
+`e2e/pages.e2e.ts` also asserts, on every route in both projects, that no
+page scrolls sideways and that every image is drawn at its intrinsic ratio,
+because axe flags neither.
 
 ## Verification — the definition of done
 
