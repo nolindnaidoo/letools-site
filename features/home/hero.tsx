@@ -1,6 +1,7 @@
 import { DemoFrame } from '@/components/demo-frame'
+import { ToolIcon } from '@/components/tool-icon'
 import { INSTALL_COUNT, TAGLINE } from '@/lib/site'
-import { FEATURED, TOOLS, toolPath } from '@/lib/tools'
+import { CATEGORIES, FEATURED, TOOLS, type Tool, toolPath } from '@/lib/tools'
 import { buttonVariants } from '@/ui/button'
 import { Link } from '@/ui/link'
 
@@ -16,6 +17,10 @@ import { Link } from '@/ui/link'
  * the page it is checking, which is the whole job. "Local by default" is the
  * version that survives someone checking.
  */
+function categoryLabel(tool: Tool): string {
+  return CATEGORIES.find(category => category.id === tool.category)?.label ?? tool.category
+}
+
 export function Hero() {
   return (
     <section className="relative overflow-hidden">
@@ -49,13 +54,22 @@ export function Hero() {
           </div>
         </div>
 
-        <figure className="flex flex-col gap-3 lg:col-span-6">
+        <figure className="flex flex-col gap-5 lg:col-span-6">
           <DemoFrame tool={FEATURED} priority />
-          <figcaption className="flex flex-wrap items-baseline gap-x-2 font-mono text-muted text-xs">
-            <Link href={toolPath(FEATURED)} className="text-foreground">
-              {FEATURED.name}
-            </Link>
-            <span>{FEATURED.summary}.</span>
+          <figcaption className="flex flex-col gap-2">
+            <p className="font-mono text-muted text-xs uppercase tracking-[0.18em]">
+              Featured · {categoryLabel(FEATURED)}
+            </p>
+            <div className="flex items-center gap-3">
+              <ToolIcon tool={FEATURED} size={32} className="shrink-0 rounded" />
+              <Link
+                href={toolPath(FEATURED)}
+                className="font-semibold text-2xl text-foreground tracking-tight"
+              >
+                {FEATURED.name}
+              </Link>
+            </div>
+            <p className="max-w-xl text-pretty text-muted">{FEATURED.summary}.</p>
           </figcaption>
         </figure>
       </div>
