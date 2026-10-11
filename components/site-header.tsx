@@ -17,12 +17,12 @@ const NAV_ITEMS = [
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+    <header className="sticky top-0 z-40 border-border border-b bg-background/80 backdrop-blur">
+      <div className="wrap flex h-14 items-center justify-between gap-4">
         {/* The wordmark carries the name on its own — no mark. It is the long
             form, so it stays on one line and gives up size before it wraps
             beside the controls at 375px. */}
-        <a href="/" className="whitespace-nowrap text-sm font-semibold sm:text-base">
+        <a href="/" className="whitespace-nowrap font-semibold text-sm tracking-tight sm:text-base">
           {WORDMARK}
         </a>
 

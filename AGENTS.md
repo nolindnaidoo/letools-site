@@ -3,8 +3,9 @@
 Source of truth for working in this repo. If you change a convention, update
 this file in the same change. Engineering conventions are adapted from
 `~/dev/rust/pixelcoords-site/AGENTS.md`; the **design is deliberately
-independent** — this site rides HeroUI's own design language, not the pixel
-sites' terminal-poster aesthetic.
+independent** — HeroUI primitives for behaviour and accessibility, under the
+site's own tokens, not HeroUI's default theme and not the pixel sites'
+terminal-poster aesthetic. See **Design layer** below.
 
 ## What this repo is
 
@@ -21,19 +22,24 @@ product decision, not a PR.
 - **Components: HeroUI v3** (`@heroui/react` + `@heroui/styles`, react-aria
   based) — and unlike the pixel sites, **the primitives are actually in use**:
   Button, Card, Chip, Tabs, Accordion, Link, Separator, Dropdown. Compound API
-  (`Card.Header`, `Tabs.Panel`, `Accordion.Trigger`, …). The default HeroUI
-  theme is kept except for contrast-tuned token overrides in `globals.css`
-  (accent/muted — every value clears WCAG AA, axe-verified both schemes);
-  otherwise only font wiring. `globals.css` imports HeroUI's styles **one
-  component at a time**, not the whole package, which carries ~80 components
-  this site never mounts. A new primitive needs its stylesheet line there,
-  plus any component it renders internally; `scripts/heroui-styles.test.ts`
-  derives the list from the imports and fails when they disagree.
+  (`Card.Header`, `Tabs.Panel`, `Accordion.Trigger`, …). **The theme is the
+  site's own**: `globals.css` restates every base token (background, surface,
+  foreground, muted, border, accent) per scheme on HeroUI's variable names, so
+  the primitives keep their behaviour and the washes derive from the new
+  values. Every text pair clears WCAG AA, measured before landing and
+  axe-verified in both schemes by e2e. `globals.css` imports HeroUI's styles
+  **one component at a time**, not the whole package, which carries ~80
+  components this site never mounts. A new primitive needs its stylesheet line
+  there, plus any component it renders internally;
+  `scripts/heroui-styles.test.ts` derives the list from the imports and fails
+  when they disagree.
 - **Styling:** Tailwind v4 via PostCSS. HeroUI semantic tokens only
   (`bg-background`, `bg-surface`, `text-muted`, `border-border`,
   `*-soft` washes) — never hardcode a hex in a component.
 - **Theming:** next-themes toggles `.light`/`.dark` on `<html>`; system
-  until the header ThemeToggle records an explicit choice.
+  until the header ThemeToggle records an explicit choice. `THEME_COLORS` in
+  `lib/site.ts` and the Satori hexes in `app/icon.tsx`, `apple-icon.tsx` and
+  `opengraph-image.tsx` mirror the tokens in sRGB — change them together.
 - **Fonts:** Geist Sans (body) + Geist Mono (tool ids, commands) via
   `next/font/google`.
 - **Lint/format:** Biome (single quotes, no semicolons, 2-space, 100-col,
@@ -46,9 +52,12 @@ product decision, not a PR.
 app/          routes (shims), fonts, providers, globals.css, not-found,
               sitemap.ts (generated from the registry), tools/[id] (one
               static page per tool, emitted by generateStaticParams)
-features/     home/ — hero, featured, tool-grid, principles, install, faq
-              tool/ — hero, install, links, siblings (the per-tool page)
-components/   shared UI: site-header, site-footer, theme-toggle, command-snippet
+features/     home/ — hero, tools, principles, install, mcp-config,
+              rust-tools, faq (in page order)
+              tool/ — hero, overview, commands, install, channels, links,
+              siblings (the per-tool page)
+components/   shared UI: site-header, site-footer, theme-toggle,
+              command-snippet, section-heading, demo-frame, tool-icon
 ui/           thin @heroui/react re-exports, one file per primitive —
               feature code imports HeroUI from ui/, NEVER @heroui/react directly
 lib/          tools.ts (THE tool registry) · site.ts (urls/name/theme colors) ·
@@ -165,6 +174,36 @@ every catch routes `reportError(error, { source })` · a floating promise
 without `.catch()` is a bug (the clipboard write included) · no class
 components · ~200-line split threshold.
 
+## Design layer
+
+The identity is the composition, not a logo: warm paper and warm near-black,
+one teal accent, Geist with tight tracking, mono eyebrows, hairline rules.
+The rules that keep it reading as one page:
+
+- **One container.** Every section is `wrap` (`globals.css`), home and tool
+  pages alike. Text that wants a measure gets `max-w-prose` or a column
+  inside it; the left edge never moves. The install column and the FAQ used
+  to be narrower than the rest, and the edge jumped three times.
+- **One opening.** Every section starts with `SectionHeading`: mono eyebrow,
+  title, optional lede. Two-column sections put it in `lg:col-span-4` and the
+  content in `lg:col-span-8`.
+- **Order is the visitor's.** Home runs hero → tools → why → install → agents
+  → beyond → FAQ. The tools come straight after the pitch, because that is
+  what the hero's button promises.
+- **The categories are the structure.** Extract, Check, Guard are the three
+  steps of the work, so the tools section is three bands with the step's
+  reason beside its tools, not a flat grid behind a filter. Tools are rows,
+  not cards: a name with weight, a summary, the links at the margin.
+- **One recording leads.** The featured tool's demo is the hero's visual and
+  each tool page leads with its own, through `DemoFrame`, which shows the
+  poster under `prefers-reduced-motion`. Seventeen looping thumbnails was a
+  screensaver, and it read as black rectangles at card size.
+- **Motion is feedback.** Hover, press, copy, tab and accordion transitions
+  only. Nothing animates on load or on scroll: axe skips what it cannot see,
+  so a reveal would make the contrast gate pass vacuously below the fold.
+- **Tokens, never hexes,** in components. The three Satori files and
+  `THEME_COLORS` are the only literals, and they mirror `globals.css`.
+
 ## Mobile-first & a11y
 
 Base classes target the smallest screen; `sm:`/`md:` are enhancement —
@@ -223,8 +262,9 @@ After `build`, `out/` must contain the page HTML, `robots.txt` and
 `sitemap.xml` (both static in `public/`), and the build-time PNGs from
 `app/icon.tsx` / `apple-icon.tsx` / `opengraph-image.tsx` (Satori —
 literal hexes only in those files). Serve `out/` and click through:
-category tabs filter, FAQ expands, the copy button writes the clipboard,
-theme toggle flips. Security headers live in `vercel.json`.
+category links jump to their band, install tabs switch, FAQ expands, the
+copy button writes the clipboard, theme toggle flips. Security headers live
+in `vercel.json`.
 
 ## Auditing a tool repo
 

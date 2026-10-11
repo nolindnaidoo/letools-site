@@ -1,3 +1,4 @@
+import { SectionHeading } from '@/components/section-heading'
 import {
   extensionPending,
   githubUrl,
@@ -65,24 +66,30 @@ export function ToolLinks({ tool }: { readonly tool: Tool }) {
   ] as const
 
   return (
-    <section className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6">
-      <h2 className="mb-6 text-2xl font-bold tracking-tight">Where {tool.name} lives</h2>
+    <section className="wrap py-12 sm:py-16">
+      <div className="grid gap-8 lg:grid-cols-12 lg:gap-10">
+        <SectionHeading
+          eyebrow="Links"
+          title={`Where ${tool.name} lives`}
+          className="lg:col-span-4"
+        />
 
-      <ul className="flex flex-col gap-3">
-        {links.map(link => (
-          <li key={link.label} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <Link
-              href={link.href}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={`${tool.name} on ${link.label} (opens in new tab)`}
-            >
-              {link.label}
-            </Link>
-            <span className="font-mono text-sm text-muted">{link.detail}</span>
-          </li>
-        ))}
-      </ul>
+        <ul className="flex flex-col gap-3 lg:col-span-8">
+          {links.map(link => (
+            <li key={link.label} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <Link
+                href={link.href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`${tool.name} on ${link.label} (opens in new tab)`}
+              >
+                {link.label}
+              </Link>
+              <span className="font-mono text-sm text-muted">{link.detail}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   )
 }

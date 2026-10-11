@@ -1,24 +1,26 @@
 # letools-site
 
-The hub site for the **LE family** of VS Code extensions — ten free,
+The hub site for the **LE family** of VS Code extensions — free,
 single-purpose devtools — at [letools.dev](https://letools.dev).
 
-One static page, built with [HeroUI v3](https://heroui.com) on Next.js 16
-(App Router, `output: "export"`), themed light/dark via next-themes.
+A static export, built with [HeroUI v3](https://heroui.com) primitives under
+the site's own tokens on Next.js 16 (App Router, `output: "export"`), themed
+light/dark via next-themes.
 
 ## Page map
 
 | Section | What it is |
 |---|---|
-| Hero | Family tagline + badges + CTAs |
-| The tools | 10 cards, filterable by category (Extract / Check / Guard), each linking to VS Code Marketplace, Open VSX, and GitHub |
+| Hero | Tagline, the family's facts in one line, CTAs, and the featured tool's recording |
+| The tools | Three bands — Extract, Check, Guard — each with its reason and its tools as rows linking to the tool page, VS Code Marketplace, Open VSX, npm and GitHub |
 | Why LE | The four family promises |
-| Install | Per-editor install commands with copy buttons |
+| Install | Per-editor install commands with copy buttons, and the Rust CLI |
+| Agents | Build the MCP config for the client and tools you pick |
 | Beyond the editor | The two Rust desktop tools (pixelcoords, pixelactions) with links to their sites |
 | FAQ | Accordion |
 
-The tool list lives in `lib/tools.ts` — the grid, tabs, and links all render
-from it.
+Every tool also has its own page at `/tools/<id>`. The tool list lives in
+`lib/tools.ts` — the bands, the pages, and every link render from it.
 
 ## Development
 

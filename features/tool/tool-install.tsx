@@ -1,4 +1,5 @@
 import { CommandSnippet } from '@/components/command-snippet'
+import { SectionHeading } from '@/components/section-heading'
 import { PUBLISHER } from '@/lib/site'
 import {
   crateFor,
@@ -92,36 +93,42 @@ export function ToolInstall({ tool }: { readonly tool: Tool }) {
   const surfaces = surfacesFor(tool)
 
   return (
-    <section id="install" className="mx-auto w-full max-w-3xl scroll-mt-20 px-4 py-12 sm:px-6">
-      <h2 className="mb-6 text-2xl font-bold tracking-tight">Install {tool.name}</h2>
+    <section id="install" className="wrap scroll-mt-20 py-12 sm:py-16">
+      <div className="grid gap-8 lg:grid-cols-12 lg:gap-10">
+        <SectionHeading
+          eyebrow="Install"
+          title={`Install ${tool.name}`}
+          className="lg:col-span-4"
+        />
 
-      <div className="flex flex-col gap-6">
-        {surfaces.map(surface => (
-          <div key={surface.id} className="flex flex-col gap-2">
-            <h3 className="flex items-center gap-2 text-sm font-semibold">
-              {surface.label}
-              {surface.pending === true ? (
-                <Chip size="sm" variant="soft">
-                  Coming soon
-                </Chip>
-              ) : null}
-            </h3>
-            <CommandSnippet command={surface.command} label={surface.label} />
-            <p className="text-sm text-muted">
-              {surface.note}
-              {surface.pending === true ? (
-                <>
-                  {' '}
-                  {/* No newline before the period, or JSX renders "review ." */}
-                  <Link href={surface.track ?? githubUrl(tool)} target="_blank" rel="noreferrer">
-                    {surface.trackLabel ?? 'Follow the repository'}
-                  </Link>
-                  {'.'}
-                </>
-              ) : null}
-            </p>
-          </div>
-        ))}
+        <div className="flex flex-col gap-6 lg:col-span-8">
+          {surfaces.map(surface => (
+            <div key={surface.id} className="flex flex-col gap-2">
+              <h3 className="flex items-center gap-2 text-sm font-semibold">
+                {surface.label}
+                {surface.pending === true ? (
+                  <Chip size="sm" variant="soft">
+                    Coming soon
+                  </Chip>
+                ) : null}
+              </h3>
+              <CommandSnippet command={surface.command} label={surface.label} />
+              <p className="text-sm text-muted">
+                {surface.note}
+                {surface.pending === true ? (
+                  <>
+                    {' '}
+                    {/* No newline before the period, or JSX renders "review ." */}
+                    <Link href={surface.track ?? githubUrl(tool)} target="_blank" rel="noreferrer">
+                      {surface.trackLabel ?? 'Follow the repository'}
+                    </Link>
+                    {'.'}
+                  </>
+                ) : null}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   )
