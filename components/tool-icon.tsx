@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { iconSrc, type Tool } from '@/lib/tools'
 
 /**
@@ -16,19 +17,27 @@ import { iconSrc, type Tool } from '@/lib/tools'
 export function ToolIcon({
   tool,
   size,
+  sizeLg = size,
   className = '',
 }: {
   readonly tool: Tool
+  // Pixels. The glyph fills about two thirds of each 128px tile, so the box
+  // has to be larger than the mark it is meant to show at.
   readonly size: number
+  // From the lg breakpoint, where a row has fewer lines beside the icon.
+  readonly sizeLg?: number
   readonly className?: string
 }) {
   const source = iconSrc(tool)
 
-  // Sized by inline style rather than a utility class so one prop drives both
-  // branches and the two cannot fall out of step at a call site. The style is
-  // on the img as well as its width/height attributes because the preflight
-  // sets img { height: auto }, and a flex row then stretches the icon to the
-  // row's height while the width holds: a 36px icon drawn 36 by 70.
+  // Both branches are sized through the same two variables, so one prop pair
+  // drives both and a call site cannot set one without the other. The size is
+  // set as CSS, not only as the img's width and height attributes, because
+  // the preflight sets img { height: auto }, and a flex row then stretches
+  // the icon to the row's height while the width holds: 36 drawn as 36 by 70.
+  const style = { '--icon': `${size}px`, '--icon-lg': `${sizeLg}px` } as CSSProperties
+  const box = `size-(--icon) shrink-0 lg:size-(--icon-lg) ${className}`
+
   if (source !== undefined) {
     return (
       <img
@@ -36,10 +45,10 @@ export function ToolIcon({
         alt=""
         width={size}
         height={size}
-        style={{ width: size, height: size }}
+        style={style}
         loading="lazy"
         decoding="async"
-        className={className}
+        className={box}
       />
     )
   }
@@ -47,10 +56,10 @@ export function ToolIcon({
   return (
     <span
       aria-hidden="true"
-      style={{ width: size, height: size, fontSize: Math.round(size * 0.36) }}
+      style={{ ...style, fontSize: Math.round(size * 0.36) }}
       // Foreground on surface, not accent on accent-soft: that pair renders
       // 4.12:1 at this weight and axe fails it on every card that shows one.
-      className={`inline-flex shrink-0 items-center justify-center border border-border bg-surface font-mono font-bold tracking-tight text-foreground ${className}`}
+      className={`${box} inline-flex items-center justify-center border border-border bg-surface font-mono font-bold tracking-tight text-foreground`}
     >
       LE
     </span>

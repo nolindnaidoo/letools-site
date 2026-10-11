@@ -50,8 +50,8 @@ const LINK_CLASS = 'text-muted text-sm transition-colors hover:text-foreground'
 
 function ToolRow({ tool }: { readonly tool: Tool }) {
   return (
-    <li className="-mx-3 flex gap-4 rounded px-3 py-5 transition-colors hover:bg-surface-secondary">
-      <ToolIcon tool={tool} size={36} className="shrink-0 rounded" />
+    <li className="-mx-3 flex items-start gap-4 rounded px-3 py-5 transition-colors hover:bg-surface-secondary lg:items-center">
+      <ToolIcon tool={tool} size={48} sizeLg={56} className="rounded" />
 
       <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:gap-5">
         <div className="flex min-w-0 flex-1 flex-col gap-1">

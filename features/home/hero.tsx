@@ -61,7 +61,7 @@ export function Hero() {
               Featured · {categoryLabel(FEATURED)}
             </p>
             <div className="flex items-center gap-3">
-              <ToolIcon tool={FEATURED} size={32} className="shrink-0 rounded" />
+              <ToolIcon tool={FEATURED} size={40} className="rounded" />
               <Link
                 href={toolPath(FEATURED)}
                 className="font-semibold text-2xl text-foreground tracking-tight"

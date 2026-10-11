@@ -21,7 +21,7 @@ export function ToolSiblings({ tool }: { readonly tool: Tool }) {
             key={sibling.id}
             className="-mx-3 flex items-start gap-3 rounded px-3 py-3 transition-colors hover:bg-surface-secondary"
           >
-            <ToolIcon tool={sibling} size={32} className="shrink-0 rounded" />
+            <ToolIcon tool={sibling} size={40} sizeLg={44} className="rounded" />
             <div className="flex min-w-0 flex-col gap-0.5">
               <Link href={toolPath(sibling)} className="w-fit font-semibold text-foreground">
                 {sibling.name}
