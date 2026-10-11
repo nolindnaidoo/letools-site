@@ -123,14 +123,30 @@ whole. Check the surrounding context field as well, since it is usually the raw
 line.
 
 **BUG-15 (`M` `C`). Agreement outside the corpus.** Where the extension and the
-crate implement the same engine, feed both the edge inputs from BUG-1 to BUG-8
-and compare. Agreement on a shared defect is still a defect. Parity means both
-are right, not that both copy the same quirk.
+crate implement the same engine, feed both the edge inputs from BUG-1 to BUG-8,
+a document cut off mid-value, and a document nested deeper than a call stack
+allows, and compare. Agreement on a shared defect is still a defect. Parity
+means both are right, not that both copy the same quirk. A parser that
+recovers on one side and gives up on the other, or that overflows the stack on
+one side and returns nothing on the other, is a disagreement the corpus and
+the differential never produce.
 
 **BUG-16 (`C`). Arithmetic and indexing in Rust.** Integer overflow in release
 builds, slicing a `str` at a byte offset that is not a character boundary,
 indexing that can panic, `as` casts that truncate, and recursion with no depth
 limit on attacker-shaped input.
+
+**BUG-18. Caller-supplied text is never a property name on a plain object.**
+A lookup table written as an object literal answers `constructor`, `__proto__`,
+`toString` and every other `Object.prototype` name with a function or the
+prototype itself, and both are truthy. Every `table[key]` where `key` comes
+from a user, an agent or a document is read; the table is a `Map`, or the
+lookup is guarded by `Object.hasOwn`. Try each prototype name through every
+entry point that reaches the table.
+
+```bash
+grep -rnE '\b[A-Z_]+\[[a-zA-Z_.()]+\]' src --include='*.ts' --exclude='*.test.ts'
+```
 
 **BUG-17. The documented invariants hold.** Each item under the repo's
 "Invariants" and "Hard rules" headings is a claim. For each, name the test

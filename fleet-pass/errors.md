@@ -133,6 +133,14 @@ loop, a FIFO, a directory where a file was expected, a file removed mid-run,
 and a path over the platform limit each appear in the report. The property is
 that an input never silently vanishes from the output.
 
+**ERR-18 (`E`). A progress indicator is reset on every way out.** Every status
+bar spinner, progress notification and busy flag that a command sets is read
+for the paths that leave the command afterwards: an early `return`, a
+declined or dismissed dialog, a thrown error. The reset lives in a `finally`,
+or each path is driven and the indicator read back. One set before a dialog
+and reset only on the successful path stays up until the next run that
+happens to succeed.
+
 **ERR-17 (`N` `E`). Build and release scripts fail loudly.** Every script under
 `scripts/` and every workflow step is read for `|| true`,
 `continue-on-error`, an unchecked `spawnSync` status, and a `catch` that exits
