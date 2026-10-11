@@ -16,7 +16,7 @@ is written by step 8, [close.md](close.md).
 | ids-le | not started | | | | | | |
 | ips-le | not started | | | | | | |
 | numbers-le | not started | | | | | | |
-| paths-le | pull request open | `0cb6ef02` | [records/paths-le.md](records/paths-le.md) | [nolindnaidoo/paths-le#51](https://github.com/nolindnaidoo/paths-le/pull/51) | 2026-10-11 | 21 | 4 |
+| paths-le | pull request open | `0cb6ef02` | [records/paths-le.md](records/paths-le.md) | [nolindnaidoo/paths-le#51](https://github.com/nolindnaidoo/paths-le/pull/51) | 2026-10-11 | 25 | 0 |
 | regex-le | not started | | | | | | |
 | scrape-le | not started | | | | | | |
 | secrets-le | not started | | | | | | |
