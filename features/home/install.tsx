@@ -51,7 +51,7 @@ const SURFACES = [
 export function Install() {
   return (
     <section id="install" className="wrap scroll-mt-20 py-16 sm:py-24">
-      <div className="grid gap-10 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
         <SectionHeading
           eyebrow="Install"
           title="Pick your editor."

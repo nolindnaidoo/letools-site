@@ -38,3 +38,18 @@ test('theme toggle is reachable and named in both schemes', async ({ page }) => 
     await expect(toggle.first()).toBeVisible()
   }
 })
+
+// No page scrolls sideways. A grid track defaults to minmax(auto, …), so one
+// unwrappable line — a long command, a JSON config — widened the single phone
+// column to its content and pushed every later section off the right edge.
+// axe does not flag that, and a desktop screenshot never shows it.
+for (const target of PAGES) {
+  test(`${target.path} has no horizontal overflow`, async ({ page }) => {
+    await page.goto(target.path)
+    const widths = await page.evaluate(() => ({
+      scroll: document.documentElement.scrollWidth,
+      client: document.documentElement.clientWidth,
+    }))
+    expect(widths.scroll).toBeLessThanOrEqual(widths.client)
+  })
+}

@@ -39,7 +39,7 @@ export function McpConfig() {
 
   return (
     <section id="mcp" className="wrap scroll-mt-20 py-16 sm:py-24">
-      <div className="grid gap-10 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
         <SectionHeading
           eyebrow="Agents"
           title="Wire them into your agent."

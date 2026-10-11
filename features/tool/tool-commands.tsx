@@ -22,7 +22,7 @@ export function ToolCommands({ tool }: { readonly tool: Tool }) {
 
   return (
     <section id="commands" className="wrap scroll-mt-20 py-12 sm:py-16">
-      <div className="grid gap-8 lg:grid-cols-12 lg:gap-10">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
         <div className="flex flex-col gap-4 lg:col-span-4">
           <SectionHeading
             eyebrow="Palette"

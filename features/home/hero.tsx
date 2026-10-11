@@ -23,7 +23,7 @@ export function Hero() {
         aria-hidden="true"
         className="-z-10 pointer-events-none absolute inset-x-0 top-0 h-[36rem] bg-[radial-gradient(70%_60%_at_30%_0%,var(--accent-soft),transparent)]"
       />
-      <div className="wrap grid gap-10 pt-14 pb-16 sm:pt-20 lg:grid-cols-12 lg:items-center lg:gap-12 lg:pt-24 lg:pb-24">
+      <div className="wrap grid grid-cols-1 gap-10 pt-14 pb-16 sm:pt-20 lg:grid-cols-12 lg:items-center lg:gap-12 lg:pt-24 lg:pb-24">
         <div className="flex flex-col gap-6 lg:col-span-6">
           <p className="font-mono text-muted text-xs uppercase tracking-[0.18em]">
             {TOOLS.length} tools · {INSTALL_COUNT} installs · MIT · Local by default
