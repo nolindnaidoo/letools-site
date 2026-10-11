@@ -24,6 +24,11 @@ export function ToolIcon({
 }) {
   const source = iconSrc(tool)
 
+  // Sized by inline style rather than a utility class so one prop drives both
+  // branches and the two cannot fall out of step at a call site. The style is
+  // on the img as well as its width/height attributes because the preflight
+  // sets img { height: auto }, and a flex row then stretches the icon to the
+  // row's height while the width holds: a 36px icon drawn 36 by 70.
   if (source !== undefined) {
     return (
       <img
@@ -31,6 +36,7 @@ export function ToolIcon({
         alt=""
         width={size}
         height={size}
+        style={{ width: size, height: size }}
         loading="lazy"
         decoding="async"
         className={className}
@@ -41,8 +47,6 @@ export function ToolIcon({
   return (
     <span
       aria-hidden="true"
-      // Sized in px rather than a utility class so one prop drives both
-      // branches and the two cannot fall out of step at a call site.
       style={{ width: size, height: size, fontSize: Math.round(size * 0.36) }}
       // Foreground on surface, not accent on accent-soft: that pair renders
       // 4.12:1 at this weight and axe fails it on every card that shows one.
