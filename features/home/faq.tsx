@@ -41,7 +41,7 @@ const FAQ_ITEMS = [
 export function Faq() {
   return (
     <section id="faq" className="wrap scroll-mt-20 py-16 sm:py-24">
-      <div className="grid gap-10 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
         <SectionHeading eyebrow="FAQ" title="Short answers." className="lg:col-span-4" />
 
         <Accordion variant="surface" className="lg:col-span-8">

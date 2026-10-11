@@ -64,12 +64,12 @@ lib/          tools.ts (THE tool registry) · site.ts (urls/name/theme colors) �
               error.ts (reportError seam — every catch routes through it)
 ```
 
-- **`lib/tools.ts` is the single tool registry.** The grid, category tabs,
+- **`lib/tools.ts` is the single tool registry.** The bands, the category nav,
   every marketplace/Open VSX/GitHub/npm/MCP-registry link, the per-tool
   pages, the sitemap and the e2e page list all render from it. A new tool is
   one entry there, nothing else — including its page and its audit.
 - Server Components by default; `"use client"` only at interactive leaves
-  (tool-grid and install use Tabs; theme-toggle and command-snippet own
+  (install uses Tabs; mcp-config, theme-toggle and command-snippet own
   browser state).
 - No barrels. Features don't import features.
 
@@ -186,7 +186,11 @@ The rules that keep it reading as one page:
   to be narrower than the rest, and the edge jumped three times.
 - **One opening.** Every section starts with `SectionHeading`: mono eyebrow,
   title, optional lede. Two-column sections put it in `lg:col-span-4` and the
-  content in `lg:col-span-8`.
+  content in `lg:col-span-8`, on a grid that declares `grid-cols-1` as well.
+  An implicit track is `minmax(auto, …)`, so one unwrappable line, a long
+  command or a JSON config, widened the phone column to its content and
+  pushed every later section off the right edge. `grid-cols-1` is
+  `minmax(0, 1fr)`, which lets the snippet scroll inside its box instead.
 - **Order is the visitor's.** Home runs hero → tools → why → install → agents
   → beyond → FAQ. The tools come straight after the pitch, because that is
   what the hero's button promises.
@@ -211,6 +215,8 @@ verify at 375px. `min-h-dvh`, skip link first-focusable, one
 `<main id="main-content">`, focus rings stay, `prefers-reduced-motion`
 respected (scroll-behavior included). Both schemes must remain readable —
 screenshots in light, dark, and mobile before shipping visual changes.
+`e2e/pages.e2e.ts` also asserts that no page scrolls sideways, on every
+route in both projects, because axe does not flag overflow.
 
 ## Verification — the definition of done
 

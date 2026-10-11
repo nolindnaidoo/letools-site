@@ -113,7 +113,7 @@ function ToolRow({ tool }: { readonly tool: Tool }) {
 export function Tools() {
   return (
     <section id="tools" className="wrap scroll-mt-20 py-16 sm:py-24">
-      <div className="grid gap-6 lg:grid-cols-12 lg:gap-10">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-10">
         <SectionHeading
           eyebrow="The tools"
           title="The work before the work."
@@ -150,7 +150,7 @@ export function Tools() {
           <div
             key={category.id}
             id={category.id}
-            className="grid scroll-mt-20 gap-6 border-border border-b py-10 lg:grid-cols-12 lg:gap-10"
+            className="grid grid-cols-1 scroll-mt-20 gap-6 border-border border-b py-10 lg:grid-cols-12 lg:gap-10"
           >
             <div className="lg:sticky lg:top-24 lg:col-span-4 lg:self-start">
               <p className="font-mono text-muted text-xs uppercase tracking-[0.18em]">
