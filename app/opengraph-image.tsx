@@ -1,8 +1,9 @@
 import { ImageResponse } from 'next/og'
+import { logoDataUri } from '@/lib/brand-image'
 import { SITE_NAME, TAGLINE } from '@/lib/site'
 import { FAMILY_SIZE } from '@/lib/tools'
 
-// The share card: LE tile + site name + tagline on the dark canvas.
+// The share card: the mark + site name + tagline on the dark canvas.
 // Hexes are literal (Satori cannot read CSS custom properties) and mirror
 // the dark-scheme tokens in globals.css in sRGB. Emitted as a static PNG at build time.
 export const dynamic = 'force-static'
@@ -26,22 +27,7 @@ export default function OpengraphImage() {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-        <div
-          style={{
-            width: 72,
-            height: 72,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: '#007778',
-            borderRadius: 18,
-            color: '#ffffff',
-            fontSize: 34,
-            fontWeight: 700,
-          }}
-        >
-          LE
-        </div>
+        <img src={logoDataUri()} alt="" width={84} height={84} />
         <div style={{ display: 'flex', fontSize: 40, fontWeight: 700 }}>{SITE_NAME}</div>
       </div>
       <div
