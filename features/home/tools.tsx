@@ -67,13 +67,13 @@ function ToolRow({ tool }: { readonly tool: Tool }) {
           {extensionPending(tool) ? null : (
             <>
               <Link
-                href={marketplaceUrl(tool)}
+                href={npmUrl(tool)}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={`${tool.name} on the VS Code Marketplace (opens in new tab)`}
+                aria-label={`${tool.name} MCP server on npm (opens in new tab)`}
                 className={LINK_CLASS}
               >
-                VS Code
+                MCP
               </Link>
               <Link
                 href={openVsxUrl(tool)}
@@ -85,13 +85,13 @@ function ToolRow({ tool }: { readonly tool: Tool }) {
                 Open VSX
               </Link>
               <Link
-                href={npmUrl(tool)}
+                href={marketplaceUrl(tool)}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={`${tool.name} MCP server on npm (opens in new tab)`}
+                aria-label={`${tool.name} on the VS Code Marketplace (opens in new tab)`}
                 className={LINK_CLASS}
               >
-                MCP
+                VS Code
               </Link>
             </>
           )}
