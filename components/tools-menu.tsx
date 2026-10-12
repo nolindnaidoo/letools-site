@@ -1,5 +1,6 @@
 'use client'
 
+import { byDownloads } from '@/lib/popularity'
 import { TOOLS, toolPath } from '@/lib/tools'
 import { Dropdown } from '@/ui/dropdown'
 
@@ -9,6 +10,8 @@ import { Dropdown } from '@/ui/dropdown'
 //
 // A client leaf: the trigger owns open/closed state. Each item is a real
 // anchor, so the links are in the HTML for a crawler and middle-click works.
+const ORDERED = byDownloads(TOOLS, tool => tool.id)
+
 export function ToolsMenu() {
   return (
     <Dropdown>
@@ -17,7 +20,7 @@ export function ToolsMenu() {
       </Dropdown.Trigger>
       <Dropdown.Popover placement="bottom start">
         <Dropdown.Menu aria-label="All tools">
-          {TOOLS.map(tool => (
+          {ORDERED.map(tool => (
             <Dropdown.Item key={tool.id} href={toolPath(tool)} textValue={tool.name}>
               {tool.name}
             </Dropdown.Item>

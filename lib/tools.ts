@@ -651,7 +651,7 @@ export function openVsxUrl(tool: Tool): string {
   return `https://open-vsx.org/extension/${openVsxNamespace(tool)}/${tool.id}`
 }
 
-/** The id Cursor and VSCodium install by. */
+/** The id Cursor, Windsurf and VSCodium install by. */
 export function openVsxId(tool: Tool): string {
   return `${openVsxNamespace(tool)}.${tool.id}`
 }
@@ -857,6 +857,6 @@ export const PUBLISHED_CRATES: readonly PublishedCrate[] = TOOLS.filter(
 })
 
 /** One command that installs every published CLI. */
-export function cargoInstallCommand(): string {
-  return `cargo install ${PUBLISHED_CRATES.map(crate => crate.name).join(' ')}`
+export function cargoInstallCommand(crates: readonly PublishedCrate[] = PUBLISHED_CRATES): string {
+  return `cargo install ${crates.map(crate => crate.name).join(' ')}`
 }

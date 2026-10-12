@@ -3,6 +3,7 @@ import {
   displayInstalls,
   INSTALL_FLOOR,
   measureInstalls,
+  measureRegistries,
   type PublishedExtension,
 } from './install-count'
 
@@ -125,5 +126,26 @@ describe('measureInstalls', () => {
       openVsx: () => json({ downloadCount: null }),
     })
     expect(await measureInstalls(EXTENSIONS, odd)).toBe(0)
+  })
+})
+
+describe('measureRegistries', () => {
+  it('keeps the Open VSX figure for each extension beside the sum', async () => {
+    expect(await measureRegistries(EXTENSIONS, registries({}))).toEqual({
+      installs: 100 + 20 + 3 + 1000 + 1000,
+      openVsxDownloads: { 'a-le': 1000, 'b-le': 1000 },
+    })
+  })
+
+  it('leaves out an extension Open VSX would not answer for, and never guesses zero', async () => {
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const fetcher = (async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('marketplace')) return json(MARKETPLACE)
+      return url.endsWith('/a-le') ? json({}, 503) : json({ downloadCount: 7 })
+    }) as typeof fetch
+    expect((await measureRegistries(EXTENSIONS, fetcher)).openVsxDownloads).toEqual({ 'b-le': 7 })
+    expect(logged).toHaveBeenCalledTimes(1)
+    logged.mockRestore()
   })
 })

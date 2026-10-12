@@ -58,6 +58,30 @@ test('reports how many results a query found', async ({ page }) => {
   await expect(page.getByText('0 results')).toBeVisible()
 })
 
+test('paints the panel and the button, in both schemes', async ({ page }) => {
+  // A colour class that names no token compiles to nothing and fails nowhere:
+  // the panel opened with no fill, over the page, and axe still passed. So the
+  // fill is asserted, not assumed.
+  const fill = (locator: import('@playwright/test').Locator) =>
+    locator.evaluate(element => getComputedStyle(element).backgroundColor)
+  const SEE_THROUGH = /^transparent$|rgba\(0, 0, 0, 0\)| \/ /
+
+  for (const scheme of ['light', 'dark'] as const) {
+    await page.emulateMedia({ colorScheme: scheme })
+    const input = await open(page)
+    expect(await fill(input.locator('..')), `${scheme} panel`).not.toMatch(SEE_THROUGH)
+
+    // The dim behind it covers the page, not the header it was opened from.
+    const dim = await page.getByRole('button', { name: 'Close search' }).boundingBox()
+    const viewport = page.viewportSize()
+    expect(dim?.height, `${scheme} dim`).toBe(viewport?.height)
+    expect(dim?.width, `${scheme} dim`).toBe(viewport?.width)
+    await page.keyboard.press('Escape')
+    const button = page.getByRole('button', { name: /search/i }).first()
+    expect(await fill(button), `${scheme} button`).not.toMatch(SEE_THROUGH)
+  }
+})
+
 test('is axe-clean while open, in both schemes', async ({ page }) => {
   for (const scheme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme: scheme })

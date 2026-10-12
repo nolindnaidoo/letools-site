@@ -145,11 +145,27 @@ to anyone.
   sentence about the family. A tool with no such setting gets no line.
 - **Bundling.** Nine ship a self-contained bundle; Scrape-LE ships
   `playwright-core` alongside it.
-- **Two registries, one name.** VS Code resolves the Marketplace and Cursor
-  and VSCodium resolve Open VSX, and both use `nolindnaidoo.<id>`. Open VSX
+- **Two registries, one name.** VS Code resolves the Marketplace and Cursor,
+  Windsurf and VSCodium resolve Open VSX, and both use `nolindnaidoo.<id>`. Open VSX
   used a different namespace until its extensions were moved, which is why
   `OPENVSX_NAMESPACE` in `lib/site.ts` is its own constant. Build an Open VSX
   link or id from it, never from `PUBLISHER`.
+- **An editor is never offered a config alone.** Cursor and Windsurf install
+  the extension like VS Code does, so wherever one is named beside an MCP
+  config it also links the registry its extensions come from:
+  `MARKETPLACE_PUBLISHER_URL` and `OPENVSX_NAMESPACE_URL` in `lib/site.ts`.
+- **An MCP host is listed only from its vendor's own docs.** `CLIENTS` in
+  `lib/mcp-config.ts` has one entry per host, and its header names the page
+  each was read from. A model is not a host: GLM, Kimi and Qwen models run
+  inside one, so the page names the host. The install tab and the FAQ list
+  hosts from `HOST_NAMES`, never by hand.
+- **A list whose order is ours to choose runs by Open VSX downloads, with
+  JevLint-LE first.** `byDownloads` in `lib/popularity.ts` does it, from counts
+  the build reads beside the install count, over a floor measured once. The
+  Rust CLI command and the list under it use it, and so do the header's Tools
+  menu and the tool checkboxes in the agents picker with the config they write. JevLint-LE ships no crate,
+  so it leads the picker and not the crate list. The registry's own order in
+  `lib/tools.ts` is unchanged, and so is every list read straight from it.
 - **Install count** (`INSTALL_COUNT`) is measured on every build and rounded
   down to the ten thousand, so `133,056` shows as `130,000+`. `next.config.ts`
   reads Open VSX downloads and Marketplace installs plus web downloads from the
@@ -209,7 +225,9 @@ ships. The rules that keep it reading as one page:
 - **The categories are the structure.** Extract, Check, Guard are the three
   steps of the work, so the tools section is three bands with the step's
   reason beside its tools, not a flat grid behind a filter. Tools are rows,
-  not cards: a name with weight, a summary, the links at the margin.
+  not cards: a name with weight, a summary, the links at the margin. The
+  whole row opens the tool's page, through the name's link stretched over it,
+  and the registry links sit above that as a zone of their own.
 - **One recording leads.** The featured tool's demo is the hero's visual and
   each tool page leads with its own, through `DemoFrame`, which shows the
   poster under `prefers-reduced-motion`. Seventeen looping thumbnails was a
