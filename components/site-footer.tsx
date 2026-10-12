@@ -1,3 +1,4 @@
+import { NewTab } from '@/components/new-tab'
 import { RUST_TOOLS } from '@/lib/rust-tools'
 import { AUTHOR_URL, GITHUB_URL, PUBLISHER, SITE_NAME, TAGLINE } from '@/lib/site'
 import { Link } from '@/ui/link'
@@ -27,9 +28,11 @@ export function SiteFooter() {
           MIT ©{' '}
           <Link href={AUTHOR_URL} target="_blank" rel="noreferrer">
             Nolin Naidoo
+            <NewTab />
           </Link>{' '}
           <Link href={GITHUB_URL} target="_blank" rel="noreferrer">
             ({PUBLISHER})
+            <NewTab />
           </Link>
         </p>
       </div>

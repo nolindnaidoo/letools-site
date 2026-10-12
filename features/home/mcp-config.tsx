@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { CommandSnippet } from '@/components/command-snippet'
+import { NewTab } from '@/components/new-tab'
 import { SectionHeading } from '@/components/section-heading'
 import { CLIENTS, type ClientId, clientById, configFor } from '@/lib/mcp-config'
 import { byDownloads } from '@/lib/popularity'
@@ -80,6 +81,7 @@ export function McpConfig() {
               <p className="text-sm">
                 <Link href={client.hub.href} target="_blank" rel="noreferrer">
                   {client.hub.label}
+                  <NewTab />
                 </Link>
               </p>
             )}

@@ -1,3 +1,5 @@
+import { MobileMenu } from '@/components/mobile-menu'
+import { NewTab } from '@/components/new-tab'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { ToolsMenu } from '@/components/tools-menu'
 import { CommandPalette } from '@/features/search/command-palette'
@@ -19,11 +21,13 @@ const NAV_ITEMS = [
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-border border-b bg-background/80 backdrop-blur">
-      <div className="wrap flex h-14 items-center justify-between gap-4">
+      <div className="wrap flex h-14 items-center justify-between gap-3 sm:gap-4">
         {/* The mark, then the wordmark. The wordmark is the long form, so it
             stays on one line and gives up size before it wraps beside the
-            controls at 375px. The mark is decoration here: the link is named
-            by the words beside it, and a second name would be read twice. */}
+            controls. Under 375px there is no room for it beside them at all,
+            so the mark stands alone and the words stay as the link's name.
+            The mark is decoration: the link is named by the words, and a
+            second name would be read twice. */}
         <a
           href="/"
           className="flex items-center gap-2 whitespace-nowrap font-semibold text-sm tracking-tight sm:text-base"
@@ -35,7 +39,7 @@ export function SiteHeader() {
             height={HEADER_LOGO.size}
             className="size-8 shrink-0 sm:size-9"
           />
-          {WORDMARK}
+          <span className="max-[374px]:sr-only">{WORDMARK}</span>
         </a>
 
         <nav aria-label="Site" className="hidden items-center gap-6 text-sm sm:flex">
@@ -54,9 +58,17 @@ export function SiteHeader() {
         <div className="flex items-center gap-2">
           <CommandPalette />
           <ThemeToggle />
-          {/* Below sm the long wordmark, search and toggle already fill the
-              bar. The footer carries the same link on every page, so hiding it
-              here costs a phone visitor nothing. */}
+          {/* The bar's own links are hidden below sm, and this is where they
+              go. Without it a phone had the wordmark, search and the theme
+              toggle, and no way to a section but scrolling. */}
+          <MobileMenu
+            items={[
+              { href: '/#tools', label: 'Tools' },
+              ...NAV_ITEMS,
+              { href: GITHUB_URL, label: 'GitHub' },
+            ]}
+          />
+          {/* Below sm the menu above carries this link. */}
           <Link
             href={GITHUB_URL}
             target="_blank"
@@ -64,6 +76,7 @@ export function SiteHeader() {
             className={`hidden sm:inline-flex ${buttonVariants({ variant: 'outline', size: 'sm' })}`}
           >
             GitHub
+            <NewTab />
           </Link>
         </div>
       </div>

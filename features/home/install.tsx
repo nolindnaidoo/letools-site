@@ -1,6 +1,7 @@
 'use client'
 
 import { CommandSnippet } from '@/components/command-snippet'
+import { NewTab } from '@/components/new-tab'
 import { SectionHeading } from '@/components/section-heading'
 import { HOST_NAMES } from '@/lib/mcp-config'
 import { byDownloads } from '@/lib/popularity'
@@ -97,6 +98,7 @@ export function Install() {
                   <p className="text-sm">
                     <Link href={surface.hub.href} target="_blank" rel="noreferrer">
                       {surface.hub.label}
+                      <NewTab />
                     </Link>
                   </p>
                 )}
