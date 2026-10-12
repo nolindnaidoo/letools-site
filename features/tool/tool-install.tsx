@@ -25,7 +25,7 @@ type Surface = Readonly<{
   trackLabel?: string
 }>
 
-// VS Code resolves the Marketplace and Cursor and VSCodium resolve Open VSX.
+// VS Code resolves the Marketplace and Cursor, Windsurf and VSCodium resolve Open VSX.
 // The ids match today, and each is still built from its own registry's
 // constant, because they have differed before.
 function surfacesFor(tool: Tool): readonly Surface[] {
@@ -48,12 +48,12 @@ function surfacesFor(tool: Tool): readonly Surface[] {
     },
     {
       id: 'forks',
-      label: 'Cursor / VSCodium',
+      label: 'Cursor / Windsurf',
       command: `cursor --install-extension ${openVsxId(tool)}`,
       note: pending
         ? 'Same again for the forks, which resolve Open VSX rather than the Marketplace.'
         : openVsxNamespace(tool) === PUBLISHER
-          ? 'VS Code forks pull from Open VSX. The id is the same as on the Marketplace.'
+          ? 'Cursor, Windsurf, VSCodium and the other VS Code forks pull from Open VSX. The id is the same as on the Marketplace.'
           : `VS Code forks pull from Open VSX, where the namespace is ${openVsxNamespace(tool)}.`,
       ...(pending ? { pending: true, track: githubUrl(tool) } : {}),
     },

@@ -33,7 +33,7 @@ export function ToolLinks({ tool }: { readonly tool: Tool }) {
         {
           label: 'Open VSX',
           href: openVsxUrl(tool),
-          detail: 'for Cursor and VSCodium',
+          detail: 'for Cursor, Windsurf and VSCodium',
         },
         {
           label: 'npm',

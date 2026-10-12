@@ -26,6 +26,12 @@ import { Link } from '@/ui/link'
  * Rows, not cards. Seventeen cards with five equal links each was eighty-five
  * links of the same weight, and the thumbnails read as black rectangles at
  * that size. A row gives the name the weight and the links the margin.
+ *
+ * The whole row opens the tool's page, through the name's link stretched over
+ * it, so there is still one link to that page and not a row wrapped in an
+ * anchor with four more inside it. The registry links sit above the stretch as
+ * a zone of their own: a click that just misses one does nothing, where it
+ * would otherwise open the tool's page.
  */
 const STEPS: Readonly<Record<CategoryId, { readonly title: string; readonly body: string }>> = {
   extract: {
@@ -50,12 +56,15 @@ const LINK_CLASS = 'text-muted text-sm transition-colors hover:text-foreground'
 
 function ToolRow({ tool }: { readonly tool: Tool }) {
   return (
-    <li className="-mx-3 flex items-start gap-4 rounded px-3 py-5 transition-colors hover:bg-surface-secondary lg:items-center">
+    <li className="relative -mx-3 flex items-start gap-4 rounded px-3 py-5 transition-colors hover:bg-surface-secondary lg:items-center">
       <ToolIcon tool={tool} size={48} sizeLg={56} className="rounded" />
 
       <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:gap-5">
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <Link href={toolPath(tool)} className="w-fit font-semibold text-foreground">
+          <Link
+            href={toolPath(tool)}
+            className="static w-fit font-semibold text-foreground after:absolute after:inset-0 after:rounded after:content-['']"
+          >
             {tool.name}
           </Link>
           <p className="text-pretty text-muted text-sm">{tool.summary}</p>
@@ -63,17 +72,17 @@ function ToolRow({ tool }: { readonly tool: Tool }) {
 
         {/* The three editor and npm links exist only once the extension does;
             rendering them early is three dead links per row. */}
-        <div className="flex flex-wrap gap-x-4 gap-y-1 sm:w-64 sm:shrink-0 sm:justify-end">
+        <div className="relative z-10 flex flex-wrap gap-x-4 gap-y-1 sm:w-64 sm:shrink-0 sm:justify-end">
           {extensionPending(tool) ? null : (
             <>
               <Link
-                href={marketplaceUrl(tool)}
+                href={npmUrl(tool)}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={`${tool.name} on the VS Code Marketplace (opens in new tab)`}
+                aria-label={`${tool.name} MCP server on npm (opens in new tab)`}
                 className={LINK_CLASS}
               >
-                VS Code
+                MCP
               </Link>
               <Link
                 href={openVsxUrl(tool)}
@@ -85,13 +94,13 @@ function ToolRow({ tool }: { readonly tool: Tool }) {
                 Open VSX
               </Link>
               <Link
-                href={npmUrl(tool)}
+                href={marketplaceUrl(tool)}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={`${tool.name} MCP server on npm (opens in new tab)`}
+                aria-label={`${tool.name} on the VS Code Marketplace (opens in new tab)`}
                 className={LINK_CLASS}
               >
-                MCP
+                VS Code
               </Link>
             </>
           )}

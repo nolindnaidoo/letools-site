@@ -31,7 +31,7 @@ function badgesFor(tool: Tool): readonly string[] {
 
 /**
  * Every tool ships through at least four channels and this hero offered one.
- * A visitor on Cursor, VSCodium or an agent host read "Install for VS Code"
+ * A visitor on Cursor, Windsurf, VSCodium or an agent host read "Install for VS Code"
  * and left — the other channels were three screens down, past the fold, on a
  * page they had no reason to keep scrolling.
  *
@@ -82,7 +82,7 @@ export function ToolHero({ tool }: { readonly tool: Tool }) {
               rel="noreferrer"
               className={buttonVariants({ variant: 'secondary', size: 'lg' })}
             >
-              Install for Cursor &amp; VSCodium
+              Install for Cursor &amp; Windsurf
             </Link>
           </>
         )}
