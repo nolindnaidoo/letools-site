@@ -3,6 +3,7 @@
 import { CommandSnippet } from '@/components/command-snippet'
 import { SectionHeading } from '@/components/section-heading'
 import { HOST_NAMES } from '@/lib/mcp-config'
+import { byDownloads } from '@/lib/popularity'
 import {
   MARKETPLACE_PUBLISHER_URL,
   OPENVSX_NAMESPACE,
@@ -61,6 +62,9 @@ const SURFACES = [
   },
 ] as const
 
+// The command and the list under it name the same crates in the same order.
+const CRATES = byDownloads(PUBLISHED_CRATES, crate => crate.tool.id)
+
 export function Install() {
   return (
     <section id="install" className="wrap scroll-mt-20 py-16 sm:py-24">
@@ -116,15 +120,17 @@ export function Install() {
               same file. {PUBLISHED_CRATES.length} of them are on crates.io today; the rest build
               from their repository until they publish.
             </p>
-            <CommandSnippet command={cargoInstallCommand()} label="Rust CLI" />
-            <p className="font-mono text-muted text-sm">
-              {PUBLISHED_CRATES.map((crate, index) => (
-                <span key={crate.name}>
-                  {index > 0 && ' · '}
+            <CommandSnippet command={cargoInstallCommand(CRATES)} label="Rust CLI" />
+            {/* A grid, not a run of names with dots between them: the run
+                broke wherever the line ended, leaving a dot to open one row
+                and a single name on the last. */}
+            <ul className="grid grid-cols-2 gap-x-6 gap-y-1 font-mono text-sm sm:grid-cols-3 md:grid-cols-4">
+              {CRATES.map(crate => (
+                <li key={crate.name}>
                   <Link href={toolPath(crate.tool)}>{crate.name}</Link>
-                </span>
+                </li>
               ))}
-            </p>
+            </ul>
           </div>
         </div>
       </div>

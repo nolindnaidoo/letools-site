@@ -857,6 +857,6 @@ export const PUBLISHED_CRATES: readonly PublishedCrate[] = TOOLS.filter(
 })
 
 /** One command that installs every published CLI. */
-export function cargoInstallCommand(): string {
-  return `cargo install ${PUBLISHED_CRATES.map(crate => crate.name).join(' ')}`
+export function cargoInstallCommand(crates: readonly PublishedCrate[] = PUBLISHED_CRATES): string {
+  return `cargo install ${crates.map(crate => crate.name).join(' ')}`
 }

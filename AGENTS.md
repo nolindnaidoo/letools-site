@@ -159,6 +159,12 @@ to anyone.
   each was read from. A model is not a host: GLM, Kimi and Qwen models run
   inside one, so the page names the host. The install tab and the FAQ list
   hosts from `HOST_NAMES`, never by hand.
+- **A list whose order is ours to choose runs by Open VSX downloads, with
+  JevLint-LE first.** `byDownloads` in `lib/popularity.ts` does it, from counts
+  the build reads beside the install count, over a floor measured once. The
+  Rust CLI command and the list under it use it. JevLint-LE ships no crate, so
+  it leads nothing there until it does. The registry's own order in
+  `lib/tools.ts` is unchanged, and so is every list read straight from it.
 - **Install count** (`INSTALL_COUNT`) is measured on every build and rounded
   down to the ten thousand, so `133,056` shows as `130,000+`. `next.config.ts`
   reads Open VSX downloads and Marketplace installs plus web downloads from the
