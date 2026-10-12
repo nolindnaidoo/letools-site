@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { CommandSnippet } from '@/components/command-snippet'
 import { SectionHeading } from '@/components/section-heading'
 import { CLIENTS, type ClientId, clientById, configFor } from '@/lib/mcp-config'
+import { byDownloads } from '@/lib/popularity'
 import { TOOLS } from '@/lib/tools'
 import { Card } from '@/ui/card'
 import { Link } from '@/ui/link'
@@ -29,12 +30,15 @@ import { Link } from '@/ui/link'
 const OPTION_CLASS =
   'flex cursor-pointer items-center gap-2 rounded border border-border px-3 py-2 text-sm transition-colors hover:bg-surface-secondary has-[:checked]:border-foreground has-[:checked]:font-medium'
 
+// The checkboxes and the config they write run in the same order.
+const ORDERED = byDownloads(TOOLS, tool => tool.id)
+
 export function McpConfig() {
   const [clientId, setClientId] = useState<ClientId>('claude-code')
-  const [selected, setSelected] = useState<readonly string[]>([TOOLS[0]?.id ?? ''])
+  const [selected, setSelected] = useState<readonly string[]>([ORDERED[0]?.id ?? ''])
 
   const client = clientById(clientId)
-  const tools = useMemo(() => TOOLS.filter(tool => selected.includes(tool.id)), [selected])
+  const tools = useMemo(() => ORDERED.filter(tool => selected.includes(tool.id)), [selected])
   const config = useMemo(() => configFor(client, tools), [client, tools])
 
   const toggle = (id: string) => {
@@ -85,7 +89,7 @@ export function McpConfig() {
             <fieldset className="flex flex-col gap-3">
               <legend className="mb-2 font-semibold">Tools</legend>
               <div className="flex flex-wrap gap-2">
-                {TOOLS.map(tool => (
+                {ORDERED.map(tool => (
                   <label key={tool.id} className={OPTION_CLASS}>
                     <input
                       type="checkbox"
