@@ -1,6 +1,7 @@
 import { ThemeToggle } from '@/components/theme-toggle'
 import { ToolsMenu } from '@/components/tools-menu'
 import { CommandPalette } from '@/features/search/command-palette'
+import { HEADER_LOGO } from '@/lib/brand'
 import { GITHUB_URL, WORDMARK } from '@/lib/site'
 import { buttonVariants } from '@/ui/button'
 import { Link } from '@/ui/link'
@@ -17,12 +18,23 @@ const NAV_ITEMS = [
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-        {/* The wordmark carries the name on its own — no mark. It is the long
-            form, so it stays on one line and gives up size before it wraps
-            beside the controls at 375px. */}
-        <a href="/" className="whitespace-nowrap text-sm font-semibold sm:text-base">
+    <header className="sticky top-0 z-40 border-border border-b bg-background/80 backdrop-blur">
+      <div className="wrap flex h-14 items-center justify-between gap-4">
+        {/* The mark, then the wordmark. The wordmark is the long form, so it
+            stays on one line and gives up size before it wraps beside the
+            controls at 375px. The mark is decoration here: the link is named
+            by the words beside it, and a second name would be read twice. */}
+        <a
+          href="/"
+          className="flex items-center gap-2 whitespace-nowrap font-semibold text-sm tracking-tight sm:text-base"
+        >
+          <img
+            src={HEADER_LOGO.src}
+            alt=""
+            width={HEADER_LOGO.size}
+            height={HEADER_LOGO.size}
+            className="size-8 shrink-0 sm:size-9"
+          />
           {WORDMARK}
         </a>
 

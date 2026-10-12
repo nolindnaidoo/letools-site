@@ -11,6 +11,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  applicationName: SITE_NAME,
   title: {
     default: `${SITE_NAME} — ${TAGLINE}`,
     template: `%s — ${SITE_NAME}`,

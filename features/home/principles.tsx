@@ -1,3 +1,4 @@
+import { SectionHeading } from '@/components/section-heading'
 import {
   capitalize,
   countWord,
@@ -11,8 +12,6 @@ const TRANSLATED =
   TRANSLATED_TOOLS.length === TOOLS.length
     ? 'Every published extension ships its interface'
     : `${capitalize(countWord(TRANSLATED_TOOLS.length))} of the ${countWord(TOOLS.length)} extensions ship their interface`
-
-import { Card } from '@/ui/card'
 
 // Every line here must stay provable against the extension repos: local-only
 // operation, single-purpose scope, the shared CI/test bar, MIT + locales.
@@ -38,26 +37,25 @@ const PRINCIPLES = [
   },
 ] as const
 
+// The strongest claims on the page, so they get the strongest setting: a rule,
+// a numeral, a title, the claim. They used to sit in four cards with borders
+// too faint to see, which rendered the family's promises as its footnotes.
 export function Principles() {
   return (
-    <section id="why" className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6">
-      <div className="mb-8 flex flex-col gap-2">
-        <h2 className="text-3xl font-bold tracking-tight">Why LE</h2>
-        <p className="text-muted">The same four promises, every tool.</p>
-      </div>
+    <section id="why" className="wrap scroll-mt-20 py-16 sm:py-24">
+      <SectionHeading eyebrow="Why LE" title="The same four promises, every tool." />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {PRINCIPLES.map(principle => (
-          <Card key={principle.title} variant="transparent" className="border border-border">
-            <Card.Header>
-              <Card.Title>{principle.title}</Card.Title>
-            </Card.Header>
-            <Card.Content>
-              <Card.Description className="text-pretty">{principle.body}</Card.Description>
-            </Card.Content>
-          </Card>
+      <ol className="mt-10 grid gap-x-10 gap-y-8 sm:grid-cols-2">
+        {PRINCIPLES.map((principle, index) => (
+          <li key={principle.title} className="border-border border-t pt-5">
+            <p className="font-mono text-muted text-xs tracking-[0.18em]">
+              {String(index + 1).padStart(2, '0')}
+            </p>
+            <h3 className="mt-2 font-semibold text-xl tracking-tight">{principle.title}</h3>
+            <p className="mt-2 text-pretty text-muted">{principle.body}</p>
+          </li>
         ))}
-      </div>
+      </ol>
     </section>
   )
 }

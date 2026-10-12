@@ -1,3 +1,4 @@
+import { SectionHeading } from '@/components/section-heading'
 import { PUBLISHER } from '@/lib/site'
 import {
   crateFor,
@@ -109,18 +110,18 @@ export function ToolChannels({ tool }: { readonly tool: Tool }) {
   const channels = channelsFor(tool)
 
   return (
-    <section id="channels" className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-12 sm:px-6">
-      <div className="mb-6 flex flex-col gap-2">
-        <h2 className="text-2xl font-bold tracking-tight">Where it ships</h2>
-        <p className="text-muted">
-          One engine, {channels.length} places to get it.{' '}
-          {openVsxNamespace(tool) === PUBLISHER
+    <section id="channels" className="wrap scroll-mt-20 py-12 sm:py-16">
+      <SectionHeading
+        eyebrow="Channels"
+        title="Where it ships"
+        lede={`One engine, ${channels.length} places to get it. ${
+          openVsxNamespace(tool) === PUBLISHER
             ? 'Copy the one for the editor you use.'
-            : 'The ids differ by registry — copy the one for the editor you use.'}
-        </p>
-      </div>
+            : 'The ids differ by registry — copy the one for the editor you use.'
+        }`}
+      />
 
-      <ul className="grid gap-4 sm:grid-cols-2">
+      <ul className="mt-8 grid gap-4 sm:grid-cols-2">
         {channels.map(channel => (
           <li key={channel.label}>
             <Card className="flex h-full flex-col gap-2 p-5">

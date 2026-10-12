@@ -1,3 +1,4 @@
+import { DemoFrame } from '@/components/demo-frame'
 import { ToolIcon } from '@/components/tool-icon'
 import { ToolTranscript } from '@/features/tool/tool-transcript'
 import {
@@ -8,7 +9,6 @@ import {
   marketplaceUrl,
   mcpCommand,
   openVsxUrl,
-  posterSrc,
   type Tool,
 } from '@/lib/tools'
 import { transcriptFor } from '@/lib/transcripts'
@@ -31,7 +31,7 @@ function badgesFor(tool: Tool): readonly string[] {
 
 /**
  * Every tool ships through at least four channels and this hero offered one.
- * A visitor on Cursor, VSCodium or an agent host read "Install for VS Code"
+ * A visitor on Cursor, Windsurf, VSCodium or an agent host read "Install for VS Code"
  * and left — the other channels were three screens down, past the fold, on a
  * page they had no reason to keep scrolling.
  *
@@ -42,17 +42,18 @@ function badgesFor(tool: Tool): readonly string[] {
 export function ToolHero({ tool }: { readonly tool: Tool }) {
   const crate = crateFor(tool)
   const demo = demoSrc(tool)
-  const poster = posterSrc(tool)
   const transcript = transcriptFor(tool)
   // The editor buttons would send a reader to a Marketplace listing that does
   // not exist yet, which reads as a broken tool rather than an unfinished one.
   const pending = extensionPending(tool)
 
   return (
-    <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-6 px-4 pb-12 pt-16 text-center sm:px-6">
+    <section className="wrap flex flex-col items-center gap-6 pt-16 pb-12 text-center">
       <ToolIcon tool={tool} size={72} className="rounded-2xl" />
 
-      <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl">{tool.name}</h1>
+      <h1 className="text-balance font-semibold text-4xl tracking-tighter sm:text-6xl">
+        {tool.name}
+      </h1>
 
       <p className="max-w-2xl text-pretty text-lg text-muted">{tool.summary}</p>
 
@@ -81,7 +82,7 @@ export function ToolHero({ tool }: { readonly tool: Tool }) {
               rel="noreferrer"
               className={buttonVariants({ variant: 'secondary', size: 'lg' })}
             >
-              Install for Cursor &amp; VSCodium
+              Install for Cursor &amp; Windsurf
             </Link>
           </>
         )}
@@ -136,21 +137,12 @@ export function ToolHero({ tool }: { readonly tool: Tool }) {
       {/* The recording where one exists, and the tool's own captured output
           where nobody has made one yet. Rendering neither would leave the page
           with no evidence at all, which is the worst of the three. */}
-      {demo !== undefined && poster !== undefined ? (
-        <img
-          src={demo}
-          // The demo is the pitch, so it carries a real description rather than
-          // being decorative — a reader on a slow connection or a screen reader
-          // still learns what the tool does.
-          alt={`${tool.name} in use: ${tool.summary}`}
-          // Poster dimensions; the GIF is authored to match.
-          loading="lazy"
-          decoding="async"
-          className="mt-4 w-full rounded-xl border border-default"
-          style={{ backgroundImage: `url(${poster})`, backgroundSize: 'cover' }}
-        />
+      {demo !== undefined ? (
+        <DemoFrame tool={tool} priority className="mt-4 w-full max-w-4xl" />
       ) : transcript !== undefined ? (
-        <ToolTranscript tool={tool} transcript={transcript} />
+        <div className="w-full max-w-4xl">
+          <ToolTranscript tool={tool} transcript={transcript} />
+        </div>
       ) : null}
     </section>
   )

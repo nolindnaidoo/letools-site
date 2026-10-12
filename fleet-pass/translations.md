@@ -92,8 +92,10 @@ searches miss are checked by name:
 
 **L10N-6. No `l10n.t()` at module scope.** It resolves when the module is
 required, before the bundle is loaded, and stays English. Read every call
-site's enclosing scope. `bun run check:bundle` rejects it, and the script is
-read to confirm how.
+site's enclosing scope. Where the repo's bundle check has a rule for it, the
+script is read to confirm how; where it has none, the gate is a unit test that
+refuses a top-level `const` or `let` calling `l10n.t(`, and its absence is a
+`test-gap` finding.
 
 **L10N-7. No template literals or concatenation inside `l10n.t()`.** The
 lookup key is the literal string. An interpolated one never matches the bundle.
@@ -150,8 +152,11 @@ each such token from the source and confirm it is unchanged.
 find where the string is shown, then read each locale's value with that context
 in mind. Short and ambiguous strings are where machine translation fails: a
 column ordinal `Index` rendered as "table of contents", a verb rendered as a
-noun, a button rendered as a sentence. Record every value that does not fit its
-context, with the key, the locale, the value and the reason.
+noun, a button rendered as a sentence, a `{0}` that holds a count rendered as
+though it held a name, a `{1}` that holds a label rendered as a second count.
+For every placeholder, know what it carries before judging the sentence around
+it. Record every value that does not fit its context, with the key, the
+locale, the value and the reason.
 
 What cannot be judged with confidence in a given language is recorded as
 `unknown` for that key and locale. It is not passed.

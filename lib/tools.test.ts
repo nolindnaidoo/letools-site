@@ -39,10 +39,10 @@ import {
 import { transcriptFor } from './transcripts'
 
 /**
- * The registry is the single source the grid, the category tabs, the install
- * commands and every tool page render from. Nothing here was tested before, so
- * a duplicated id, a tool in a category no tab renders, or an MCP tool name
- * that drifted from its repo would all have shipped silently.
+ * The registry is the single source the tool bands, the install commands and
+ * every tool page render from. Nothing here was tested before, so a duplicated
+ * id, a tool in a category no band renders, or an MCP tool name that drifted
+ * from its repo would all have shipped silently.
  *
  * These assert the invariants the site's markup depends on. Claims about the
  * *outside world* — that a package is published, that a version matches —
@@ -69,7 +69,7 @@ describe('the registry', () => {
     expect(new Set(names).size, `duplicate mcpTool in ${names.join(', ')}`).toBe(names.length)
   })
 
-  it('puts every tool in a category the tabs actually render', () => {
+  it('puts every tool in a category the home page actually renders', () => {
     const known = new Set(CATEGORIES.map(category => category.id))
     for (const tool of TOOLS) {
       expect(known.has(tool.category), `${tool.id} is in unknown category ${tool.category}`).toBe(
@@ -79,7 +79,7 @@ describe('the registry', () => {
   })
 
   it('leaves no category empty', () => {
-    // An empty tab renders as a dead control.
+    // An empty band renders as a heading over nothing.
     for (const category of CATEGORIES) {
       expect(
         TOOLS.some(tool => tool.category === category.id),
@@ -370,7 +370,7 @@ describe('the tool that sends on request', () => {
 })
 
 describe('the featured tool', () => {
-  it('is one of the tools in the grid', () => {
+  it('is one of the tools on the home page', () => {
     expect(TOOLS).toContain(FEATURED)
   })
 })

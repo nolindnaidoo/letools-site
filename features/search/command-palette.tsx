@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { buildIndex, type Entry, search } from '@/lib/search'
 import { TOOLS } from '@/lib/tools'
 
@@ -108,7 +109,7 @@ export function CommandPalette() {
         ref={trigger}
         type="button"
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 rounded border border-border px-3 py-2 text-sm text-muted hover:text-fg"
+        className="flex items-center gap-2 rounded border border-border bg-surface px-3 py-2 text-sm text-muted hover:text-foreground"
       >
         Search
         {/* A phone has no ⌘K, and the hint is what pushed the header past
@@ -118,91 +119,103 @@ export function CommandPalette() {
         </kbd>
       </button>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 pt-[10vh]">
-          {/* Clicking the backdrop closes. It is not the only way out — Escape
+      {/* Rendered into the body, not here. This button sits in the header,
+          and the header's backdrop blur makes it the box that `fixed`
+          descendants are placed in. Left in place, the dim and the
+          click-to-close area covered the header strip and nothing below it. */}
+      {isOpen &&
+        createPortal(
+          // A landmark of its own: in the body it is outside the header's.
+          <search
+            aria-label="Site search"
+            className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 pt-[10vh]"
+          >
+            {/* Clicking the backdrop closes. It is not the only way out — Escape
               works and the close button is reachable — so it carries no role. */}
-          <button
-            type="button"
-            aria-label="Close search"
-            className="absolute inset-0 cursor-default"
-            onClick={close}
-          />
-
-          <div className="relative w-full max-w-xl rounded-lg border border-border bg-bg shadow-lg">
-            <input
-              ref={input}
-              type="text"
-              role="combobox"
-              aria-expanded="true"
-              aria-controls="palette-results"
-              aria-activedescendant={results[active] ? `palette-option-${active}` : undefined}
-              aria-label="Search tools, commands and MCP tools"
-              autoComplete="off"
-              value={query}
-              onChange={event => {
-                setQuery(event.target.value)
-                setActive(0)
-              }}
-              onKeyDown={onInputKeyDown}
-              placeholder="Search tools, commands, MCP tools…"
-              className="w-full border-border border-b bg-transparent px-4 py-3 outline-none"
+            <button
+              type="button"
+              aria-label="Close search"
+              className="absolute inset-0 cursor-default"
+              onClick={close}
             />
 
-            {/* A div, not a ul: `ul` is non-interactive markup and giving it a
+            {/* `bg-background` is a token. This said `bg-bg`, which is no class at
+              all, so the panel had no fill and the page showed through it. */}
+            <div className="relative w-full max-w-xl rounded-lg border border-border bg-background shadow-lg">
+              <input
+                ref={input}
+                type="text"
+                role="combobox"
+                aria-expanded="true"
+                aria-controls="palette-results"
+                aria-activedescendant={results[active] ? `palette-option-${active}` : undefined}
+                aria-label="Search tools, commands and MCP tools"
+                autoComplete="off"
+                value={query}
+                onChange={event => {
+                  setQuery(event.target.value)
+                  setActive(0)
+                }}
+                onKeyDown={onInputKeyDown}
+                placeholder="Search tools, commands, MCP tools…"
+                className="w-full border-border border-b bg-transparent px-4 py-3 outline-none"
+              />
+
+              {/* A div, not a ul: `ul` is non-interactive markup and giving it a
                 listbox role is the kind of thing lint rightly objects to. The
                 semantics come from the roles. */}
-            <div
-              id="palette-results"
-              role="listbox"
-              aria-label="Results"
-              className="max-h-80 overflow-y-auto p-2"
-            >
-              {/* The option IS the list item. A wrapper between the listbox and
+              <div
+                id="palette-results"
+                role="listbox"
+                aria-label="Results"
+                className="max-h-80 overflow-y-auto p-2"
+              >
+                {/* The option IS the list item. A wrapper between the listbox and
                   its options breaks `aria-required-children`, and a button
                   inside each one would put them in the Tab order — wrong for
                   this pattern, where focus stays in the input and selection
                   moves via `aria-activedescendant`. */}
-              {results.map((entry, position) => (
-                <div
-                  key={`${entry.kind}-${entry.href}-${entry.label}`}
-                  id={`palette-option-${position}`}
-                  role="option"
-                  // Programmatically focusable, but out of the Tab order:
-                  // focus stays in the input and selection moves by
-                  // aria-activedescendant, which is the pattern.
-                  tabIndex={-1}
-                  aria-selected={position === active}
-                  onMouseEnter={() => setActive(position)}
-                  onMouseDown={event => {
-                    // mousedown, not click: click fires after the input blurs,
-                    // and the blur can close the palette first.
-                    event.preventDefault()
-                    go(entry)
-                  }}
-                  className={`flex cursor-pointer items-baseline gap-3 rounded px-3 py-2 text-left ${
-                    position === active ? 'bg-surface' : ''
-                  }`}
-                >
-                  <span className="w-16 shrink-0 font-mono text-muted text-xs">
-                    {KIND_LABEL[entry.kind]}
-                  </span>
-                  <span className="flex min-w-0 flex-col">
-                    <span className="truncate font-medium">{entry.label}</span>
-                    <span className="truncate text-muted text-sm">{entry.detail}</span>
-                  </span>
-                </div>
-              ))}
-            </div>
+                {results.map((entry, position) => (
+                  <div
+                    key={`${entry.kind}-${entry.href}-${entry.label}`}
+                    id={`palette-option-${position}`}
+                    role="option"
+                    // Programmatically focusable, but out of the Tab order:
+                    // focus stays in the input and selection moves by
+                    // aria-activedescendant, which is the pattern.
+                    tabIndex={-1}
+                    aria-selected={position === active}
+                    onMouseEnter={() => setActive(position)}
+                    onMouseDown={event => {
+                      // mousedown, not click: click fires after the input blurs,
+                      // and the blur can close the palette first.
+                      event.preventDefault()
+                      go(entry)
+                    }}
+                    className={`flex cursor-pointer items-baseline gap-3 rounded px-3 py-2 text-left ${
+                      position === active ? 'bg-surface' : ''
+                    }`}
+                  >
+                    <span className="w-16 shrink-0 font-mono text-muted text-xs">
+                      {KIND_LABEL[entry.kind]}
+                    </span>
+                    <span className="flex min-w-0 flex-col">
+                      <span className="truncate font-medium">{entry.label}</span>
+                      <span className="truncate text-muted text-sm">{entry.detail}</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
 
-            <p aria-live="polite" className="border-border border-t px-4 py-2 text-muted text-sm">
-              {query.trim() === ''
-                ? 'Type to search. Escape closes.'
-                : `${results.length} result${results.length === 1 ? '' : 's'}`}
-            </p>
-          </div>
-        </div>
-      )}
+              <p aria-live="polite" className="border-border border-t px-4 py-2 text-muted text-sm">
+                {query.trim() === ''
+                  ? 'Type to search. Escape closes.'
+                  : `${results.length} result${results.length === 1 ? '' : 's'}`}
+              </p>
+            </div>
+          </search>,
+          document.body,
+        )}
     </>
   )
 }

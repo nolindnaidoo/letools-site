@@ -1,6 +1,6 @@
+import { SectionHeading } from '@/components/section-heading'
 import { ToolIcon } from '@/components/tool-icon'
 import { TOOLS, type Tool, toolPath } from '@/lib/tools'
-import { Card } from '@/ui/card'
 import { Link } from '@/ui/link'
 
 // The reason this site exists: someone arrives knowing one tool and leaves
@@ -12,24 +12,25 @@ export function ToolSiblings({ tool }: { readonly tool: Tool }) {
   const siblings = TOOLS.filter(other => other.id !== tool.id)
 
   return (
-    <section className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6">
-      <h2 className="mb-6 text-2xl font-bold tracking-tight">The other {siblings.length}</h2>
+    <section className="wrap py-12 sm:py-16">
+      <SectionHeading eyebrow="The family" title={`The other ${siblings.length}`} />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="mt-8 grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
         {siblings.map(sibling => (
-          <Card key={sibling.id} className="h-full">
-            <Card.Header className="flex flex-row items-center gap-3">
-              <ToolIcon tool={sibling} size={36} className="rounded-lg" />
-              <Card.Title>
-                <Link href={toolPath(sibling)}>{sibling.name}</Link>
-              </Card.Title>
-            </Card.Header>
-            <Card.Content>
-              <Card.Description className="text-pretty">{sibling.summary}</Card.Description>
-            </Card.Content>
-          </Card>
+          <li
+            key={sibling.id}
+            className="-mx-3 flex items-start gap-3 rounded px-3 py-3 transition-colors hover:bg-surface-secondary"
+          >
+            <ToolIcon tool={sibling} size={40} sizeLg={44} className="rounded" />
+            <div className="flex min-w-0 flex-col gap-0.5">
+              <Link href={toolPath(sibling)} className="w-fit font-semibold text-foreground">
+                {sibling.name}
+              </Link>
+              <p className="text-pretty text-muted text-sm">{sibling.summary}</p>
+            </div>
+          </li>
         ))}
-      </div>
+      </ul>
     </section>
   )
 }

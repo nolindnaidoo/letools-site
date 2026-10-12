@@ -1,3 +1,5 @@
+import { SectionHeading } from '@/components/section-heading'
+import { HOST_NAMES } from '@/lib/mcp-config'
 import { capitalize, countWord, OFFLINE_TOOLS, TOOLS } from '@/lib/tools'
 import { Accordion } from '@/ui/accordion'
 
@@ -14,15 +16,14 @@ const FAQ_ITEMS = [
   },
   {
     id: 'forks',
-    question: 'I use Cursor or VSCodium — where do I install from?',
+    question: 'I use Cursor, Windsurf or VSCodium — where do I install from?',
     answer:
       'Open VSX. The ids there are the same as on the VS Code Marketplace, and the install commands above have one for each editor.',
   },
   {
     id: 'agents',
     question: 'Can my AI agent use these?',
-    answer:
-      'Yes. Every tool ships its engine as an MCP server, so an agent can call it with no editor in the loop. Where the extension has shipped, npx -y <tool>-mcp wires most of them into Claude Code, Cursor or Windsurf, and VS Code 1.101+ needs nothing at all — installing the extension registers the tool with agent mode. The newest tools carry the server inside their binary instead: <tool> mcp speaks the same protocol with no Node involved. Each tool page prints the exact command for that tool.',
+    answer: `Yes. Every tool ships its engine as an MCP server, so an agent can call it with no editor in the loop. Where the extension has shipped, npx -y <tool>-mcp wires most of them into ${HOST_NAMES.join(', ')} or any other MCP host, and VS Code 1.101+ needs nothing at all — installing the extension registers the tool with agent mode. Which model the host runs makes no difference. The newest tools carry the server inside their binary instead: <tool> mcp speaks the same protocol with no Node involved. Each tool page prints the exact command for that tool.`,
   },
   {
     id: 'split',
@@ -33,32 +34,32 @@ const FAQ_ITEMS = [
   {
     id: 'bugs',
     question: 'Where do I report a bug?',
-    answer: "Each tool's GitHub Issues — the GitHub link is on every card above.",
+    answer: "Each tool's GitHub Issues — the GitHub link is on every row above.",
   },
 ] as const
 
 export function Faq() {
   return (
-    <section id="faq" className="mx-auto w-full max-w-3xl scroll-mt-20 px-4 py-16 sm:px-6">
-      <div className="mb-8 flex flex-col gap-2">
-        <h2 className="text-3xl font-bold tracking-tight">FAQ</h2>
-      </div>
+    <section id="faq" className="wrap scroll-mt-20 py-16 sm:py-24">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+        <SectionHeading eyebrow="FAQ" title="Short answers." className="lg:col-span-4" />
 
-      <Accordion variant="surface">
-        {FAQ_ITEMS.map(item => (
-          <Accordion.Item key={item.id} id={item.id}>
-            <Accordion.Heading>
-              <Accordion.Trigger>
-                {item.question}
-                <Accordion.Indicator />
-              </Accordion.Trigger>
-            </Accordion.Heading>
-            <Accordion.Panel>
-              <Accordion.Body className="text-pretty text-muted">{item.answer}</Accordion.Body>
-            </Accordion.Panel>
-          </Accordion.Item>
-        ))}
-      </Accordion>
+        <Accordion variant="surface" className="lg:col-span-8">
+          {FAQ_ITEMS.map(item => (
+            <Accordion.Item key={item.id} id={item.id}>
+              <Accordion.Heading>
+                <Accordion.Trigger>
+                  {item.question}
+                  <Accordion.Indicator />
+                </Accordion.Trigger>
+              </Accordion.Heading>
+              <Accordion.Panel>
+                <Accordion.Body className="text-pretty text-muted">{item.answer}</Accordion.Body>
+              </Accordion.Panel>
+            </Accordion.Item>
+          ))}
+        </Accordion>
+      </div>
     </section>
   )
 }

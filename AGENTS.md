@@ -3,8 +3,9 @@
 Source of truth for working in this repo. If you change a convention, update
 this file in the same change. Engineering conventions are adapted from
 `~/dev/rust/pixelcoords-site/AGENTS.md`; the **design is deliberately
-independent** — this site rides HeroUI's own design language, not the pixel
-sites' terminal-poster aesthetic.
+independent** — HeroUI primitives for behaviour and accessibility, under the
+site's own tokens, not HeroUI's default theme and not the pixel sites'
+terminal-poster aesthetic. See **Design layer** below.
 
 ## What this repo is
 
@@ -21,19 +22,24 @@ product decision, not a PR.
 - **Components: HeroUI v3** (`@heroui/react` + `@heroui/styles`, react-aria
   based) — and unlike the pixel sites, **the primitives are actually in use**:
   Button, Card, Chip, Tabs, Accordion, Link, Separator, Dropdown. Compound API
-  (`Card.Header`, `Tabs.Panel`, `Accordion.Trigger`, …). The default HeroUI
-  theme is kept except for contrast-tuned token overrides in `globals.css`
-  (accent/muted — every value clears WCAG AA, axe-verified both schemes);
-  otherwise only font wiring. `globals.css` imports HeroUI's styles **one
-  component at a time**, not the whole package, which carries ~80 components
-  this site never mounts. A new primitive needs its stylesheet line there,
-  plus any component it renders internally; `scripts/heroui-styles.test.ts`
-  derives the list from the imports and fails when they disagree.
+  (`Card.Header`, `Tabs.Panel`, `Accordion.Trigger`, …). **The theme is the
+  site's own**: `globals.css` restates every base token (background, surface,
+  foreground, muted, border, accent) per scheme on HeroUI's variable names, so
+  the primitives keep their behaviour and the washes derive from the new
+  values. Every text pair clears WCAG AA, measured before landing and
+  axe-verified in both schemes by e2e. `globals.css` imports HeroUI's styles
+  **one component at a time**, not the whole package, which carries ~80
+  components this site never mounts. A new primitive needs its stylesheet line
+  there, plus any component it renders internally;
+  `scripts/heroui-styles.test.ts` derives the list from the imports and fails
+  when they disagree.
 - **Styling:** Tailwind v4 via PostCSS. HeroUI semantic tokens only
   (`bg-background`, `bg-surface`, `text-muted`, `border-border`,
   `*-soft` washes) — never hardcode a hex in a component.
 - **Theming:** next-themes toggles `.light`/`.dark` on `<html>`; system
-  until the header ThemeToggle records an explicit choice.
+  until the header ThemeToggle records an explicit choice. `THEME_COLORS` in
+  `lib/site.ts` and the Satori hexes in `app/apple-icon.tsx` and
+  `opengraph-image.tsx` mirror the tokens in sRGB — change them together.
 - **Fonts:** Geist Sans (body) + Geist Mono (tool ids, commands) via
   `next/font/google`.
 - **Lint/format:** Biome (single quotes, no semicolons, 2-space, 100-col,
@@ -46,21 +52,24 @@ product decision, not a PR.
 app/          routes (shims), fonts, providers, globals.css, not-found,
               sitemap.ts (generated from the registry), tools/[id] (one
               static page per tool, emitted by generateStaticParams)
-features/     home/ — hero, featured, tool-grid, principles, install, faq
-              tool/ — hero, install, links, siblings (the per-tool page)
-components/   shared UI: site-header, site-footer, theme-toggle, command-snippet
+features/     home/ — hero, tools, principles, install, mcp-config,
+              rust-tools, faq (in page order)
+              tool/ — hero, overview, commands, install, channels, links,
+              siblings (the per-tool page)
+components/   shared UI: site-header, site-footer, theme-toggle,
+              command-snippet, section-heading, demo-frame, tool-icon
 ui/           thin @heroui/react re-exports, one file per primitive —
               feature code imports HeroUI from ui/, NEVER @heroui/react directly
 lib/          tools.ts (THE tool registry) · site.ts (urls/name/theme colors) ·
               error.ts (reportError seam — every catch routes through it)
 ```
 
-- **`lib/tools.ts` is the single tool registry.** The grid, category tabs,
+- **`lib/tools.ts` is the single tool registry.** The bands, the category nav,
   every marketplace/Open VSX/GitHub/npm/MCP-registry link, the per-tool
   pages, the sitemap and the e2e page list all render from it. A new tool is
   one entry there, nothing else — including its page and its audit.
 - Server Components by default; `"use client"` only at interactive leaves
-  (tool-grid and install use Tabs; theme-toggle and command-snippet own
+  (install uses Tabs; mcp-config, theme-toggle and command-snippet own
   browser state).
 - No barrels. Features don't import features.
 
@@ -136,11 +145,27 @@ to anyone.
   sentence about the family. A tool with no such setting gets no line.
 - **Bundling.** Nine ship a self-contained bundle; Scrape-LE ships
   `playwright-core` alongside it.
-- **Two registries, one name.** VS Code resolves the Marketplace and Cursor
-  and VSCodium resolve Open VSX, and both use `nolindnaidoo.<id>`. Open VSX
+- **Two registries, one name.** VS Code resolves the Marketplace and Cursor,
+  Windsurf and VSCodium resolve Open VSX, and both use `nolindnaidoo.<id>`. Open VSX
   used a different namespace until its extensions were moved, which is why
   `OPENVSX_NAMESPACE` in `lib/site.ts` is its own constant. Build an Open VSX
   link or id from it, never from `PUBLISHER`.
+- **An editor is never offered a config alone.** Cursor and Windsurf install
+  the extension like VS Code does, so wherever one is named beside an MCP
+  config it also links the registry its extensions come from:
+  `MARKETPLACE_PUBLISHER_URL` and `OPENVSX_NAMESPACE_URL` in `lib/site.ts`.
+- **An MCP host is listed only from its vendor's own docs.** `CLIENTS` in
+  `lib/mcp-config.ts` has one entry per host, and its header names the page
+  each was read from. A model is not a host: GLM, Kimi and Qwen models run
+  inside one, so the page names the host. The install tab and the FAQ list
+  hosts from `HOST_NAMES`, never by hand.
+- **A list whose order is ours to choose runs by Open VSX downloads, with
+  JevLint-LE first.** `byDownloads` in `lib/popularity.ts` does it, from counts
+  the build reads beside the install count, over a floor measured once. The
+  Rust CLI command and the list under it use it, and so do the header's Tools
+  menu and the tool checkboxes in the agents picker with the config they write. JevLint-LE ships no crate,
+  so it leads the picker and not the crate list. The registry's own order in
+  `lib/tools.ts` is unchanged, and so is every list read straight from it.
 - **Install count** (`INSTALL_COUNT`) is measured on every build and rounded
   down to the ten thousand, so `133,056` shows as `130,000+`. `next.config.ts`
   reads Open VSX downloads and Marketplace installs plus web downloads from the
@@ -165,6 +190,54 @@ every catch routes `reportError(error, { source })` · a floating promise
 without `.catch()` is a bug (the clipboard write included) · no class
 components · ~200-line split threshold.
 
+## Design layer
+
+The identity is the composition first: warm paper and warm near-black,
+one teal accent, Geist with tight tracking, mono eyebrows, hairline rules.
+The mark, a raised fist, sits beside the wordmark and is every icon the site
+ships. The rules that keep it reading as one page:
+
+- **The mark is the owner's file, never redrawn.** The exports live in
+  `public/brand/` and `app/favicon.ico`, and `lib/brand.ts` lists each with
+  the size it claims, which `lib/brand.test.ts` reads back out of the file.
+  The tab icon, the Apple icon and the share card are drawn from the largest
+  export at build time. The header's file, `logo-mark-128.png`, is the source
+  cropped to the mark, since the exports' transparent margin left it too small
+  to read at that size. All the exports are transparent. iOS paints
+  transparency black, so `app/apple-icon.tsx` composes the mark on a ground of
+  its own, and `app/manifest.ts` offers the icons as `any`, never `maskable`.
+  To change the mark, replace those files at the same sizes.
+
+- **One container.** Every section is `wrap` (`globals.css`), home and tool
+  pages alike. Text that wants a measure gets `max-w-prose` or a column
+  inside it; the left edge never moves. The install column and the FAQ used
+  to be narrower than the rest, and the edge jumped three times.
+- **One opening.** Every section starts with `SectionHeading`: mono eyebrow,
+  title, optional lede. Two-column sections put it in `lg:col-span-4` and the
+  content in `lg:col-span-8`, on a grid that declares `grid-cols-1` as well.
+  An implicit track is `minmax(auto, …)`, so one unwrappable line, a long
+  command or a JSON config, widened the phone column to its content and
+  pushed every later section off the right edge. `grid-cols-1` is
+  `minmax(0, 1fr)`, which lets the snippet scroll inside its box instead.
+- **Order is the visitor's.** Home runs hero → tools → why → install → agents
+  → beyond → FAQ. The tools come straight after the pitch, because that is
+  what the hero's button promises.
+- **The categories are the structure.** Extract, Check, Guard are the three
+  steps of the work, so the tools section is three bands with the step's
+  reason beside its tools, not a flat grid behind a filter. Tools are rows,
+  not cards: a name with weight, a summary, the links at the margin. The
+  whole row opens the tool's page, through the name's link stretched over it,
+  and the registry links sit above that as a zone of their own.
+- **One recording leads.** The featured tool's demo is the hero's visual and
+  each tool page leads with its own, through `DemoFrame`, which shows the
+  poster under `prefers-reduced-motion`. Seventeen looping thumbnails was a
+  screensaver, and it read as black rectangles at card size.
+- **Motion is feedback.** Hover, press, copy, tab and accordion transitions
+  only. Nothing animates on load or on scroll: axe skips what it cannot see,
+  so a reveal would make the contrast gate pass vacuously below the fold.
+- **Tokens, never hexes,** in components. The Apple icon, the share card and
+  `THEME_COLORS` are the only literals, and they mirror `globals.css`.
+
 ## Mobile-first & a11y
 
 Base classes target the smallest screen; `sm:`/`md:` are enhancement —
@@ -172,6 +245,9 @@ verify at 375px. `min-h-dvh`, skip link first-focusable, one
 `<main id="main-content">`, focus rings stay, `prefers-reduced-motion`
 respected (scroll-behavior included). Both schemes must remain readable —
 screenshots in light, dark, and mobile before shipping visual changes.
+`e2e/pages.e2e.ts` also asserts, on every route in both projects, that no
+page scrolls sideways and that every image is drawn at its intrinsic ratio,
+because axe flags neither.
 
 ## Verification — the definition of done
 
@@ -220,11 +296,13 @@ spec, because the per-page sweep only ever sees it closed — and that spec
 immediately caught two ARIA errors the closed state could never show.
 
 After `build`, `out/` must contain the page HTML, `robots.txt` and
-`sitemap.xml` (both static in `public/`), and the build-time PNGs from
+`sitemap.xml` (both static in `public/`), `favicon.ico`,
+`manifest.webmanifest`, and the build-time PNGs from
 `app/icon.tsx` / `apple-icon.tsx` / `opengraph-image.tsx` (Satori —
-literal hexes only in those files). Serve `out/` and click through:
-category tabs filter, FAQ expands, the copy button writes the clipboard,
-theme toggle flips. Security headers live in `vercel.json`.
+literal hexes only in the last two). Serve `out/` and click through:
+category links jump to their band, install tabs switch, FAQ expands, the
+copy button writes the clipboard, theme toggle flips. Security headers live
+in `vercel.json`.
 
 ## Auditing a tool repo
 

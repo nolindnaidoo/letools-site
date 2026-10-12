@@ -439,13 +439,13 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     name: 'JevLint-LE',
     category: 'check',
     summary:
-      "Lint the questions you send to TypeSafe's Jev model as you type, with no API key and no network calls. An optional command asks Jev itself to check a file",
+      "Lint the questions you send to TypeSafe's Jev model and OpenAI's Decisions API (gpt-6-luna) as you type, with no API key and no network calls. An optional command asks Jev or Luna itself to check a file",
     mcpTool: 'lint_text',
     cliPackage: 'jevlint-le',
     openVsxNamespace: PUBLISHER,
-    sendsOnRequest: 'Lints offline · asks Jev only when you do',
+    sendsOnRequest: 'Lints offline · asks Jev or Luna only when you do',
     overview:
-      "Jev answers the question you wrote, which is not always the one you meant. JevLint-LE finds the questions a project sends to TypeSafe's Jev model, in JSON, JavaScript, TypeScript, Python, Rust and Go, and reports the ones written in a way documented to fail: a choice with no fallback option, a score given a map where it takes a list, a type that does not exist, a question that turns on a word with no stated line. Linting runs as you type with no API key and no network. A part of a question that is built at runtime is counted as not read, never guessed at. One command, run by you with your own key, asks Jev itself to check a file.",
+      "Jev and Luna answer the question you wrote, which is not always the one you meant. JevLint-LE finds the questions a project sends to TypeSafe's Jev model or OpenAI's Decisions API, in JSON, JavaScript, TypeScript, Python, Rust and Go, and reports the ones written in a way documented to fail: a choice with no fallback option, a score given a map where it takes a list, a type that does not exist, a question that turns on a word with no stated line. Linting runs as you type with no API key and no network. A part of a question that is built at runtime is counted as not read, never guessed at. One command, run by you with your own key, asks Jev, or Luna with gpt-6-luna, to check a file.",
     useCases: [
       {
         title: 'Catch it while typing',
@@ -651,7 +651,7 @@ export function openVsxUrl(tool: Tool): string {
   return `https://open-vsx.org/extension/${openVsxNamespace(tool)}/${tool.id}`
 }
 
-/** The id Cursor and VSCodium install by. */
+/** The id Cursor, Windsurf and VSCodium install by. */
 export function openVsxId(tool: Tool): string {
   return `${openVsxNamespace(tool)}.${tool.id}`
 }
@@ -857,6 +857,6 @@ export const PUBLISHED_CRATES: readonly PublishedCrate[] = TOOLS.filter(
 })
 
 /** One command that installs every published CLI. */
-export function cargoInstallCommand(): string {
-  return `cargo install ${PUBLISHED_CRATES.map(crate => crate.name).join(' ')}`
+export function cargoInstallCommand(crates: readonly PublishedCrate[] = PUBLISHED_CRATES): string {
+  return `cargo install ${crates.map(crate => crate.name).join(' ')}`
 }

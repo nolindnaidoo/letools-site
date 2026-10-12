@@ -88,26 +88,48 @@ async function marketplaceAcquisitions(
     .reduce((total, statistic) => total + count(statistic.value), 0)
 }
 
+export type Measured = Readonly<{
+  /** Open VSX downloads plus Marketplace acquisitions, across every extension. */
+  installs: number
+  /** Open VSX downloads by extension id. An extension that could not be read is absent. */
+  openVsxDownloads: Readonly<Record<string, number>>
+}>
+
 /**
- * Open VSX downloads plus Marketplace acquisitions across the published
- * extensions, read from the two public registries.
+ * What the two public registries say about the published extensions: the sum
+ * the page shows, and the Open VSX figure for each, which orders them.
  *
  * A source that cannot be read counts as zero and is reported. The sum is then
  * short, which `displayInstalls` absorbs by never going under the floor, so an
  * outage costs freshness and never a build.
  */
+export async function measureRegistries(
+  extensions: readonly PublishedExtension[],
+  fetcher: Fetcher = fetch,
+): Promise<Measured> {
+  const answers = await Promise.allSettled([
+    marketplaceAcquisitions(fetcher, extensions),
+    ...extensions.map(extension => openVsxDownloads(fetcher, extension)),
+  ])
+  const [marketplace, ...downloads] = answers.map(answer => {
+    if (answer.status === 'fulfilled') return answer.value
+    reportError(answer.reason, { source: 'install-count' })
+    return undefined
+  })
+  const read = extensions.flatMap((extension, index) => {
+    const value = downloads[index]
+    return value === undefined ? [] : [[extension.id, value] as const]
+  })
+  return {
+    installs: read.reduce((total, [, value]) => total + value, marketplace ?? 0),
+    openVsxDownloads: Object.fromEntries(read),
+  }
+}
+
+/** The sum alone, for a caller that orders nothing. */
 export async function measureInstalls(
   extensions: readonly PublishedExtension[],
   fetcher: Fetcher = fetch,
 ): Promise<number> {
-  const sources = [
-    marketplaceAcquisitions(fetcher, extensions),
-    ...extensions.map(extension => openVsxDownloads(fetcher, extension)),
-  ]
-  const answers = await Promise.allSettled(sources)
-  return answers.reduce((total, answer) => {
-    if (answer.status === 'fulfilled') return total + answer.value
-    reportError(answer.reason, { source: 'install-count' })
-    return total
-  }, 0)
+  return (await measureRegistries(extensions, fetcher)).installs
 }

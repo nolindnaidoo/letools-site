@@ -38,3 +38,39 @@ test('theme toggle is reachable and named in both schemes', async ({ page }) => 
     await expect(toggle.first()).toBeVisible()
   }
 })
+
+// No page scrolls sideways. A grid track defaults to minmax(auto, …), so one
+// unwrappable line — a long command, a JSON config — widened the single phone
+// column to its content and pushed every later section off the right edge.
+// axe does not flag that, and a desktop screenshot never shows it.
+for (const target of PAGES) {
+  test(`${target.path} has no horizontal overflow`, async ({ page }) => {
+    await page.goto(target.path)
+    const widths = await page.evaluate(() => ({
+      scroll: document.documentElement.scrollWidth,
+      client: document.documentElement.clientWidth,
+    }))
+    expect(widths.scroll).toBeLessThanOrEqual(widths.client)
+  })
+}
+
+// Every raster image is drawn at its own aspect ratio. The preflight sets
+// img { height: auto }, so an icon with width and height attributes in a flex
+// row still stretches to the row's height while its width holds, and nothing
+// in axe or a contrast pass notices a hand drawn twice as tall as it is wide.
+for (const target of PAGES) {
+  test(`${target.path} draws every image at its intrinsic ratio`, async ({ page }) => {
+    await page.goto(target.path)
+    const distorted = await page.evaluate(() =>
+      Array.from(document.images)
+        .filter(img => img.naturalWidth > 0 && img.clientWidth > 0)
+        .map(img => ({
+          src: img.getAttribute('src'),
+          drawn: img.clientWidth / img.clientHeight,
+          intrinsic: img.naturalWidth / img.naturalHeight,
+        }))
+        .filter(img => Math.abs(img.drawn - img.intrinsic) > 0.02),
+    )
+    expect(distorted).toEqual([])
+  })
+}

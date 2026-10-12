@@ -1,5 +1,5 @@
+import { SectionHeading } from '@/components/section-heading'
 import { factsFor, type Tool } from '@/lib/tools'
-import { Card } from '@/ui/card'
 
 /**
  * Every command this tool contributes, as the palette shows it.
@@ -21,37 +21,37 @@ export function ToolCommands({ tool }: { readonly tool: Tool }) {
   if (commands.length === 0) return null
 
   return (
-    <section id="commands" className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-12 sm:px-6">
-      <div className="mb-6 flex flex-col gap-2">
-        <h2 className="text-2xl font-bold tracking-tight">
-          {commands.length} commands in the palette
-        </h2>
-        <p className="text-muted">
-          Open the command palette and type the name. Nothing is bound to a shortcut by default —
-          the editor's keymap is the user's, not ours.
-        </p>
-        {/* Read from the manifest, default included. Positions are on in some
-            tools and off in others, and one of them means a line where the
-            rest mean a line and column, so this cannot be a sentence typed once. */}
-        {positions === undefined ? null : (
-          <p className="text-muted">
-            <code className="font-mono text-sm">{positions.setting}</code>: {positions.says}.{' '}
-            {positions.shown ? 'On' : 'Off'} by default.
-          </p>
-        )}
-      </div>
+    <section id="commands" className="wrap scroll-mt-20 py-12 sm:py-16">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
+        <div className="flex flex-col gap-4 lg:col-span-4">
+          <SectionHeading
+            eyebrow="Palette"
+            title={`${commands.length} commands`}
+            lede="Open the command palette and type the name. Nothing is bound to a shortcut by default — the editor's keymap is the user's, not ours."
+          />
+          {/* Read from the manifest, default included. Positions are on in some
+              tools and off in others, and one of them means a line where the
+              rest mean a line and column, so this cannot be a sentence typed once. */}
+          {positions === undefined ? null : (
+            <p className="text-muted text-sm">
+              <code className="font-mono">{positions.setting}</code>: {positions.says}.{' '}
+              {positions.shown ? 'On' : 'Off'} by default.
+            </p>
+          )}
+        </div>
 
-      <Card className="divide-y divide-border">
-        {commands.map(command => (
-          <div
-            key={command.id}
-            className="flex flex-col gap-1 p-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
-          >
-            <span className="font-medium">{command.title}</span>
-            <code className="font-mono text-sm text-muted">{command.id}</code>
-          </div>
-        ))}
-      </Card>
+        <ul className="divide-y divide-border border-border border-y lg:col-span-8">
+          {commands.map(command => (
+            <li
+              key={command.id}
+              className="flex flex-col gap-1 py-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
+            >
+              <span className="font-medium">{command.title}</span>
+              <code className="font-mono text-muted text-sm">{command.id}</code>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   )
 }
