@@ -1,4 +1,5 @@
 import { SectionHeading } from '@/components/section-heading'
+import { HOST_NAMES } from '@/lib/mcp-config'
 import { capitalize, countWord, OFFLINE_TOOLS, TOOLS } from '@/lib/tools'
 import { Accordion } from '@/ui/accordion'
 
@@ -15,15 +16,14 @@ const FAQ_ITEMS = [
   },
   {
     id: 'forks',
-    question: 'I use Cursor or VSCodium — where do I install from?',
+    question: 'I use Cursor, Windsurf or VSCodium — where do I install from?',
     answer:
       'Open VSX. The ids there are the same as on the VS Code Marketplace, and the install commands above have one for each editor.',
   },
   {
     id: 'agents',
     question: 'Can my AI agent use these?',
-    answer:
-      'Yes. Every tool ships its engine as an MCP server, so an agent can call it with no editor in the loop. Where the extension has shipped, npx -y <tool>-mcp wires most of them into Claude Code, Cursor or Windsurf, and VS Code 1.101+ needs nothing at all — installing the extension registers the tool with agent mode. The newest tools carry the server inside their binary instead: <tool> mcp speaks the same protocol with no Node involved. Each tool page prints the exact command for that tool.',
+    answer: `Yes. Every tool ships its engine as an MCP server, so an agent can call it with no editor in the loop. Where the extension has shipped, npx -y <tool>-mcp wires most of them into ${HOST_NAMES.join(', ')} or any other MCP host, and VS Code 1.101+ needs nothing at all — installing the extension registers the tool with agent mode. Which model the host runs makes no difference. The newest tools carry the server inside their binary instead: <tool> mcp speaks the same protocol with no Node involved. Each tool page prints the exact command for that tool.`,
   },
   {
     id: 'split',

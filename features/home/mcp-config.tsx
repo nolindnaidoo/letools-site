@@ -6,6 +6,7 @@ import { SectionHeading } from '@/components/section-heading'
 import { CLIENTS, type ClientId, clientById, configFor } from '@/lib/mcp-config'
 import { TOOLS } from '@/lib/tools'
 import { Card } from '@/ui/card'
+import { Link } from '@/ui/link'
 
 /**
  * Build the MCP wiring for the tools you actually want.
@@ -18,13 +19,18 @@ import { Card } from '@/ui/card'
  * and not a code block: the shape differs by client, and VS Code takes
  * no configuration at all — the extension carries the server. Saying that
  * plainly is more useful than emitting a block that would do nothing.
+ *
+ * Each host is its own option. Cursor and Windsurf once shared one with Claude
+ * Desktop, beside a VS Code option that said "install the extension", which
+ * read as though the forks got a config and no extension. An editor's option
+ * now links the registry its extensions come from.
  */
 
 const OPTION_CLASS =
   'flex cursor-pointer items-center gap-2 rounded border border-border px-3 py-2 text-sm transition-colors hover:bg-surface-secondary has-[:checked]:border-foreground has-[:checked]:font-medium'
 
 export function McpConfig() {
-  const [clientId, setClientId] = useState<ClientId>('json')
+  const [clientId, setClientId] = useState<ClientId>('claude-code')
   const [selected, setSelected] = useState<readonly string[]>([TOOLS[0]?.id ?? ''])
 
   const client = clientById(clientId)
@@ -43,13 +49,13 @@ export function McpConfig() {
         <SectionHeading
           eyebrow="Agents"
           title="Wire them into your agent."
-          lede="Every tool ships the same engine as an MCP server. Pick your client and the tools you want; copy what comes out."
+          lede="Every tool ships the same engine as an MCP server. Pick your agent host and the tools you want, then copy what comes out."
           className="lg:col-span-4"
         />
 
         <Card className="flex flex-col gap-6 p-6 lg:col-span-8">
           <fieldset className="flex flex-col gap-3">
-            <legend className="mb-2 font-semibold">Client</legend>
+            <legend className="mb-2 font-semibold">Agent host</legend>
             <div className="flex flex-wrap gap-2">
               {CLIENTS.map(option => (
                 <label key={option.id} className={OPTION_CLASS}>
@@ -66,6 +72,13 @@ export function McpConfig() {
               ))}
             </div>
             <p className="text-muted text-sm">{client.detail}</p>
+            {client.hub !== undefined && (
+              <p className="text-sm">
+                <Link href={client.hub.href} target="_blank" rel="noreferrer">
+                  {client.hub.label}
+                </Link>
+              </p>
+            )}
           </fieldset>
 
           {client.language !== 'none' && (
@@ -102,6 +115,12 @@ export function McpConfig() {
               <CommandSnippet command={config} label={`${client.label} MCP configuration`} />
             )}
           </div>
+
+          <p className="text-muted text-sm">
+            A model is not a host. GLM, Kimi, Qwen and the rest run inside one of these, so pick the
+            host you run them in. Any other MCP host starts the same server over stdio with the
+            command in its config.
+          </p>
         </Card>
       </div>
     </section>

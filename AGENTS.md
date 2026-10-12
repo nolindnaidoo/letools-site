@@ -145,11 +145,20 @@ to anyone.
   sentence about the family. A tool with no such setting gets no line.
 - **Bundling.** Nine ship a self-contained bundle; Scrape-LE ships
   `playwright-core` alongside it.
-- **Two registries, one name.** VS Code resolves the Marketplace and Cursor
-  and VSCodium resolve Open VSX, and both use `nolindnaidoo.<id>`. Open VSX
+- **Two registries, one name.** VS Code resolves the Marketplace and Cursor,
+  Windsurf and VSCodium resolve Open VSX, and both use `nolindnaidoo.<id>`. Open VSX
   used a different namespace until its extensions were moved, which is why
   `OPENVSX_NAMESPACE` in `lib/site.ts` is its own constant. Build an Open VSX
   link or id from it, never from `PUBLISHER`.
+- **An editor is never offered a config alone.** Cursor and Windsurf install
+  the extension like VS Code does, so wherever one is named beside an MCP
+  config it also links the registry its extensions come from:
+  `MARKETPLACE_PUBLISHER_URL` and `OPENVSX_NAMESPACE_URL` in `lib/site.ts`.
+- **An MCP host is listed only from its vendor's own docs.** `CLIENTS` in
+  `lib/mcp-config.ts` has one entry per host, and its header names the page
+  each was read from. A model is not a host: GLM, Kimi and Qwen models run
+  inside one, so the page names the host. The install tab and the FAQ list
+  hosts from `HOST_NAMES`, never by hand.
 - **Install count** (`INSTALL_COUNT`) is measured on every build and rounded
   down to the ten thousand, so `133,056` shows as `130,000+`. `next.config.ts`
   reads Open VSX downloads and Marketplace installs plus web downloads from the

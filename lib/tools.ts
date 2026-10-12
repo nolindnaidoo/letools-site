@@ -651,7 +651,7 @@ export function openVsxUrl(tool: Tool): string {
   return `https://open-vsx.org/extension/${openVsxNamespace(tool)}/${tool.id}`
 }
 
-/** The id Cursor and VSCodium install by. */
+/** The id Cursor, Windsurf and VSCodium install by. */
 export function openVsxId(tool: Tool): string {
   return `${openVsxNamespace(tool)}.${tool.id}`
 }

@@ -33,6 +33,11 @@ export const GITHUB_URL = `https://github.com/${PUBLISHER}`
 // not the Marketplace publisher.
 export const OPENVSX_NAMESPACE = PUBLISHER
 
+// Where each registry lists every extension at once. A tool page links its own
+// listing; these are for a reader who wants the family.
+export const MARKETPLACE_PUBLISHER_URL = `https://marketplace.visualstudio.com/publishers/${PUBLISHER}`
+export const OPENVSX_NAMESPACE_URL = `https://open-vsx.org/namespace/${OPENVSX_NAMESPACE}`
+
 // Mirrors of `--background` in each scheme from app/globals.css, as sRGB
 // literals — the browser-chrome theme-color meta cannot read CSS custom
 // properties. Change them together.
