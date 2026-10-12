@@ -31,7 +31,7 @@
       ]
     },
     {
-      "source": "/(icons|demos|posters)/(.*)",
+      "source": "/(icons|demos|posters|brand)/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

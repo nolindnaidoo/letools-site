@@ -38,7 +38,7 @@ product decision, not a PR.
   `*-soft` washes) — never hardcode a hex in a component.
 - **Theming:** next-themes toggles `.light`/`.dark` on `<html>`; system
   until the header ThemeToggle records an explicit choice. `THEME_COLORS` in
-  `lib/site.ts` and the Satori hexes in `app/icon.tsx`, `apple-icon.tsx` and
+  `lib/site.ts` and the Satori hexes in `app/apple-icon.tsx` and
   `opengraph-image.tsx` mirror the tokens in sRGB — change them together.
 - **Fonts:** Geist Sans (body) + Geist Mono (tool ids, commands) via
   `next/font/google`.
@@ -176,9 +176,19 @@ components · ~200-line split threshold.
 
 ## Design layer
 
-The identity is the composition, not a logo: warm paper and warm near-black,
+The identity is the composition first: warm paper and warm near-black,
 one teal accent, Geist with tight tracking, mono eyebrows, hairline rules.
-The rules that keep it reading as one page:
+The mark, a raised fist, sits beside the wordmark and is every icon the site
+ships. The rules that keep it reading as one page:
+
+- **The mark is the owner's file, never redrawn.** The exports live in
+  `public/brand/` and `app/favicon.ico`, and `lib/brand.ts` lists each with
+  the size it claims, which `lib/brand.test.ts` reads back out of the file.
+  The tab icon, the Apple icon and the share card are drawn from the largest
+  export at build time. All the exports are transparent. iOS paints
+  transparency black, so `app/apple-icon.tsx` composes the mark on a ground of
+  its own, and `app/manifest.ts` offers the icons as `any`, never `maskable`.
+  To change the mark, replace those files at the same sizes.
 
 - **One container.** Every section is `wrap` (`globals.css`), home and tool
   pages alike. Text that wants a measure gets `max-w-prose` or a column
@@ -205,7 +215,7 @@ The rules that keep it reading as one page:
 - **Motion is feedback.** Hover, press, copy, tab and accordion transitions
   only. Nothing animates on load or on scroll: axe skips what it cannot see,
   so a reveal would make the contrast gate pass vacuously below the fold.
-- **Tokens, never hexes,** in components. The three Satori files and
+- **Tokens, never hexes,** in components. The Apple icon, the share card and
   `THEME_COLORS` are the only literals, and they mirror `globals.css`.
 
 ## Mobile-first & a11y
@@ -266,9 +276,10 @@ spec, because the per-page sweep only ever sees it closed — and that spec
 immediately caught two ARIA errors the closed state could never show.
 
 After `build`, `out/` must contain the page HTML, `robots.txt` and
-`sitemap.xml` (both static in `public/`), and the build-time PNGs from
+`sitemap.xml` (both static in `public/`), `favicon.ico`,
+`manifest.webmanifest`, and the build-time PNGs from
 `app/icon.tsx` / `apple-icon.tsx` / `opengraph-image.tsx` (Satori —
-literal hexes only in those files). Serve `out/` and click through:
+literal hexes only in the last two). Serve `out/` and click through:
 category links jump to their band, install tabs switch, FAQ expands, the
 copy button writes the clipboard, theme toggle flips. Security headers live
 in `vercel.json`.
