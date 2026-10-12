@@ -2,7 +2,7 @@
  * The mark, and every file it ships as.
  *
  * The files under `public/brand/` are the owner's exports, copied in and
- * never redrawn here. Each is listed with the size it claims, and a test reads
+ * never redrawn here, bar the header's crop below. Each is listed with the size it claims, and a test reads
  * that size back out of the file, because a manifest that names a 512px icon
  * the server answers with something else is wrong where nothing reports it:
  * on someone's home screen.
@@ -14,8 +14,13 @@
 
 export type BrandIcon = Readonly<{ src: string; size: number }>
 
-/** Beside the wordmark. Drawn far smaller than it is, so it stays sharp at any density. */
-export const HEADER_LOGO: BrandIcon = { src: '/brand/logo-96.png', size: 96 }
+/**
+ * Beside the wordmark. The one file that is not an export as supplied: it is
+ * the source cropped to the mark, because the exports carry a wide transparent
+ * margin and at header size the margin left the mark too small to read. Drawn
+ * far smaller than it is, so it stays sharp at any density.
+ */
+export const HEADER_LOGO: BrandIcon = { src: '/brand/logo-mark-128.png', size: 128 }
 
 /** What the web manifest offers a launcher or a home screen. */
 export const MANIFEST_ICONS: readonly BrandIcon[] = Object.freeze([

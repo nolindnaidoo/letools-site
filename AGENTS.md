@@ -185,7 +185,9 @@ ships. The rules that keep it reading as one page:
   `public/brand/` and `app/favicon.ico`, and `lib/brand.ts` lists each with
   the size it claims, which `lib/brand.test.ts` reads back out of the file.
   The tab icon, the Apple icon and the share card are drawn from the largest
-  export at build time. All the exports are transparent. iOS paints
+  export at build time. The header's file, `logo-mark-128.png`, is the source
+  cropped to the mark, since the exports' transparent margin left it too small
+  to read at that size. All the exports are transparent. iOS paints
   transparency black, so `app/apple-icon.tsx` composes the mark on a ground of
   its own, and `app/manifest.ts` offers the icons as `any`, never `maskable`.
   To change the mark, replace those files at the same sizes.

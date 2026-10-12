@@ -33,7 +33,7 @@ export function SiteHeader() {
             alt=""
             width={HEADER_LOGO.size}
             height={HEADER_LOGO.size}
-            className="size-7 shrink-0"
+            className="size-8 shrink-0 sm:size-9"
           />
           {WORDMARK}
         </a>
