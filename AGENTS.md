@@ -213,7 +213,9 @@ The rules that keep it reading as one page:
 - **The categories are the structure.** Extract, Check, Guard are the three
   steps of the work, so the tools section is three bands with the step's
   reason beside its tools, not a flat grid behind a filter. Tools are rows,
-  not cards: a name with weight, a summary, the links at the margin.
+  not cards: a name with weight, a summary, the links at the margin. The
+  whole row opens the tool's page, through the name's link stretched over it,
+  and the registry links sit above that as a zone of their own.
 - **One recording leads.** The featured tool's demo is the hero's visual and
   each tool page leads with its own, through `DemoFrame`, which shows the
   poster under `prefers-reduced-motion`. Seventeen looping thumbnails was a
