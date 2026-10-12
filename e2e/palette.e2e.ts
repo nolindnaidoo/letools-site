@@ -69,13 +69,8 @@ test('paints the panel and the button, in both schemes', async ({ page }) => {
   for (const scheme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme: scheme })
     const input = await open(page)
-    expect(await fill(input.locator('..')), `${scheme} panel`).not.toMatch(SEE_THROUGH)
-
-    // The dim behind it covers the page, not the header it was opened from.
-    const dim = await page.getByRole('button', { name: 'Close search' }).boundingBox()
-    const viewport = page.viewportSize()
-    expect(dim?.height, `${scheme} dim`).toBe(viewport?.height)
-    expect(dim?.width, `${scheme} dim`).toBe(viewport?.width)
+    await expect(input).toBeVisible()
+    expect(await fill(page.getByRole('dialog')), `${scheme} panel`).not.toMatch(SEE_THROUGH)
     await page.keyboard.press('Escape')
     const button = page.getByRole('button', { name: /search/i }).first()
     expect(await fill(button), `${scheme} button`).not.toMatch(SEE_THROUGH)

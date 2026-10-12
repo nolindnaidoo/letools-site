@@ -249,6 +249,22 @@ screenshots in light, dark, and mobile before shipping visual changes.
 page scrolls sideways and that every image is drawn at its intrinsic ratio,
 because axe flags neither.
 
+`e2e/a11y.e2e.ts` holds what an audit on 2026-10-12 found while axe passed
+everything, and each is a rule now:
+
+- **320px is the floor**, on every route. The projects' devices are wider, so
+  the header and the channel cards ran past it unseen. Under 375px the
+  wordmark is hidden and still names the home link.
+- **The search panel is a native modal `<dialog>`.** That keeps Tab inside it,
+  makes the page behind inert and closes it on Escape from anywhere in it. Do
+  not rebuild it as a positioned box.
+- **A phone gets the bar's links** through `components/mobile-menu.tsx`. A
+  link added to the bar is added to the menu's items in the same place.
+- **A link that opens a new tab says so**, in its `aria-label` or with
+  `<NewTab />` after its text.
+- **A recording can be stopped.** `DemoFrame` carries the control. The
+  reduced-motion preference chooses the starting state and nothing more.
+
 ## Verification — the definition of done
 
 ```bash

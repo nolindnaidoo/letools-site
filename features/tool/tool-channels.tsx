@@ -121,9 +121,11 @@ export function ToolChannels({ tool }: { readonly tool: Tool }) {
         }`}
       />
 
-      <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+      {/* `grid-cols-1` and `min-w-0` both, or one long id widens the phone
+          column to its own length and the page scrolls sideways at 320px. */}
+      <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {channels.map(channel => (
-          <li key={channel.label}>
+          <li key={channel.label} className="min-w-0">
             <Card className="flex h-full flex-col gap-2 p-5">
               <div className="flex flex-wrap items-baseline gap-x-2">
                 <h3 className="font-semibold">{channel.label}</h3>

@@ -1,4 +1,5 @@
 import { DemoFrame } from '@/components/demo-frame'
+import { NewTab } from '@/components/new-tab'
 import { ToolIcon } from '@/components/tool-icon'
 import { ToolTranscript } from '@/features/tool/tool-transcript'
 import {
@@ -75,6 +76,7 @@ export function ToolHero({ tool }: { readonly tool: Tool }) {
               className={buttonVariants({ variant: 'primary', size: 'lg' })}
             >
               Install for VS Code
+              <NewTab />
             </Link>
             <Link
               href={openVsxUrl(tool)}
@@ -83,6 +85,7 @@ export function ToolHero({ tool }: { readonly tool: Tool }) {
               className={buttonVariants({ variant: 'secondary', size: 'lg' })}
             >
               Install for Cursor &amp; Windsurf
+              <NewTab />
             </Link>
           </>
         )}
@@ -96,6 +99,7 @@ export function ToolHero({ tool }: { readonly tool: Tool }) {
           })}
         >
           Source on GitHub
+          <NewTab />
         </Link>
       </div>
 
