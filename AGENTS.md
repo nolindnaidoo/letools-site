@@ -162,8 +162,8 @@ to anyone.
 - **A list whose order is ours to choose runs by Open VSX downloads, with
   JevLint-LE first.** `byDownloads` in `lib/popularity.ts` does it, from counts
   the build reads beside the install count, over a floor measured once. The
-  Rust CLI command and the list under it use it, and so do the tool checkboxes
-  in the agents picker and the config they write. JevLint-LE ships no crate,
+  Rust CLI command and the list under it use it, and so do the header's Tools
+  menu and the tool checkboxes in the agents picker with the config they write. JevLint-LE ships no crate,
   so it leads the picker and not the crate list. The registry's own order in
   `lib/tools.ts` is unchanged, and so is every list read straight from it.
 - **Install count** (`INSTALL_COUNT`) is measured on every build and rounded
