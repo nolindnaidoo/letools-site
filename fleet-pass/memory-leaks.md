@@ -75,7 +75,11 @@ listeners and timers after the last run equals the count after the first.
 
 **LEAK-11 (`M`). The server's buffers are bounded.** Read the transport. The
 input buffer is consumed as frames complete, has a stated maximum, and rejects
-or drops input beyond it. Nothing accumulates per request for the life of the
+or drops input beyond it. The maximum is applied to the complete line as well
+as to the pending buffer: a line whose newline arrives in the chunk that takes
+it over the limit is otherwise parsed whole. Drive one byte over the limit with
+the newline in that chunk, far over with the newline many chunks later, and
+exactly at the limit. Nothing accumulates per request for the life of the
 process: no request log, no growing map of pending ids that failures never
 remove.
 

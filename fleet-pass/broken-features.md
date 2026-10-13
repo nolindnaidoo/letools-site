@@ -122,6 +122,24 @@ exclude lists do not drop a directory that holds logic. Read `tsconfig.json`:
 test files are type-checked. Read the generated README sections against a real
 run.
 
+**FEAT-21 (all). A gate refuses what the documentation says it refuses.** For
+every gate a README or an AGENTS file describes, read the description against
+the script, then drive the gate with an input it promises to refuse and read the
+exit code. A gate that passes the input it was written to catch is a claim the
+build does not hold.
+
+**FEAT-22 (all). A test's title names a path some input reaches.** For every
+test titled for a failure, a refusal or an error, confirm that the input it
+feeds actually takes that path: run the code under test by hand and read what
+came back. A parser that accepts the "broken" document, with the test asserting
+only that something came back, covers nothing and says it covers the failure.
+
+**FEAT-23 (all). A policy grep covers every file type that can carry the
+sentence.** Where CI greps documentation for a forbidden claim, list the file
+types that can hold the same sentence (doc comments in source, test headers,
+scripts) and run the grep over them. A sentence the job exists to refuse, in a
+file type the job does not read, is held by nothing.
+
 **FEAT-20 (`E`). Skipped tests from BASE-8 are each explained or restored.**
 
 ## Running a development host by hand

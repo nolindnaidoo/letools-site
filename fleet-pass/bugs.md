@@ -148,6 +148,31 @@ entry point that reaches the table.
 grep -rnE '\b[A-Z_]+\[[a-zA-Z_.()]+\]' src --include='*.ts' --exclude='*.test.ts'
 ```
 
+**BUG-19. A format resolved from a filename reads the whole name before the
+extension.** A resolver that splits on the last dot reads `.env.local` as
+format `local`, and one that reads the name through its directory loses a
+dotfile to the path. Drive every filename shape the walk or an agent can send:
+a bare dotfile, a dotfile with a suffix, `<name>.env`, a path with the file at
+its end, each separator. Where two resolvers exist, both answer the same, and
+the rule for the dotfile family is stated and tested with its exclusions
+(`.envrc`, `env.ts`).
+
+**BUG-20. A line command keeps the document's terminator.** A document that
+ends in a newline, split on every newline, yields an empty last line; a sort
+puts that empty string first and the result begins with a blank line. For
+every command that reads a document as lines and writes it back, drive a
+document with a trailing newline, one without, one with CRLF, one with a blank
+line inside, and an empty one, and read what was written.
+
+**BUG-21. Where two parsers of one format disagree, each document is pinned in
+its direction.** Two parsers of one format, in two languages, do not draw the
+same line between a broken document and a lenient one: a duplicated key, a
+mixed-type array, a lone surrogate escape. A per-format "stricter side" misses
+a document on which the other side is the stricter one. Each hand-found
+document is recorded in the spec with the side that refuses it and held by the
+differential check in that direction, so a parser upgrade that changes its mind
+turns the build red rather than silently moving the line.
+
 **BUG-17. The documented invariants hold.** Each item under the repo's
 "Invariants" and "Hard rules" headings is a claim. For each, name the test
 that fails if it is broken. An invariant with no such test is a `test-gap`

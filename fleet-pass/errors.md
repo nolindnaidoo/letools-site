@@ -122,6 +122,16 @@ JSON, an unknown method, an unknown tool, a missing argument and an oversized
 message each produce a correct JSON-RPC error with the request id, and the
 server stays up. Nothing is written to stdout that is not a protocol message.
 
+**ERR-19 (`M`). A stdio server decodes a frame it cannot read and keeps
+serving.** A loop that reads stdin as lines of text ends on the first byte that
+is not valid in its encoding, and every request after it goes unanswered. Feed
+each server a line of invalid bytes followed by a valid request, an invalid byte
+inside a JSON string, a line that is not JSON, a request without a method,
+without a version and with the wrong version, and a request whose id is null.
+Each is answered or deliberately ignored the same way by every server the repo
+ships, in the same words, and the process is still there for the request after
+it.
+
 **ERR-15 (`C`). No panic on input.** Each `unwrap`, `expect`, `panic!`,
 `unreachable!` and indexing expression from INV-7 is read. One reachable from
 file contents, arguments or environment is a finding. Each exit code is
