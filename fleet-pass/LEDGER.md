@@ -20,7 +20,7 @@ is written by step 8, [close.md](close.md).
 | regex-le | not started | | | | | | |
 | scrape-le | not started | | | | | | |
 | secrets-le | not started | | | | | | |
-| string-le | pull request open | `5554c397` | [records/string-le.md](records/string-le.md) | [nolindnaidoo/string-le#53](https://github.com/nolindnaidoo/string-le/pull/53) | 2026-10-12 | 34 | 1 |
+| string-le | merged | `5554c397` | [records/string-le.md](records/string-le.md) | [nolindnaidoo/string-le#53](https://github.com/nolindnaidoo/string-le/pull/53) | 2026-10-13 | 34 | 1 |
 | unicode-le | not started | | | | | | |
 | units-le | not started | | | | | | |
 | urls-le | not started | | | | | | |
