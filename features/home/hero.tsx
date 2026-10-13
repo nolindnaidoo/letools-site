@@ -31,7 +31,7 @@ export function Hero() {
       <div className="wrap grid grid-cols-1 gap-10 pt-14 pb-16 sm:pt-20 lg:grid-cols-12 lg:items-center lg:gap-12 lg:pt-24 lg:pb-24">
         <div className="flex flex-col gap-6 lg:col-span-6">
           <p className="font-mono text-muted text-xs uppercase tracking-[0.18em]">
-            {TOOLS.length} tools · {INSTALL_COUNT} installs · MIT · Local by default
+            {TOOLS.length} tools · {INSTALL_COUNT} downloads · MIT · Local by default
           </p>
 
           <h1 className="text-balance font-semibold text-4xl tracking-tighter sm:text-6xl lg:text-7xl">
