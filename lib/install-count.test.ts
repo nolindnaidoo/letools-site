@@ -53,11 +53,11 @@ function registries(answers: {
 afterEach(() => vi.restoreAllMocks())
 
 describe('displayInstalls', () => {
-  it('rounds down to the ten thousand', () => {
-    expect(displayInstalls(169_068)).toBe('160,000+')
-    expect(displayInstalls(169_999)).toBe('160,000+')
+  it('rounds down to the thousand', () => {
+    expect(displayInstalls(169_068)).toBe('169,000+')
+    expect(displayInstalls(169_999)).toBe('169,000+')
     expect(displayInstalls(170_000)).toBe('170,000+')
-    expect(displayInstalls(1_204_999)).toBe('1,200,000+')
+    expect(displayInstalls(1_204_999)).toBe('1,204,000+')
   })
 
   it('never shows less than the floor', () => {
@@ -67,8 +67,8 @@ describe('displayInstalls', () => {
     expect(displayInstalls(Number.NaN)).toBe(floor)
   })
 
-  it('keeps the floor on a ten thousand, so the fallback is a figure the page could show', () => {
-    expect(INSTALL_FLOOR % 10_000).toBe(0)
+  it('keeps the floor on a thousand, so the fallback is a figure the page could show', () => {
+    expect(INSTALL_FLOOR % 1_000).toBe(0)
   })
 })
 

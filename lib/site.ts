@@ -13,11 +13,11 @@ export const SITE_NAME = 'LE Tools'
 export const WORDMARK = 'Limited Edition DevTools'
 export const TAGLINE = 'Get your data right before the model sees it.'
 
-// Combined Open VSX downloads + VS Code Marketplace acquisitions across the
-// published extensions, rounded DOWN to the ten thousand. `next.config.ts`
-// measures it once per build and passes it in here, so every deploy shows the
-// current figure. Outside a build, and when neither registry answers, this is
-// the floor in `lib/install-count.ts`.
+// Downloads across the four registries the family ships to: Open VSX, the VS
+// Code Marketplace, npm and crates.io, rounded DOWN to the thousand.
+// `next.config.ts` measures it once per build and passes it in here, so every
+// deploy shows the current figure. Outside a build, and when no registry
+// answers, this is the floor in `lib/install-count.ts`.
 export const INSTALL_COUNT = displayInstalls(Number(process.env.LETOOLS_INSTALLS))
 export const PUBLISHER = 'nolindnaidoo'
 /** The author's own site. Kept alongside GITHUB_URL, never in place of it —

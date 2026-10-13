@@ -167,7 +167,7 @@ to anyone.
   so it leads the picker and not the crate list. The registry's own order in
   `lib/tools.ts` is unchanged, and so is every list read straight from it.
 - **The download count** (`INSTALL_COUNT`) is measured on every build and
-  rounded down to the ten thousand, so `169,068` shows as `160,000+`. It is
+  rounded down to the thousand, so `169,068` shows as `169,000+`. It is
   one figure across four registries: Open VSX downloads, Marketplace installs
   plus web downloads, npm downloads and crates.io downloads. `next.config.ts`
   reads them once per build and passes the sum to `lib/site.ts`. The page

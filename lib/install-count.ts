@@ -7,16 +7,16 @@ import { reportError } from './error'
  * acquisitions (installs plus web downloads) + 26,451 npm downloads + 1,843
  * crates.io downloads = 169,068. Three of the four only go up. The
  * Marketplace's read 5 lower on a second build minutes later, so the floor is
- * the ten thousand below the sum and not the sum: a bound with room in it. It
- * is what the page shows when a build cannot reach a registry, and it is why
- * a partial answer can never lower the figure.
+ * a thousand under what the page showed that day and not the sum itself: a
+ * bound with room in it. It is what the page shows when a build cannot reach
+ * a registry, and it is why a partial answer can never lower the figure.
  *
  * The names here say "install" from when the figure was the two extension
  * registries alone. The page says "downloads", which is what all four count.
  */
-export const INSTALL_FLOOR = 160_000
+export const INSTALL_FLOOR = 168_000
 
-const STEP = 10_000
+const STEP = 1_000
 const TIMEOUT_MS = 10_000
 const MARKETPLACE_QUERY = 'https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery'
 /** Marketplace filter type for an exact `publisher.name` match. */
@@ -34,7 +34,7 @@ export type PublishedExtension = Readonly<{
 
 type Fetcher = typeof fetch
 
-/** `169068` reads as `160,000+`: rounded down, so the page never overstates. */
+/** `169068` reads as `169,000+`: rounded down to the thousand, so the page never overstates. */
 export function displayInstalls(measured: number): string {
   const known = Number.isFinite(measured) ? Math.max(measured, INSTALL_FLOOR) : INSTALL_FLOOR
   return `${(Math.floor(known / STEP) * STEP).toLocaleString('en-US')}+`
