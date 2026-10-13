@@ -38,7 +38,11 @@ the failing output from running the test with the fix stashed.
 **CLOSE-4. Every gate from BASE-4 is run again, once, on the final commit.**
 Same list, same commands, results recorded beside the baseline. Anything red
 that was green at baseline is a regression the pass introduced and blocks the
-pull request.
+pull request. During the pass, every chain that runs gates and then commits
+joins them with `&&`, so a red gate stops the commit; separate statements let a
+red clippy sit under three commits once. Before a built binary is driven as
+evidence, its package's artefacts are cleaned and rebuilt (`cargo clean -p`),
+because a stale binary beside fresh sources answers for the old code.
 
 **CLOSE-5. The cross-repo gates pass.** From a checkout of `letools-site` with
 the tool repos beside it:

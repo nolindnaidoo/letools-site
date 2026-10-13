@@ -88,6 +88,12 @@ searches miss are checked by name:
 - strings returned by message-builder functions and template literals
 - any UI port or wrapper this repo routes messages through
 
+A unit test holds the mechanical half: no string literal or template is handed
+straight to a notifier method, a status bar flash, a `show*Message`, a quick
+pick, an input box or the buttons of a modal dialog, matched across line
+breaks. It catches the direct shape, which is most of them; a literal built into
+a variable or a ternary first is still found by reading INV-8.
+
 ## Checks: what is there actually loads
 
 **L10N-6. No `l10n.t()` at module scope.** It resolves when the module is
