@@ -132,8 +132,8 @@ export function Tools() {
         <p className="text-pretty text-muted lg:col-span-5 lg:pt-9">
           These are the steps, each one command, each one engineered rather than improvised:
           deterministic output, large files streamed rather than loaded whole, and behaviour pinned
-          by tests so the result is the same tomorrow. {INSTALL_COUNT} installs later, that is still
-          the whole idea.
+          by tests so the result is the same tomorrow. {INSTALL_COUNT} downloads later, that is
+          still the whole idea.
         </p>
       </div>
 

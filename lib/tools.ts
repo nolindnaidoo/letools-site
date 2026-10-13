@@ -812,6 +812,19 @@ export function mcpPackageFor(tool: Tool): string | undefined {
   return factsFor(tool).mcpPackage
 }
 
+/**
+ * Every npm package the family publishes: each tool's MCP server, and its
+ * command line where that is a package of its own. Read for the download
+ * count, so a tool that gains a package is counted without an edit there.
+ */
+export const NPM_PACKAGES: readonly string[] = Object.freeze([
+  ...new Set(
+    TOOLS.flatMap(tool => [mcpPackageFor(tool), tool.cliPackage]).filter(
+      (name): name is string => name !== undefined,
+    ),
+  ),
+])
+
 /** The crate a tool ships, or undefined for the ones that ship none. */
 export function crateFor(tool: Tool): { name: string; version: string } | undefined {
   return factsFor(tool).crate

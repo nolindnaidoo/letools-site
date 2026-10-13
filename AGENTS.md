@@ -166,15 +166,27 @@ to anyone.
   menu and the tool checkboxes in the agents picker with the config they write. JevLint-LE ships no crate,
   so it leads the picker and not the crate list. The registry's own order in
   `lib/tools.ts` is unchanged, and so is every list read straight from it.
-- **Install count** (`INSTALL_COUNT`) is measured on every build and rounded
-  down to the ten thousand, so `133,056` shows as `130,000+`. `next.config.ts`
-  reads Open VSX downloads and Marketplace installs plus web downloads from the
-  two public registries, once per build, and passes the sum to `lib/site.ts`.
-  `INSTALL_FLOOR` in `lib/install-count.ts` is the lowest figure the page will
-  show: a registry that does not answer counts as zero, the floor absorbs the
-  shortfall, and the build never fails on an outage. Nothing needs raising by
-  hand. `lib/tools.ts` imports `./site` relatively because the config loader
-  does not resolve `@/`.
+- **The download count** (`INSTALL_COUNT`) is measured on every build and
+  rounded down to the ten thousand, so `169,068` shows as `160,000+`. It is
+  one figure across four registries: Open VSX downloads, Marketplace installs
+  plus web downloads, npm downloads and crates.io downloads. `next.config.ts`
+  reads them once per build and passes the sum to `lib/site.ts`. The page
+  calls it "downloads", never "installs": an npm download is not an install.
+  - **Every figure in it is cumulative.** npm has no all-time counter, so it
+    is asked for the sum from `NPM_EPOCH`, before the first package was
+    published, in ranges of a year or less. Never add a weekly or monthly
+    figure: it rises and falls, and the total must only rise.
+  - **MCP is not a fifth source.** The MCP registry counts nothing, and a
+    server is fetched from npm or built into a crate.
+  - **What is counted is read from the registry**: `NPM_PACKAGES` and
+    `PUBLISHED_CRATES` in `lib/tools.ts`, and every tool with an extension. A
+    new tool, package or crate is counted without an edit to the count.
+  - `INSTALL_FLOOR` in `lib/install-count.ts` is the lowest figure the page
+    will show: a registry that does not answer counts as zero, the floor
+    absorbs the shortfall, and the build never fails on an outage. The build
+    log prints what each registry answered. Nothing needs raising by hand.
+  - `lib/tools.ts` imports `./site` relatively because the config loader does
+    not resolve `@/`.
 
 Tool summaries come from each tool's manifest — keep them in step, never
 embellish. No invented download counts, stars, or testimonials.
