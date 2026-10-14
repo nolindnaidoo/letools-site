@@ -32,9 +32,12 @@ VS Code returns as a `Disposable`, name where it is pushed to
 handler, a loop or a callback is created once per call, so it must be disposed
 per call, not handed to the subscription list to pile up until deactivation.
 
-**LEAK-2 (`E`). Every listener is removed.** Each `onDid*` subscription and
+**LEAK-2 (`E` `M`). Every listener is removed.** Each `onDid*` subscription and
 each `.on(` handler has its returned disposable kept and released. A listener
-registered inside another listener, or on each command run, is a finding.
+registered inside another listener, or on each command run, is a finding. So
+is a process listener added per request: `process.once('SIGINT')` inside a
+tool handler is one listener per call and none removed. One listener, re-armed
+after it fires, serves every call.
 
 **LEAK-3 (`E` `M`). Every timer is cleared on every path.** Each `setTimeout`
 and `setInterval` has its handle kept, cleared when rescheduled, and cleared on
@@ -81,7 +84,9 @@ it over the limit is otherwise parsed whole. Drive one byte over the limit with
 the newline in that chunk, far over with the newline many chunks later, and
 exactly at the limit. Nothing accumulates per request for the life of the
 process: no request log, no growing map of pending ids that failures never
-remove.
+remove. Every entry that takes text is held to the same size limit: a server's
+text argument is not a way around the file size limit the command line and the
+editor hold.
 
 **LEAK-12 (`M`). Memory is flat across many requests.** Drive the built server
 through a few thousand tool calls over one session, sampling resident memory,

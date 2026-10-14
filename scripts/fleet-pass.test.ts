@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { REPOS } from './check-fleet'
+import { OUTSIDE_FLEET, REPOS } from './check-fleet'
 
 const DIR = join(import.meta.dirname, '..', 'fleet-pass')
 const read = (name: string) => readFileSync(join(DIR, name), 'utf8')
@@ -35,8 +35,8 @@ describe('fleet pass documents', () => {
     expect(linked.filter(name => !STEPS.includes(name ?? ''))).toEqual([])
   })
 
-  it('has exactly one ledger row per fleet repo', () => {
+  it('has exactly one ledger row per fleet repo, and one per repo outside the fleet', () => {
     const rows = [...read('LEDGER.md').matchAll(/^\| ([a-z0-9]+-le) \|/gm)].map(match => match[1])
-    expect([...rows].sort()).toEqual([...REPOS].sort())
+    expect([...rows].sort()).toEqual([...REPOS, ...OUTSIDE_FLEET].sort())
   })
 })
