@@ -68,6 +68,11 @@ grep -rnE '\.sort\(|localeCompare|toLocale[A-Z]' src --include='*.ts' --exclude=
 - Nested or overlapping quantifiers are tested with a long non-matching input
   for catastrophic backtracking.
 - Anchors, case sensitivity and the `u` flag match what the format requires.
+- A pattern that scans from every start position to the end of a stretch is
+  the square of the stretch's length with no nesting at all: `[^.?!]*\?` over
+  a sentence with no question mark, `opener[^,]*closer` over a clause full of
+  openers and no closer. Time every pattern that runs over user text on one
+  long stretch that nearly matches, at two lengths, and read the growth.
 - The same pattern defined in two places is BUG-10.
 
 **BUG-7. Number handling.** `parseInt` without a radix or on text with a

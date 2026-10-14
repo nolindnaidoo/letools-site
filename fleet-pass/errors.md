@@ -39,6 +39,9 @@ point that returns "nothing found" is traced for the paths that reach that
 result. If an exception, an unreadable file or a parse failure arrives at the
 same value as a clean input, it is a finding. An inner best-effort `catch`
 around one signal among several is legitimate. The entry point is what matters.
+A run in which every input failed inside the tool is not a run with nothing
+found: the summary may name the files, but the exit code and a server's answer
+must say the run failed, because nothing was checked.
 
 **ERR-3. A refused input comes back named.** A document the tool cannot read or
 parse produces a diagnostic with a code, a severity and a message that says
@@ -121,6 +124,10 @@ the commit that fixes the behaviour.
 JSON, an unknown method, an unknown tool, a missing argument and an oversized
 message each produce a correct JSON-RPC error with the request id, and the
 server stays up. Nothing is written to stdout that is not a protocol message.
+An unknown tool and arguments that do not fit the tool's input schema are
+protocol errors, `-32602`, not tool results with `isError`: a host counts the
+first against the server and shows the second to the agent. Hold the two in
+separate test tables, so a row cannot drift across the line unnoticed.
 
 **ERR-19 (`M`). A stdio server decodes a frame it cannot read and keeps
 serving.** A loop that reads stdin as lines of text ends on the first byte that
@@ -138,10 +145,14 @@ file contents, arguments or environment is a finding. Each exit code is
 produced by the condition its documentation states, and stderr carries the
 reason.
 
-**ERR-16 (`C`). Filesystem failures are named.** Permission denied, a symlink
-loop, a FIFO, a directory where a file was expected, a file removed mid-run,
-and a path over the platform limit each appear in the report. The property is
-that an input never silently vanishes from the output.
+**ERR-16 (`N` `M` `C`). Filesystem failures are named.** Permission denied, a
+symlink loop, a FIFO, a directory where a file was expected, a file removed
+mid-run, and a path over the platform limit each appear in the report. The
+property is that an input never silently vanishes from the output. A path that
+is not a regular file is told apart by its kind before it is opened: a read on
+a FIFO with no writer never returns, so a pipe under a name the tool reads,
+met in a walk or named outright, hangs the process. Drive a real `mkfifo` in a
+process test, with a time limit on the run.
 
 **ERR-18 (`E`). A progress indicator is reset on every way out.** Every status
 bar spinner, progress notification and busy flag that a command sets is read

@@ -71,7 +71,10 @@ each `await`, and a cancelled run delivers nothing and announces nothing.
 **RACE-7 (`E`). Configuration changing mid-run is coherent.** A command reads
 its configuration once and uses that snapshot throughout, or re-reads
 deliberately. Mixed values from before and after a change inside one run is a
-finding.
+finding. Drive it: a mock hook that changes the setting while a modal is on
+screen, for every command that spends the user's key, and read which vendor
+and model the request went to. A configuration re-read after the confirmation
+sends the key the user agreed to under one model to the other vendor.
 
 **RACE-8 (`E`). Nothing runs after dispose.** Each timer callback, pending
 promise continuation and listener is read for what it touches. A continuation
