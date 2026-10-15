@@ -1,6 +1,6 @@
 # Demos
 
-**Status:** standard written, pilot not started. Recorded once per tool, by
+**Status:** standard written; capture measured on DecisionLint; recorders not built. Recorded once per tool, by
 hand, in one pass. Not re-recorded on a schedule.
 
 Every tool shows each surface it has, the editor, the command line and the MCP
@@ -67,7 +67,7 @@ recordings come out alike.
 
 | Output | Settings |
 |---|---|
-| Master `.mp4` | H.264, `yuv420p`, CRF 16, 30 fps, `+faststart`. Lossless capture in, this out |
+| Master `.mp4` | H.264, `yuv420p`, CRF 16, `+faststart`. Editor at 30 fps from the timed frames; terminal as vhs writes it |
 | README `.gif` | 1600 px, 10 fps, a palette made from the clip (`stats_mode=diff`), **no dithering** |
 | Site video | made by `sync:demos` from the master: H.264, `yuv420p`, muted, looped, inline, with the poster from frame one |
 
@@ -82,9 +82,15 @@ demos soft.
   integration tests download, with its own profile and the packaged
   extension. Playwright's own `recordVideo` is a low-bitrate VP8 stream, too
   soft for this standard, so frames are captured losslessly and encoded by
-  the shared script. Which capture holds 30 fps at this size is the first
-  thing the pilot measures.
+  the shared script. Measured on DecisionLint, 2026-10-14: a
+  `page.screenshot()` loop at `--force-device-scale-factor=2` and an
+  800 x 500 content size gives 1600 x 1000 PNGs at about 28 fps. Each frame
+  keeps its wall-clock time and the encoder places it there, so the clip
+  plays at true speed whatever the loop managed. CDP screencast sends a
+  frame only when the screen changes, at irregular times, and is not used.
 - **CLI.** vhs, driving the built binary against the files in `cli/`.
+  vhs 0.11 writes its MP4 at 25 fps whatever `Set Framerate` says, which is
+  enough for typing and printed output. Its MP4 is the master as it comes.
 - **MCP.** vhs, driving an agent host in the terminal against the files in
   `mcp/`, with the tool's server in the host's project config and its tools
   pre-approved. The model answers differently each run, so `PROMPT.md`
