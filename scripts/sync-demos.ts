@@ -17,7 +17,7 @@ import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { TOOLS } from '../lib/tools'
+import { DEMO_SURFACES, type DemoSurface, demoStem, TOOLS } from '../lib/tools'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const DEMOS = resolve(ROOT, 'public/demos')
@@ -32,9 +32,9 @@ const MAP = resolve(ROOT, 'lib/asset-hashes.generated.ts')
  */
 const WIDTH = 1600
 
-/** The tool's editor recording: the same path in every tool repo, per DEMOS.md. */
-export function sourceFor(toolId: string): string {
-  return resolve(FLEET, toolId, 'assets/demos/editor.mp4')
+/** A tool's recording of one surface: the same path in every tool repo, per DEMOS.md. */
+export function sourceFor(toolId: string, surface: DemoSurface = 'editor'): string {
+  return resolve(FLEET, toolId, `assets/demos/${surface}.mp4`)
 }
 
 /**
@@ -50,8 +50,8 @@ export function fingerprint(bytes: Uint8Array): string {
   return createHash('sha1').update(bytes).digest('hex').slice(0, 8)
 }
 
-export function destinationFor(toolId: string): string {
-  return resolve(DEMOS, `${toolId}.mp4`)
+export function destinationFor(stem: string): string {
+  return resolve(DEMOS, `${stem}.mp4`)
 }
 
 /**
@@ -63,8 +63,8 @@ export function destinationFor(toolId: string): string {
  * looked here. Deriving the poster from the demo means it cannot disagree with
  * the clip it stands in for.
  */
-export function posterFor(toolId: string): string {
-  return resolve(POSTERS, `${toolId}.jpg`)
+export function posterFor(stem: string): string {
+  return resolve(POSTERS, `${stem}.jpg`)
 }
 
 /** First frame of the clip, at the width the card renders. */
@@ -157,10 +157,16 @@ export async function main(): Promise<number> {
   // nothing to copy and nothing wrong. A repo that has the directory and not
   // the editor master is the failure this catches.
   const recorded = TOOLS.filter(tool => existsSync(resolve(FLEET, tool.id, 'assets/demos')))
-  const missing = recorded.filter(tool => !existsSync(sourceFor(tool.id)))
+  const takes = recorded.flatMap(tool =>
+    DEMO_SURFACES.map(surface => ({
+      stem: demoStem(tool.id, surface),
+      source: sourceFor(tool.id, surface),
+    })),
+  )
+  const missing = takes.filter(take => !existsSync(take.source))
   if (missing.length > 0) {
     process.stderr.write(
-      `\nsync-demos: no source demo for ${missing.map(t => t.id).join(', ')}.\n` +
+      `\nsync-demos: no recording for ${missing.map(take => take.stem).join(', ')}.\n` +
         `Expected each tool repo checked out beside this one, at ${FLEET}.\n\n`,
     )
     return 2
@@ -168,34 +174,34 @@ export async function main(): Promise<number> {
 
   let total = 0
   const hashes = new Map<string, { demo: string; poster: string }>()
-  for (const tool of recorded) {
-    const destination = destinationFor(tool.id)
-    const result = Bun.spawnSync(['ffmpeg', ...argsFor(sourceFor(tool.id), destination)])
+  for (const { stem, source } of takes) {
+    const destination = destinationFor(stem)
+    const result = Bun.spawnSync(['ffmpeg', ...argsFor(source, destination)])
 
     if (result.exitCode !== 0) {
       process.stderr.write(
-        `\nsync-demos: ffmpeg failed for ${tool.id}.\n${result.stderr.toString()}\n`,
+        `\nsync-demos: ffmpeg failed for ${stem}.\n${result.stderr.toString()}\n`,
       )
       return 1
     }
 
-    const poster = posterFor(tool.id)
-    const posterResult = Bun.spawnSync(['ffmpeg', ...posterArgsFor(sourceFor(tool.id), poster)])
+    const poster = posterFor(stem)
+    const posterResult = Bun.spawnSync(['ffmpeg', ...posterArgsFor(source, poster)])
     if (posterResult.exitCode !== 0) {
       process.stderr.write(
-        `\nsync-demos: ffmpeg failed on the poster for ${tool.id}.\n${posterResult.stderr.toString()}\n`,
+        `\nsync-demos: ffmpeg failed on the poster for ${stem}.\n${posterResult.stderr.toString()}\n`,
       )
       return 1
     }
 
     const demoHash = fingerprint(readFileSync(destination))
     const posterHash = fingerprint(readFileSync(poster))
-    hashes.set(tool.id, { demo: demoHash, poster: posterHash })
+    hashes.set(stem, { demo: demoHash, poster: posterHash })
 
     // The served name carries the hash; the unsuffixed file is the working
     // copy the next sync overwrites.
-    const servedDemo = resolve(DEMOS, `${tool.id}.${demoHash}.mp4`)
-    const servedPoster = resolve(POSTERS, `${tool.id}.${posterHash}.jpg`)
+    const servedDemo = resolve(DEMOS, `${stem}.${demoHash}.mp4`)
+    const servedPoster = resolve(POSTERS, `${stem}.${posterHash}.jpg`)
     writeFileSync(servedDemo, readFileSync(destination))
     writeFileSync(servedPoster, readFileSync(poster))
 
@@ -207,7 +213,7 @@ export async function main(): Promise<number> {
     const bytes = statSync(servedDemo).size + statSync(servedPoster).size
     total += bytes
     process.stdout.write(
-      `  ${tool.id.padEnd(12)} ${(bytes / 1024).toFixed(0).padStart(5)} KB  ${demoHash}\n`,
+      `  ${stem.padEnd(16)} ${(bytes / 1024).toFixed(0).padStart(5)} KB  ${demoHash}\n`,
     )
   }
 
@@ -240,7 +246,7 @@ export async function main(): Promise<number> {
   writeFileSync(MAP, renderHashes(hashes, icons))
   const skipped = TOOLS.length - recorded.length
   process.stdout.write(
-    `\nSynced ${recorded.length} demos and posters, ${(total / 1024 / 1024).toFixed(1)} MB` +
+    `\nSynced ${takes.length} demos and posters for ${recorded.length} tools, ${(total / 1024 / 1024).toFixed(1)} MB` +
       `${removed > 0 ? `, removed ${removed} superseded file(s)` : ''}` +
       `${skipped > 0 ? `. ${skipped} tool(s) have no extension to record yet` : ''}.\n`,
   )

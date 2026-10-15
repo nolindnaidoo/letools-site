@@ -13,7 +13,7 @@ import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { demoSrc, TOOLS } from '../lib/tools'
+import { DEMO_SURFACES, demoSrc, demoStem, TOOLS } from '../lib/tools'
 
 // import.meta.dir is Bun-only and does not typecheck; this is the portable form.
 const DEMOS = fileURLToPath(new URL('../public/demos', import.meta.url))
@@ -84,7 +84,13 @@ export function main(directory: string = DEMOS, posters: string = POSTERS): numb
   // whole point rather than a mistake — its page shows the captured terminal
   // run instead. The duplicate check, which is why this script exists, still
   // covers every recording that does exist.
-  const toolIds = TOOLS.filter(tool => demoSrc(tool) !== undefined).map(tool => tool.id)
+  // Every recording of every tool, by its file stem, so a CLI take that is a
+  // copy of the MCP take is caught the way two tools sharing one is.
+  const toolIds = TOOLS.flatMap(tool =>
+    DEMO_SURFACES.filter(surface => demoSrc(tool, surface) !== undefined).map(surface =>
+      demoStem(tool.id, surface),
+    ),
+  )
   const problems = [...problemsWith(toolIds, readDemos(directory))]
 
   // The posters are checked too. They were not, and two of them were the same
