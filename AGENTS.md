@@ -115,23 +115,33 @@ to anyone.
   the home hero says "Local by default", and a tool page reads the badge from
   `fetchesTarget` in the registry rather than stating it for all ten. Hand-set
   like `cratePublished`, and pinned by a test — no manifest states it.
-- **Sends on request.** JevLint-LE lints offline and has one command, run by
-  the user with their own key, that sends the questions in a file to TypeSafe.
-  `sendsOnRequest` in the registry is its badge, and it is what keeps that tool
-  out of `OFFLINE_TOOLS`, the count the home page and the FAQ state. "File
-  contents never leave your machine" was true of every tool until this one,
-  and now reads "unless you send it".
+- **Sends on request.** DecisionLint lints offline and has commands, run by
+  the user with their own key, that send the questions in a file to the
+  platform the model id names, one Ask command per platform. `sendsOnRequest`
+  in the registry is its badge, and it is what keeps that tool out of
+  `OFFLINE_TOOLS`, the count the home page and the FAQ state. "File contents
+  never leave your machine" was true of every tool until this one, and now
+  reads "unless you send it".
 - **The family size is never typed.** `FAMILY_SIZE` and `countWord` write it
   from the registry. It was a word in five places, each found by hand.
-- **Not every tool has every surface.** JevLint-LE has no crate and no
-  translations. Its MCP server is `jevlint-le-mcp` from its `mcp/`, read by
+- **Not every tool has every surface.** DecisionLint has no crate and no
+  translations. Its MCP server is `decisionlint-mcp` from its `mcp/`, read by
   the sync like every other tool's, and its command line is a second npm
-  package, `jevlint-le`, declared by `cliPackage`, which is what its npm link
+  package, `decisionlint`, declared by `cliPackage`, which is what its npm link
   points at. `mcpRegistryPending` keeps the pages from linking a listing that
-  is not there yet, which was JevLint-LE's until 0.6.0 and is now no tool's,
+  is not there yet, which was this tool's until 0.6.0 and is now no tool's,
   and `openVsxNamespace` states the namespace it is published under. The
   translated count is read from `TRANSLATED_TOOLS`, so the sentence says
   "sixteen of the seventeen" and not "every".
+- **One tool is outside the family's naming.** DecisionLint was JevLint-LE
+  until 1.0.0 and is the author's standalone tool: the whole word, no `-le`
+  suffix, on every surface, so that a registry search for the name finds it
+  first. It stays in the registry, so it is counted, listed and paged like
+  the others, and it is the one id with no suffix, which the ledger test in
+  `scripts/fleet-pass.test.ts` allows for. Its repo is read beside this one
+  by id like every other, at `../decisionlint`. The old page,
+  `/tools/jevlint-le`, redirects to the new one in `vercel.json`, because the
+  last release under the old name links it.
 - **Locales.** All ten ship the same 12 translated bundles (plus the English
   source, which is not a translation — counting it gives 13 and is wrong). This
   used to vary, and the site said so long after it stopped being true: copy
@@ -160,10 +170,10 @@ to anyone.
   inside one, so the page names the host. The install tab and the FAQ list
   hosts from `HOST_NAMES`, never by hand.
 - **A list whose order is ours to choose runs by Open VSX downloads, with
-  JevLint-LE first.** `byDownloads` in `lib/popularity.ts` does it, from counts
+  DecisionLint first.** `byDownloads` in `lib/popularity.ts` does it, from counts
   the build reads beside the install count, over a floor measured once. The
   Rust CLI command and the list under it use it, and so do the header's Tools
-  menu and the tool checkboxes in the agents picker with the config they write. JevLint-LE ships no crate,
+  menu and the tool checkboxes in the agents picker with the config they write. DecisionLint ships no crate,
   so it leads the picker and not the crate list. The registry's own order in
   `lib/tools.ts` is unchanged, and so is every list read straight from it.
 - **The download count** (`INSTALL_COUNT`) is measured on every build and
@@ -356,7 +366,7 @@ bun run sync:readmes ../     # regenerate the generated README section
 ```
 
 `OUTSIDE_FLEET` in `check-fleet.ts` names the extension repos that are
-deliberately not compared, which today is JevLint-LE. A test holds `REPOS`,
+deliberately not compared, which today is DecisionLint. A test holds `REPOS`,
 `EXTENSION_PENDING` and `OUTSIDE_FLEET` against the registry, so a tool is in
 exactly one of them.
 

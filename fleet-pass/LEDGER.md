@@ -15,7 +15,7 @@ is written by step 8, [close.md](close.md).
 | i18n-le | not started | | | | | | |
 | ids-le | not started | | | | | | |
 | ips-le | not started | | | | | | |
-| jevlint-le | merged | `84dc063c` | [records/jevlint-le.md](records/jevlint-le.md) | [nolindnaidoo/jevlint-le#30](https://github.com/nolindnaidoo/jevlint-le/pull/30) | 2026-10-14 | 22 | 0 |
+| decisionlint | merged | `84dc063c` | [records/decisionlint.md](records/decisionlint.md) | [nolindnaidoo/decisionlint#30](https://github.com/nolindnaidoo/decisionlint/pull/30) | 2026-10-14 | 22 | 0 |
 | numbers-le | not started | | | | | | |
 | paths-le | merged | `0cb6ef02` | [records/paths-le.md](records/paths-le.md) | [nolindnaidoo/paths-le#51](https://github.com/nolindnaidoo/paths-le/pull/51) | 2026-10-11 | 25 | 0 |
 | regex-le | not started | | | | | | |

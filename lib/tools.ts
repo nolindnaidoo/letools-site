@@ -435,17 +435,20 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     ],
   },
   {
-    id: 'jevlint-le',
-    name: 'JevLint-LE',
+    // The author's standalone tool, outside the family's naming: the whole
+    // word, no suffix, so that a registry search for it finds it first. It
+    // was JevLint-LE until 1.0.0.
+    id: 'decisionlint',
+    name: 'DecisionLint',
     category: 'check',
     summary:
-      "Lint the questions you send to TypeSafe's Jev model and OpenAI's Decisions API (gpt-6-luna) as you type, with no API key and no network calls. An optional command asks Jev or Luna itself to check a file",
+      "Lint the questions you send to a decision model, TypeSafe's Jev, OpenAI's Decisions API (gpt-6-luna) or any platform that serves one, as you type, with no API key and no network calls. An optional command asks the model itself to check a file",
     mcpTool: 'lint_text',
-    cliPackage: 'jevlint-le',
+    cliPackage: 'decisionlint',
     openVsxNamespace: PUBLISHER,
-    sendsOnRequest: 'Lints offline · asks Jev or Luna only when you do',
+    sendsOnRequest: 'Lints offline · asks the model only when you do',
     overview:
-      "Jev and Luna answer the question you wrote, which is not always the one you meant. JevLint-LE finds the questions a project sends to TypeSafe's Jev model or OpenAI's Decisions API, in JSON, JavaScript, TypeScript, Python, Rust and Go, and reports the ones written in a way documented to fail: a choice with no fallback option, a score given a map where it takes a list, a type that does not exist, a question that turns on a word with no stated line. Linting runs as you type with no API key and no network. A part of a question that is built at runtime is counted as not read, never guessed at. One command, run by you with your own key, asks Jev, or Luna with gpt-6-luna, to check a file.",
+      "Jev and Luna answer the question you wrote, which is not always the one you meant. DecisionLint finds the questions a project sends to a decision model, TypeSafe's Jev, OpenAI's Decisions API or any platform that serves either shape, from OpenRouter and Vercel AI Gateway to a llama.cpp on your own machine, in JSON, JavaScript, TypeScript, Python, Rust and Go, and reports the ones written in a way measured to produce bad answers: a choice with no fallback option, a score given a map where it takes a list, a type that does not exist, a question that turns on a word with no stated line. The limits a request is held to are the platform's own, read from the model id, a URL in the file or a target setting. Linting runs as you type with no API key and no network. A part of a question that is built at runtime is counted as not read, never guessed at. Two optional commands, run by you with your own key at whichever platform you send to, ask the model itself whether a file's questions have problems a text pattern cannot see, or re-send one question with its layout changed to see whether the answer holds.",
     useCases: [
       {
         title: 'Catch it while typing',
@@ -559,7 +562,7 @@ export function findTool(id: string): Tool | undefined {
  * that is not in the registry fails the build, not the page.
  */
 export const FEATURED: Tool = (() => {
-  const tool = findTool('jevlint-le')
+  const tool = findTool('decisionlint')
   if (tool === undefined) throw new Error('the featured tool is not in the registry')
   return tool
 })()

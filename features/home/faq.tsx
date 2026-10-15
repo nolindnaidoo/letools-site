@@ -12,7 +12,7 @@ const FAQ_ITEMS = [
   {
     id: 'privacy',
     question: 'Do they send my code anywhere?',
-    answer: `Not unless you ask one to. ${capitalize(countWord(OFFLINE_TOOLS.length))} of the ${countWord(TOOLS.length)} tools make no network requests at all. Scrape-LE fetches the page you point it at, because that is what checking scrapeability means — it still never uploads your files. JevLint-LE lints offline, and sends questions to Jev or Luna only when you ask it to, with your own key, from one editor command, one command-line flag, or two MCP tools an agent is told to call only on your word. The optional telemetry setting only writes to a local output channel inside your editor, and it is off by default.`,
+    answer: `Not unless you ask one to. ${capitalize(countWord(OFFLINE_TOOLS.length))} of the ${countWord(TOOLS.length)} tools make no network requests at all. Scrape-LE fetches the page you point it at, because that is what checking scrapeability means — it still never uploads your files. DecisionLint lints offline, and sends questions to the model's platform only when you ask it to, with your own key, from an Ask command per platform and a probe in the editor, one command-line flag, or two MCP tools an agent is told to call only on your word. The optional telemetry setting only writes to a local output channel inside your editor, and it is off by default.`,
   },
   {
     id: 'forks',
