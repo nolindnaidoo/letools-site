@@ -6,6 +6,7 @@ import { ToolHero } from '@/features/tool/tool-hero'
 import { ToolInstall } from '@/features/tool/tool-install'
 import { ToolLinks } from '@/features/tool/tool-links'
 import { ToolOverview } from '@/features/tool/tool-overview'
+import { ToolRules } from '@/features/tool/tool-rules'
 import { ToolSiblings } from '@/features/tool/tool-siblings'
 import { SITE_NAME, SITE_URL } from '@/lib/site'
 import { factsFor, findTool, githubUrl, iconSrc, TOOLS, type Tool, toolPath } from '@/lib/tools'
@@ -107,6 +108,7 @@ export default async function ToolPage({ params }: Params) {
       <ToolHero tool={tool} />
       <ToolOverview tool={tool} />
       <ToolCommands tool={tool} />
+      <ToolRules tool={tool} />
       <ToolInstall tool={tool} />
       <ToolChannels tool={tool} />
       <ToolLinks tool={tool} />
