@@ -12,9 +12,16 @@ import { reportError } from './error'
  */
 
 /** Always first, whatever the counts say. The owner's call, not a measurement. */
-export const LEADS = 'jevlint-le'
+export const LEADS = 'decisionlint'
 
-/** Open VSX downloads per extension, measured 2026-10-12. */
+/**
+ * Open VSX downloads per extension, measured 2026-10-12.
+ *
+ * DecisionLint has no row: its listing is new on 2026-10-14, the 1,712 its
+ * predecessor JevLint-LE had stayed with that listing, and a floor is only
+ * true for the listing it was measured on. Absent reads as zero, and it leads
+ * through `LEADS` whatever its count.
+ */
 export const DOWNLOADS_FLOOR: Readonly<Record<string, number>> = Object.freeze({
   'paths-le': 22_536,
   'string-le': 22_137,
@@ -26,7 +33,6 @@ export const DOWNLOADS_FLOOR: Readonly<Record<string, number>> = Object.freeze({
   'dates-le': 6_885,
   'secrets-le': 3_722,
   'regex-le': 3_712,
-  'jevlint-le': 1_170,
   'i18n-le': 758,
   'unicode-le': 750,
   'ids-le': 734,

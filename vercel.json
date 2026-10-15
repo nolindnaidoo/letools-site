@@ -40,5 +40,12 @@
       ]
     }
   ],
+  "redirects": [
+    {
+      "source": "/tools/jevlint-le",
+      "destination": "/tools/decisionlint",
+      "permanent": true
+    }
+  ],
   "buildCommand": "bun run verify:deploy"
 }

@@ -36,7 +36,10 @@ describe('fleet pass documents', () => {
   })
 
   it('has exactly one ledger row per fleet repo, and one per repo outside the fleet', () => {
-    const rows = [...read('LEDGER.md').matchAll(/^\| ([a-z0-9]+-le) \|/gm)].map(match => match[1])
+    // A family repo is `<name>-le`; the one outside the family has no suffix.
+    const rows = [...read('LEDGER.md').matchAll(/^\| ([a-z0-9]+(?:-le)?) \|/gm)].map(
+      match => match[1],
+    )
     expect([...rows].sort()).toEqual([...REPOS, ...OUTSIDE_FLEET].sort())
   })
 })

@@ -337,34 +337,34 @@ describe('the tool that sends on request', () => {
     // A pin, like the one above: no manifest states it, so a second tool that
     // gains a command which sends something has to be looked at by a person.
     expect(TOOLS.filter(tool => tool.sendsOnRequest !== undefined).map(tool => tool.id)).toEqual([
-      'jevlint-le',
+      'decisionlint',
     ])
     expect(OFFLINE_TOOLS).toHaveLength(TOOLS.length - 2)
     expect(OFFLINE_TOOLS.map(tool => tool.id)).not.toContain('scrape-le')
-    expect(OFFLINE_TOOLS.map(tool => tool.id)).not.toContain('jevlint-le')
+    expect(OFFLINE_TOOLS.map(tool => tool.id)).not.toContain('decisionlint')
   })
 
   it('installs from Open VSX under the namespace it is published to', () => {
-    const tool = findTool('jevlint-le')
-    if (tool === undefined) throw new Error('jevlint-le is not in the registry')
-    expect(openVsxUrl(tool)).toBe(`https://open-vsx.org/extension/${PUBLISHER}/jevlint-le`)
-    expect(openVsxId(tool)).toBe(`${PUBLISHER}.jevlint-le`)
+    const tool = findTool('decisionlint')
+    if (tool === undefined) throw new Error('decisionlint is not in the registry')
+    expect(openVsxUrl(tool)).toBe(`https://open-vsx.org/extension/${PUBLISHER}/decisionlint`)
+    expect(openVsxId(tool)).toBe(`${PUBLISHER}.decisionlint`)
     const sibling = findTool('regex-le')
     if (sibling === undefined) throw new Error('regex-le is not in the registry')
     expect(openVsxId(sibling)).toBe(`${OPENVSX_NAMESPACE}.regex-le`)
   })
 
   it('names its two npm packages, and its registry listing now that it has one', () => {
-    const tool = findTool('jevlint-le')
-    if (tool === undefined) throw new Error('jevlint-le is not in the registry')
+    const tool = findTool('decisionlint')
+    if (tool === undefined) throw new Error('decisionlint is not in the registry')
     // The command line is the package named for the tool; the server is the
     // family's `<id>-mcp`, read from its `mcp/` by the sync since 0.7.0.
-    expect(npmPackage(tool)).toBe('jevlint-le')
-    expect(npmUrl(tool)).toBe('https://www.npmjs.com/package/jevlint-le')
-    expect(mcpPackageFor(tool)).toBe('jevlint-le-mcp')
-    expect(mcpNpmUrl(tool)).toBe('https://www.npmjs.com/package/jevlint-le-mcp')
-    expect(mcpInvocation(tool)).toEqual({ command: 'npx', args: ['-y', 'jevlint-le-mcp'] })
-    // Listed on 2026-10-10 as io.github.nolindnaidoo/jevlint-le 0.6.0, so no tool waits on a listing.
+    expect(npmPackage(tool)).toBe('decisionlint')
+    expect(npmUrl(tool)).toBe('https://www.npmjs.com/package/decisionlint')
+    expect(mcpPackageFor(tool)).toBe('decisionlint-mcp')
+    expect(mcpNpmUrl(tool)).toBe('https://www.npmjs.com/package/decisionlint-mcp')
+    expect(mcpInvocation(tool)).toEqual({ command: 'npx', args: ['-y', 'decisionlint-mcp'] })
+    // Listed on 2026-10-14 as io.github.nolindnaidoo/decisionlint 1.0.0, so no tool waits on a listing.
     expect(TOOLS.filter(t => t.mcpRegistryPending === true).map(t => t.id)).toEqual([])
   })
 })
