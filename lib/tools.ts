@@ -759,7 +759,7 @@ export function iconSrc(tool: Tool): string | undefined {
 export function demoSrc(tool: Tool): string | undefined {
   const hash = assetHash(tool)
   if (hash === undefined) return undefined
-  return `/demos/${tool.id}.${hash.demo}.gif`
+  return `/demos/${tool.id}.${hash.demo}.mp4`
 }
 
 export function posterSrc(tool: Tool): string | undefined {

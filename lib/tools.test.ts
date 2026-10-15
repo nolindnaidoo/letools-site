@@ -182,7 +182,7 @@ describe('the link builders', () => {
     // Demos and posters carry eight characters of their own hash, so that a
     // corrected image is a new URL rather than one hidden behind a week-long
     // cache. The icons do not change and are not fingerprinted.
-    expect(demoSrc(tool)).toMatch(new RegExp(`^/demos/${tool.id}\\.[0-9a-f]{8}\\.gif$`))
+    expect(demoSrc(tool)).toMatch(new RegExp(`^/demos/${tool.id}\\.[0-9a-f]{8}\\.mp4$`))
     expect(posterSrc(tool)).toMatch(new RegExp(`^/posters/${tool.id}\\.[0-9a-f]{8}\\.jpg$`))
   })
 

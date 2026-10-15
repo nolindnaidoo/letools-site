@@ -92,12 +92,13 @@ test('shows every header control at 320px', async ({ page }) => {
 
 test('stops the demo recording on request, and plays it again', async ({ page }) => {
   await page.goto('/')
-  const demo = page.locator('[data-demo]').first()
-  await expect(demo).toHaveAttribute('src', /\.gif$/)
+  const demo = page.locator('video[data-demo]').first()
+  await expect(demo).toHaveAttribute('data-playing', 'true')
 
   await page.getByRole('button', { name: /^Pause the .+ demo$/ }).click()
-  await expect(demo).not.toHaveAttribute('src', /\.gif$/)
+  await expect(demo).toHaveAttribute('data-playing', 'false')
+  await expect.poll(() => demo.evaluate(video => (video as HTMLVideoElement).paused)).toBe(true)
 
   await page.getByRole('button', { name: /^Play the .+ demo$/ }).click()
-  await expect(demo).toHaveAttribute('src', /\.gif$/)
+  await expect(demo).toHaveAttribute('data-playing', 'true')
 })

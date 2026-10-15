@@ -37,7 +37,7 @@ import { claimsIn, main as claimsMain } from './check-publication-claims'
 import { manifestVersions, pinsIn, main as pinsMain } from './check-quoted-versions'
 import { missingFrom, main as pillarsMain } from './check-readme-pillars'
 import { expectedPaths, orphans, resolves, main as routesMain } from './check-routes'
-import { argsFor, destinationFor, FILTER, renderHashes, sourceFor } from './sync-demos'
+import { argsFor, destinationFor, renderHashes, sourceFor, VIDEO } from './sync-demos'
 import { main as readmesMain, regenerate, summarise } from './sync-readmes'
 import { main as registryMain, render, factsFor as repoFacts } from './sync-registry'
 
@@ -112,7 +112,7 @@ describe('check-demos', () => {
 
   it('catches a tool with no demo at all', () => {
     const problems = problemsWith(['a', 'b'], [demo('a', 'one')])
-    expect(problems.some(problem => problem.includes('b: public/demos/b.gif is missing'))).toBe(
+    expect(problems.some(problem => problem.includes('b: public/demos/b.mp4 is missing'))).toBe(
       true,
     )
   })
@@ -675,23 +675,25 @@ describe('check-npm-links', () => {
 
 describe('sync-demos', () => {
   it('reads each tool repo beside this one and writes into public/demos', () => {
-    expect(sourceFor('colors-le')).toContain('colors-le/src/assets/images/demo.gif')
-    expect(destinationFor('colors-le')).toContain('public/demos/colors-le.gif')
+    // The same path in every tool repo, whatever kind of repo it is.
+    expect(sourceFor('colors-le')).toContain('colors-le/assets/demos/editor.mp4')
+    expect(sourceFor('units-le')).toContain('units-le/assets/demos/editor.mp4')
+    expect(destinationFor('colors-le')).toContain('public/demos/colors-le.mp4')
   })
 
-  it('encodes every demo with a per-clip palette at one width', () => {
-    // Re-encoding against the global 256-colour palette bands badly on editor
-    // screenshots, and a demo encoded differently from its neighbours shows.
-    expect(FILTER).toContain('palettegen')
-    expect(FILTER).toContain('paletteuse')
-    expect(FILTER).toContain('scale=800')
+  it('encodes every demo the same way, as silent video that starts before it ends', () => {
+    // A demo encoded differently from its neighbours shows on the grid.
+    expect(VIDEO).toContain('libx264')
+    expect(VIDEO).toContain('scale=1600:-2:flags=lanczos')
+    expect(VIDEO).toContain('-an')
+    expect(VIDEO).toContain('+faststart')
   })
 
-  it('passes ffmpeg the source, the filter and the destination', () => {
-    const args = argsFor('/in.gif', '/out.gif')
-    expect(args).toContain('/in.gif')
-    expect(args).toContain('/out.gif')
-    expect(args).toContain(FILTER)
+  it('passes ffmpeg the source, the encode and the destination', () => {
+    const args = argsFor('/in.mp4', '/out.mp4')
+    expect(args).toContain('/in.mp4')
+    expect(args).toContain('/out.mp4')
+    for (const part of VIDEO) expect(args).toContain(part)
     // Overwrite without prompting, or the script hangs waiting on stdin.
     expect(args[0]).toBe('-y')
   })
@@ -709,8 +711,8 @@ describe('sync-demos', () => {
 })
 
 describe('the filesystem readers', () => {
-  it('hashes each GIF it finds and ignores everything else', () => {
-    const root = fakeBuild({ 'a.gif': 'one', 'b.gif': 'two', 'notes.txt': 'x' })
+  it('hashes each video it finds and ignores everything else', () => {
+    const root = fakeBuild({ 'a.mp4': 'one', 'b.mp4': 'two', 'notes.txt': 'x' })
     const demos = readDemos(root)
     expect(demos.map(demo => demo.id).sort()).toEqual(['a', 'b'])
     expect(demos.find(demo => demo.id === 'a')?.sha1).toBe(sha1('one'))
@@ -826,7 +828,7 @@ describe('the failure paths', () => {
 
   it('check-demos fails when public/demos is wrong', () => {
     // Points the reader at a directory holding two identical demos.
-    const root = fakeBuild({ 'colors-le.gif': 'same', 'dates-le.gif': 'same' })
+    const root = fakeBuild({ 'colors-le.mp4': 'same', 'dates-le.mp4': 'same' })
     expect(demosMain(root)).toBe(1)
   })
 })

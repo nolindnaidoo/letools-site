@@ -1,8 +1,9 @@
 # Demos
 
-**Status:** standard written; capture measured on DecisionLint, String-LE
-and Paths-LE; recorders not built. Recorded once per tool, by hand, in one
-pass. Not re-recorded on a schedule.
+**Status:** done. Every tool has its three recordings in `assets/demos/`,
+the old layout is gone, and the site serves video made from each editor
+master. Recorded once per tool, by hand, in one pass. Not re-recorded on a
+schedule.
 
 Every tool shows each surface it has, the editor, the command line and the MCP
 server, in a recording a reader can read at the size it is shown. This file is
@@ -125,7 +126,7 @@ demos soft.
 
 ## Rollout
 
-1. This standard. *(this change)*
+1. This standard.
 2. The shared recorders and encoding script.
 3. **Pilot: DecisionLint**, all three surfaces, checked as rendered on
    GitHub, the Marketplace, Open VSX, npm and crates.io. The numbers above
