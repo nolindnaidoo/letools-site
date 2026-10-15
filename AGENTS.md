@@ -357,6 +357,12 @@ of a procedure drift. Read `fleet-pass/README.md` before auditing or fixing any
 tool in the family. `scripts/fleet-pass.test.ts` holds the read rule identical
 across the documents and the ledger against `REPOS`.
 
+## Demos
+
+[`DEMOS.md`](./DEMOS.md) is the standard every tool's recordings are held to,
+the layout in each repo, and the order the fleet is moved in. Read it before
+recording a demo or touching `sync:demos`.
+
 ## The cross-repo gates live here
 
 Nothing inside a single tool repo can tell you a sibling drifted, so the
