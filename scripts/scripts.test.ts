@@ -1001,6 +1001,48 @@ describe('the derived registry facts', () => {
     )
   })
 
+  const RULE_TABLE = [
+    '| Code | Name | Default | What it means |',
+    '|---|---|---|---|',
+    '| DEC004 | no-fallback-option | info | A Choice has no `other` option |',
+    "| DEC104 | compound | off | A Noul joins two judgments with 'and' |",
+    '',
+    '| `DEC004` on `team` | A message about neither team is forced into one |',
+  ].join('\n')
+
+  it('reads a rule table from the README, and nothing that only mentions a code', () => {
+    const repo = fakeBuild({
+      'README.md': RULE_TABLE,
+      'docs/rules/DEC004.md': '#',
+      'docs/rules/DEC104.md': '#',
+    })
+    expect(repoFacts(repo).rules).toEqual([
+      {
+        code: 'DEC004',
+        name: 'no-fallback-option',
+        level: 'info',
+        meaning: 'A Choice has no `other` option',
+      },
+      {
+        code: 'DEC104',
+        name: 'compound',
+        level: 'off',
+        meaning: "A Noul joins two judgments with 'and'",
+      },
+    ])
+    expect(render(new Map([['d', repoFacts(repo)]]))).toContain('rules: [{"code":"DEC004"')
+  })
+
+  it('refuses a rule whose page is missing, which would be a dead link', () => {
+    const repo = fakeBuild({ 'README.md': RULE_TABLE, 'docs/rules/DEC004.md': '#' })
+    expect(() => repoFacts(repo)).toThrow(/no docs\/rules page for DEC104/)
+  })
+
+  it('leaves rules out for a tool with no rule table', () => {
+    const repo = fakeBuild({ 'README.md': '# A tool\n' })
+    expect(repoFacts(repo).rules).toBeUndefined()
+  })
+
   it('gives every tool in the registry a generated entry', () => {
     for (const tool of TOOLS) {
       expect(() => factsFor(tool), tool.id).not.toThrow()

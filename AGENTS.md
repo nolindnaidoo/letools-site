@@ -54,8 +54,8 @@ app/          routes (shims), fonts, providers, globals.css, not-found,
               static page per tool, emitted by generateStaticParams)
 features/     home/ — hero, tools, principles, install, mcp-config,
               rust-tools, faq (in page order)
-              tool/ — hero, overview, commands, install, channels, links,
-              siblings (the per-tool page)
+              tool/ — hero, overview, commands, rules, install, channels,
+              links, siblings (the per-tool page)
 components/   shared UI: site-header, site-footer, theme-toggle,
               command-snippet, section-heading, demo-frame, tool-icon
 ui/           thin @heroui/react re-exports, one file per primitive —
@@ -142,6 +142,11 @@ to anyone.
   by id like every other, at `../decisionlint`. The old page,
   `/tools/jevlint-le`, redirects to the new one in `vercel.json`, because the
   last release under the old name links it.
+- **Rules.** A linter's rule list is read by `sync:registry` from the
+  `| CODE | name | default | meaning |` rows of its README, which the tool's
+  own test holds equal to its rule registry. The sync refuses a row with no
+  `docs/rules/<CODE>.md` page, because every row links one. Only DecisionLint
+  has such a table today.
 - **Locales.** All ten ship the same 12 translated bundles (plus the English
   source, which is not a translation — counting it gives 13 and is wrong). This
   used to vary, and the site said so long after it stopped being true: copy
