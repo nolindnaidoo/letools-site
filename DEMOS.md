@@ -1,7 +1,8 @@
 # Demos
 
-**Status:** standard written; capture measured on DecisionLint; recorders not built. Recorded once per tool, by
-hand, in one pass. Not re-recorded on a schedule.
+**Status:** standard written; capture measured on DecisionLint, String-LE
+and Paths-LE; recorders not built. Recorded once per tool, by hand, in one
+pass. Not re-recorded on a schedule.
 
 Every tool shows each surface it has, the editor, the command line and the MCP
 server, in a recording a reader can read at the size it is shown. This file is
@@ -17,12 +18,13 @@ It lives here because only this repo sees all seventeen tools at once.
   `sourceFor` in `scripts/sync-demos.ts` picks the path from `REPOS`, so it
   broke when the six joined it, and `sync:demos` refuses the whole run.
 - Legibility. Terminals were recorded at 1200 px with a 17 px font and shown
-  at 800 px, about 11 px of text. Editor demos were dithered to a 256-colour
-  GIF.
+  at 800 px, about 11 px of text. Editor demos were captured at 1x, about
+  900 px wide, and dithered to a 256-colour GIF, so every glyph was soft.
 - The small size was never about the packages. Every `.vscodeignore` is an
   allow-list that ships no demo, the npm `files` lists name none, and a
-  crate is packaged from `crate/`, which `assets/` sits outside. What it held down was the site's payload and the
-  repos' history, and one recording pass is a one-time cost to both.
+  crate is packaged from `crate/`, which `assets/` sits outside. What it
+  held down was the site's payload and the repos' history, and one
+  recording pass is a one-time cost to both.
 
 ## Layout, in every tool repo
 
@@ -44,15 +46,24 @@ assets/demos/
 ## Frame
 
 - **1600 x 1000 output pixels**, 16:10, every surface.
-- **Text at least 14 px when the frame is shown 800 px wide**, which is about
-  how wide GitHub, the Marketplace and the site card draw it. That is 28 px of
-  text in the frame.
-  - Terminal (vhs): `Set Width 1600`, `Set Height 1000`, `Set FontSize 28`,
-    `Set Padding 32`. About 27 rows; content past that scrolls, and the
-    demo loses its own opening.
-  - Editor: the window is 800 x 500 at a device scale factor of 2, so VS Code
-    lays out as it would at 800 wide and renders every glyph at twice the
-    pixels. Editor font size 14.
+- The frame is shown about 800 px wide on GitHub, the Marketplace and the
+  site card, so text size is judged there.
+  - **Terminal: 14 px at 800 wide.** `Set Width 1600`, `Set Height 1000`,
+    `Set FontSize 28`, `Set Padding 32`. About 27 rows; content past that
+    scrolls, and the demo loses its own opening.
+  - **Editor: about 11 px at 800 wide, drawn at twice the pixels.** The
+    window is 1200 x 750 at a device scale factor of 2, editor font 17,
+    captured at 2400 x 1500 and scaled to 1600 x 1000. Most tools show the
+    source and their results side by side, and two code panes do not fit
+    in a smaller window: at 1000 x 625 String-LE and Paths-LE cut every
+    source line, and word wrap doubled each line instead. Legibility here
+    comes from pixel density, which a high-density screen shows in full.
+  - **Editor inputs are written for the frame:** source lines of about 50
+    characters at most, so neither pane cuts one off.
+  - **No diagnostics but the tool's own.** The built-in TypeScript
+    extension is off for the recording, as DecisionLint's recorder already
+    does: a demo file imports modules that are not installed, and their
+    errors are noise about nothing the tool does.
 - **The first frame carries content.** The site's poster is frame one.
 - **30 seconds at most.** A demo that needs longer is two demos.
 - **Nothing private on screen:** no real key, email, name or home path. Work
@@ -84,7 +95,9 @@ demos soft.
   soft for this standard, so frames are captured losslessly and encoded by
   the shared script. Measured on DecisionLint, 2026-10-14: a
   `page.screenshot()` loop at `--force-device-scale-factor=2` and an
-  800 x 500 content size gives 1600 x 1000 PNGs at about 28 fps. Each frame
+  800 x 500 content size gives 1600 x 1000 PNGs at about 28 fps. At the
+  1200 x 750 window above a frame is 2.25 times the pixels, and the rate is
+  measured again in the pilot. Each frame
   keeps its wall-clock time and the encoder places it there, so the clip
   plays at true speed whatever the loop managed. CDP screencast sends a
   frame only when the screen changes, at irregular times, and is not used.
