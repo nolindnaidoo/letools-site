@@ -205,9 +205,11 @@ to anyone.
 
 Tool summaries come from each tool's manifest — keep them in step, never
 embellish. No invented download counts, stars, or testimonials.
-Card icons (`public/icons/`, downscaled to 128px) and hover demos
-(`public/demos/`) are copied from each tool repo's `src/assets/images/` —
-refresh them when a tool's branding or demo changes.
+Card icons (`public/icons/`, downscaled to 128px) are copied from each tool
+repo's `src/assets/images/`; refresh them when a tool's branding changes. The
+demos (`public/demos/`, video, with a poster in `public/posters/`) are made by
+`bun run sync:demos` from each repo's `assets/demos/editor.mp4`, the master
+DEMOS.md describes.
 
 ## Code principles
 

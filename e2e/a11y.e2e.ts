@@ -92,12 +92,38 @@ test('shows every header control at 320px', async ({ page }) => {
 
 test('stops the demo recording on request, and plays it again', async ({ page }) => {
   await page.goto('/')
-  const demo = page.locator('[data-demo]').first()
-  await expect(demo).toHaveAttribute('src', /\.gif$/)
+  const demo = page.locator('video[data-demo]').first()
+  await expect(demo).toHaveAttribute('data-playing', 'true')
 
   await page.getByRole('button', { name: /^Pause the .+ demo$/ }).click()
-  await expect(demo).not.toHaveAttribute('src', /\.gif$/)
+  await expect(demo).toHaveAttribute('data-playing', 'false')
+  await expect.poll(() => demo.evaluate(video => (video as HTMLVideoElement).paused)).toBe(true)
 
   await page.getByRole('button', { name: /^Play the .+ demo$/ }).click()
-  await expect(demo).toHaveAttribute('src', /\.gif$/)
+  await expect(demo).toHaveAttribute('data-playing', 'true')
+})
+
+test('shows the command line and MCP recordings on their tabs, one at a time', async ({ page }) => {
+  await page.goto('/')
+  const frames = page.locator('video[data-demo]')
+  await expect(frames).toHaveCount(1)
+  await expect(frames.first()).toHaveAttribute('data-surface', 'editor')
+
+  for (const [tab, surface] of [
+    ['CLI', 'cli'],
+    ['MCP', 'mcp'],
+  ] as const) {
+    // The install section has a CLI tab of its own, so the demo's list is named.
+    await page
+      .getByRole('tablist', { name: / demo$/ })
+      .getByRole('tab', { name: tab })
+      .click()
+    // Only the tab in view is in the page, so only its recording is fetched.
+    await expect(frames).toHaveCount(1)
+    await expect(frames.first()).toHaveAttribute('data-surface', surface)
+    await expect(frames.first()).toHaveAttribute(
+      'src',
+      new RegExp(`-${surface}\\.[0-9a-f]{8}\\.mp4$`),
+    )
+  }
 })

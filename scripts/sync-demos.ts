@@ -1,18 +1,15 @@
 #!/usr/bin/env bun
 /**
- * Rebuild `public/demos/` from each tool repo's canonical demo.
+ * Rebuild `public/demos/` from each tool repo's editor recording.
  *
- * `src/assets/images/demo.gif` is the demo each tool's README embeds, so it is
- * the one users see on the Marketplace listing and on GitHub. This site should
- * show the same recording, and until now the copies were made by hand — which
- * is how Colors-LE ended up shipping the Dates-LE demo, and how every copy here
- * drifted a release behind the source.
+ * `assets/demos/editor.mp4` is the master the README's editor GIF is made
+ * from, so this site shows the same take. The copies used to be made by
+ * hand, which is how Colors-LE ended up shipping the Dates-LE demo, and how
+ * every copy here drifted a release behind the source.
  *
- * The recordings are wider than the card, so each is scaled to a fixed width
- * with a per-clip palette. A GIF re-encoded against the global 256-colour
- * palette bands badly on editor screenshots, which are mostly flat syntax
- * colours over a dark background — `palettegen`/`paletteuse` is what keeps
- * them legible.
+ * The site serves video, not the GIF: at the same size it is a fraction of
+ * the bytes and keeps every colour, where a GIF holds 256. DEMOS.md has the
+ * standard each master is recorded to.
  *
  * Requires ffmpeg. Run: bun run sync:demos
  */
@@ -20,8 +17,7 @@ import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { TOOLS } from '../lib/tools'
-import { REPOS } from './check-fleet'
+import { DEMO_SURFACES, type DemoSurface, demoStem, TOOLS } from '../lib/tools'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const DEMOS = resolve(ROOT, 'public/demos')
@@ -30,33 +26,15 @@ const POSTERS = resolve(ROOT, 'public/posters')
 const FLEET = resolve(ROOT, '..')
 const MAP = resolve(ROOT, 'lib/asset-hashes.generated.ts')
 
-/** The card renders at 800px; anything wider is bytes nobody sees. */
-const WIDTH = 800
-
 /**
- * The tool's canonical recording, in whichever layout its repo has.
- *
- * The extension repos keep it beside the other extension assets, where the
- * README and the Marketplace listing both read it from. The crate-only repos
- * have no `src/` at all — their own AGENTS.md says so — so theirs sits at the
- * repo root, above `crate/`, which is also where `cargo package` cannot reach
- * it: a 200 KB GIF has no business inside a published crate.
- *
- * Beside each one is the `demo.tape` that produced it, so a recording is
- * reproducible rather than an artifact nobody can regenerate — which is what
- * the posters used to be.
+ * The master's own width. The frame is drawn about 800px wide, and twice
+ * that is what a high-density screen shows sharp.
  */
-export function sourceFor(toolId: string): string {
-  // Decided from the repo list, not from the filesystem. Asking `existsSync`
-  // made the answer depend on what happened to be checked out: on CI, where
-  // the sibling repos are absent, every tool fell through to the crate-only
-  // path and the test asserting the extension layout failed against a green
-  // local run. Which layout a repo has is a fact about the repo, not about
-  // the machine reading it.
-  const extension = (REPOS as readonly string[]).includes(toolId)
-  return extension
-    ? resolve(FLEET, toolId, 'src/assets/images/demo.gif')
-    : resolve(FLEET, toolId, 'assets/demo.gif')
+const WIDTH = 1600
+
+/** A tool's recording of one surface: the same path in every tool repo, per DEMOS.md. */
+export function sourceFor(toolId: string, surface: DemoSurface = 'editor'): string {
+  return resolve(FLEET, toolId, `assets/demos/${surface}.mp4`)
 }
 
 /**
@@ -72,8 +50,8 @@ export function fingerprint(bytes: Uint8Array): string {
   return createHash('sha1').update(bytes).digest('hex').slice(0, 8)
 }
 
-export function destinationFor(toolId: string): string {
-  return resolve(DEMOS, `${toolId}.gif`)
+export function destinationFor(stem: string): string {
+  return resolve(DEMOS, `${stem}.mp4`)
 }
 
 /**
@@ -85,8 +63,8 @@ export function destinationFor(toolId: string): string {
  * looked here. Deriving the poster from the demo means it cannot disagree with
  * the clip it stands in for.
  */
-export function posterFor(toolId: string): string {
-  return resolve(POSTERS, `${toolId}.jpg`)
+export function posterFor(stem: string): string {
+  return resolve(POSTERS, `${stem}.jpg`)
 }
 
 /** First frame of the clip, at the width the card renders. */
@@ -108,16 +86,29 @@ export function posterArgsFor(source: string, destination: string): readonly str
 }
 
 /**
- * The ffmpeg filter chain, as one string. Kept here rather than inline so the
- * encode is one decision in one place — a demo re-encoded with different
- * settings than its neighbours is visible on the grid.
+ * The ffmpeg encode for the site's copy, as one list. Kept here rather than
+ * inline so the encode is one decision in one place: a demo encoded
+ * differently from its neighbours is visible on the grid. No audio, and the
+ * index at the front so a browser can start playing before the file ends.
  */
-export const FILTER =
-  `scale=${WIDTH}:-1:flags=lanczos,split[s0][s1];` +
-  '[s0]palettegen=stats_mode=diff[p];[s1][p]paletteuse=dither=bayer:bayer_scale=3'
+export const VIDEO = Object.freeze([
+  '-an',
+  '-vf',
+  `scale=${WIDTH}:-2:flags=lanczos`,
+  '-c:v',
+  'libx264',
+  '-crf',
+  '23',
+  '-preset',
+  'slow',
+  '-pix_fmt',
+  'yuv420p',
+  '-movflags',
+  '+faststart',
+])
 
 export function argsFor(source: string, destination: string): readonly string[] {
-  return ['-y', '-loglevel', 'error', '-i', source, '-vf', FILTER, destination]
+  return ['-y', '-loglevel', 'error', '-i', source, ...VIDEO, destination]
 }
 
 /**
@@ -162,19 +153,20 @@ ${iconList}
 }
 
 export async function main(): Promise<number> {
-  // A repo with neither assets layout has nothing recorded yet — no editor
-  // screen and no terminal clip — so there is nothing to copy and nothing
-  // wrong. A repo that has the directory and not the demo is the failure this
-  // used to catch, and still does.
-  const recorded = TOOLS.filter(
-    tool =>
-      existsSync(resolve(FLEET, tool.id, 'src/assets')) ||
-      existsSync(resolve(FLEET, tool.id, 'assets')),
+  // A repo with no assets/demos/ has nothing recorded yet, so there is
+  // nothing to copy and nothing wrong. A repo that has the directory and not
+  // the editor master is the failure this catches.
+  const recorded = TOOLS.filter(tool => existsSync(resolve(FLEET, tool.id, 'assets/demos')))
+  const takes = recorded.flatMap(tool =>
+    DEMO_SURFACES.map(surface => ({
+      stem: demoStem(tool.id, surface),
+      source: sourceFor(tool.id, surface),
+    })),
   )
-  const missing = recorded.filter(tool => !existsSync(sourceFor(tool.id)))
+  const missing = takes.filter(take => !existsSync(take.source))
   if (missing.length > 0) {
     process.stderr.write(
-      `\nsync-demos: no source demo for ${missing.map(t => t.id).join(', ')}.\n` +
+      `\nsync-demos: no recording for ${missing.map(take => take.stem).join(', ')}.\n` +
         `Expected each tool repo checked out beside this one, at ${FLEET}.\n\n`,
     )
     return 2
@@ -182,34 +174,34 @@ export async function main(): Promise<number> {
 
   let total = 0
   const hashes = new Map<string, { demo: string; poster: string }>()
-  for (const tool of recorded) {
-    const destination = destinationFor(tool.id)
-    const result = Bun.spawnSync(['ffmpeg', ...argsFor(sourceFor(tool.id), destination)])
+  for (const { stem, source } of takes) {
+    const destination = destinationFor(stem)
+    const result = Bun.spawnSync(['ffmpeg', ...argsFor(source, destination)])
 
     if (result.exitCode !== 0) {
       process.stderr.write(
-        `\nsync-demos: ffmpeg failed for ${tool.id}.\n${result.stderr.toString()}\n`,
+        `\nsync-demos: ffmpeg failed for ${stem}.\n${result.stderr.toString()}\n`,
       )
       return 1
     }
 
-    const poster = posterFor(tool.id)
-    const posterResult = Bun.spawnSync(['ffmpeg', ...posterArgsFor(sourceFor(tool.id), poster)])
+    const poster = posterFor(stem)
+    const posterResult = Bun.spawnSync(['ffmpeg', ...posterArgsFor(source, poster)])
     if (posterResult.exitCode !== 0) {
       process.stderr.write(
-        `\nsync-demos: ffmpeg failed on the poster for ${tool.id}.\n${posterResult.stderr.toString()}\n`,
+        `\nsync-demos: ffmpeg failed on the poster for ${stem}.\n${posterResult.stderr.toString()}\n`,
       )
       return 1
     }
 
     const demoHash = fingerprint(readFileSync(destination))
     const posterHash = fingerprint(readFileSync(poster))
-    hashes.set(tool.id, { demo: demoHash, poster: posterHash })
+    hashes.set(stem, { demo: demoHash, poster: posterHash })
 
     // The served name carries the hash; the unsuffixed file is the working
     // copy the next sync overwrites.
-    const servedDemo = resolve(DEMOS, `${tool.id}.${demoHash}.gif`)
-    const servedPoster = resolve(POSTERS, `${tool.id}.${posterHash}.jpg`)
+    const servedDemo = resolve(DEMOS, `${stem}.${demoHash}.mp4`)
+    const servedPoster = resolve(POSTERS, `${stem}.${posterHash}.jpg`)
     writeFileSync(servedDemo, readFileSync(destination))
     writeFileSync(servedPoster, readFileSync(poster))
 
@@ -221,7 +213,7 @@ export async function main(): Promise<number> {
     const bytes = statSync(servedDemo).size + statSync(servedPoster).size
     total += bytes
     process.stdout.write(
-      `  ${tool.id.padEnd(12)} ${(bytes / 1024).toFixed(0).padStart(5)} KB  ${demoHash}\n`,
+      `  ${stem.padEnd(16)} ${(bytes / 1024).toFixed(0).padStart(5)} KB  ${demoHash}\n`,
     )
   }
 
@@ -229,11 +221,13 @@ export async function main(): Promise<number> {
   // version. Left behind it is dead weight the payload budget still counts.
   const live = new Set<string>()
   for (const [id, hash] of hashes) {
-    live.add(`${id}.${hash.demo}.gif`)
+    live.add(`${id}.${hash.demo}.mp4`)
     live.add(`${id}.${hash.poster}.jpg`)
   }
   let removed = 0
+  // GIFs are what the site served before video, so any left are superseded.
   for (const [directory, extension] of [
+    [DEMOS, '.mp4'],
     [DEMOS, '.gif'],
     [POSTERS, '.jpg'],
   ] as const) {
@@ -252,7 +246,7 @@ export async function main(): Promise<number> {
   writeFileSync(MAP, renderHashes(hashes, icons))
   const skipped = TOOLS.length - recorded.length
   process.stdout.write(
-    `\nSynced ${recorded.length} demos and posters, ${(total / 1024 / 1024).toFixed(1)} MB` +
+    `\nSynced ${takes.length} demos and posters for ${recorded.length} tools, ${(total / 1024 / 1024).toFixed(1)} MB` +
       `${removed > 0 ? `, removed ${removed} superseded file(s)` : ''}` +
       `${skipped > 0 ? `. ${skipped} tool(s) have no extension to record yet` : ''}.\n`,
   )

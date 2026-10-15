@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Fail if any two tools ship the same demo GIF, or if a tool is missing one.
+ * Fail if any two tools ship the same demo video, or if a tool is missing one.
  *
  * This repo is the only place all ten demos sit together, so it is the only
  * place the duplicate is visible. Colors-LE shipped the Dates-LE demo from its
@@ -13,7 +13,7 @@ import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { demoSrc, TOOLS } from '../lib/tools'
+import { DEMO_SURFACES, demoSrc, demoStem, TOOLS } from '../lib/tools'
 
 // import.meta.dir is Bun-only and does not typecheck; this is the portable form.
 const DEMOS = fileURLToPath(new URL('../public/demos', import.meta.url))
@@ -26,12 +26,12 @@ export function sha1(bytes: Uint8Array | string): string {
   return createHash('sha1').update(bytes).digest('hex')
 }
 
-/** Reads `public/demos`, hashing each GIF. Split out so the rules can be tested. */
-export function readDemos(directory: string, extension = '.gif'): readonly Demo[] {
+/** Reads `public/demos`, hashing each video. Split out so the rules can be tested. */
+export function readDemos(directory: string, extension = '.mp4'): readonly Demo[] {
   return readdirSync(directory)
     .filter(file => file.endsWith(extension))
     .map(file => ({
-      // `colors-le.9999de44.gif` -> `colors-le`. The hash is part of the URL,
+      // `colors-le.9999de44.mp4` -> `colors-le`. The hash is part of the URL,
       // not part of the identity.
       id: file.slice(0, -extension.length).replace(/\.[0-9a-f]{8}$/, ''),
       sha1: sha1(readFileSync(join(directory, file))),
@@ -50,7 +50,7 @@ export function problemsWith(
   const byId = new Map(demos.map(demo => [demo.id, demo]))
 
   for (const id of toolIds) {
-    if (!byId.has(id)) problems.push(`${id}: public/demos/${id}.gif is missing`)
+    if (!byId.has(id)) problems.push(`${id}: public/demos/${id}.mp4 is missing`)
   }
 
   const byHash = new Map<string, string[]>()
@@ -71,7 +71,7 @@ export function problemsWith(
   const known = new Set(toolIds)
   for (const demo of demos) {
     if (!known.has(demo.id)) {
-      problems.push(`public/demos/${demo.id}.gif has no matching tool in lib/tools.ts`)
+      problems.push(`public/demos/${demo.id}.mp4 has no matching tool in lib/tools.ts`)
     }
   }
 
@@ -84,7 +84,13 @@ export function main(directory: string = DEMOS, posters: string = POSTERS): numb
   // whole point rather than a mistake — its page shows the captured terminal
   // run instead. The duplicate check, which is why this script exists, still
   // covers every recording that does exist.
-  const toolIds = TOOLS.filter(tool => demoSrc(tool) !== undefined).map(tool => tool.id)
+  // Every recording of every tool, by its file stem, so a CLI take that is a
+  // copy of the MCP take is caught the way two tools sharing one is.
+  const toolIds = TOOLS.flatMap(tool =>
+    DEMO_SURFACES.filter(surface => demoSrc(tool, surface) !== undefined).map(surface =>
+      demoStem(tool.id, surface),
+    ),
+  )
   const problems = [...problemsWith(toolIds, readDemos(directory))]
 
   // The posters are checked too. They were not, and two of them were the same
@@ -93,7 +99,7 @@ export function main(directory: string = DEMOS, posters: string = POSTERS): numb
   // one directory over and never looked here.
   if (existsSync(posters)) {
     for (const problem of problemsWith(toolIds, readDemos(posters, '.jpg'))) {
-      problems.push(problem.replace('public/demos/', 'public/posters/').replace('.gif', '.jpg'))
+      problems.push(problem.replace('public/demos/', 'public/posters/').replace('.mp4', '.jpg'))
     }
   }
 

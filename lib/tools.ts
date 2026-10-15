@@ -727,8 +727,20 @@ export function mcpCommand(tool: Tool): string {
  * output until the real assets land, and a test pins the icon files on disk
  * to what this reports so the two cannot drift apart.
  */
-function assetHash(tool: Tool): { demo: string; poster: string } | undefined {
-  return ASSET_HASHES[tool.id]
+function assetHash(tool: Tool, surface: DemoSurface): { demo: string; poster: string } | undefined {
+  return ASSET_HASHES[demoStem(tool.id, surface)]
+}
+
+/** The three recordings every tool has, in the order the frame offers them. DEMOS.md sets them. */
+export const DEMO_SURFACES = Object.freeze(['editor', 'cli', 'mcp'] as const)
+export type DemoSurface = (typeof DEMO_SURFACES)[number]
+
+/**
+ * A recording's file name before its hash. The editor's is the bare id, as it
+ * was when it was the only one, so its URLs and the check over them stayed put.
+ */
+export function demoStem(toolId: string, surface: DemoSurface): string {
+  return surface === 'editor' ? toolId : `${toolId}-${surface}`
 }
 
 /**
@@ -756,16 +768,16 @@ export function iconSrc(tool: Tool): string | undefined {
  * screenshot was fixed and returning visitors kept the wrong one. Naming by
  * content makes a change a new URL, which is what makes the long cache safe.
  */
-export function demoSrc(tool: Tool): string | undefined {
-  const hash = assetHash(tool)
+export function demoSrc(tool: Tool, surface: DemoSurface = 'editor'): string | undefined {
+  const hash = assetHash(tool, surface)
   if (hash === undefined) return undefined
-  return `/demos/${tool.id}.${hash.demo}.gif`
+  return `/demos/${demoStem(tool.id, surface)}.${hash.demo}.mp4`
 }
 
-export function posterSrc(tool: Tool): string | undefined {
-  const hash = assetHash(tool)
+export function posterSrc(tool: Tool, surface: DemoSurface = 'editor'): string | undefined {
+  const hash = assetHash(tool, surface)
   if (hash === undefined) return undefined
-  return `/posters/${tool.id}.${hash.poster}.jpg`
+  return `/posters/${demoStem(tool.id, surface)}.${hash.poster}.jpg`
 }
 
 /**

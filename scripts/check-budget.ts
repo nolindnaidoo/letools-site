@@ -23,8 +23,9 @@ const KB = 1024
 
 /**
  * Measured 2026-10-07 on a local build: js 872 KB, css 113 KB, html 1471 KB
- * across twenty files, fonts 143 KB, demos 9988 KB. Each ceiling is about a
- * third above its number.
+ * across twenty files, fonts 143 KB. Each ceiling is about a third above its
+ * number. The demo video was measured 2026-10-15 at 13668 KB: three
+ * recordings for each of seventeen tools, when the site moved from GIF to video.
  *
  * HTML is the one class that differs by machine: the build image measures
  * about 5 KB per page more than a local build, so the deployed figure is near
@@ -35,15 +36,16 @@ const KB = 1024
  * builds over a new tool page or a re-recorded demo, which taught nothing.
  * Do not tighten them to follow the current numbers.
  *
- * The GIFs are hover demos: content, not per-page payload. They get a ceiling
- * so the directory cannot balloon unnoticed, not because they load eagerly.
+ * The demos are content, not per-page payload: a page fetches only the tab in
+ * view. They get a ceiling so the directory cannot balloon unnoticed, not
+ * because they all load.
  */
 const BUDGETS = Object.freeze([
   { label: 'client JS', match: (p: string) => p.endsWith('.js'), ceiling: 1_150 * KB },
   { label: 'CSS', match: (p: string) => p.endsWith('.css'), ceiling: 430 * KB },
   { label: 'HTML', match: (p: string) => p.endsWith('.html'), ceiling: 2_100 * KB },
   { label: 'fonts', match: (p: string) => p.endsWith('.woff2'), ceiling: 200 * KB },
-  { label: 'demo GIFs', match: (p: string) => p.endsWith('.gif'), ceiling: 13_000 * KB },
+  { label: 'demo video', match: (p: string) => p.endsWith('.mp4'), ceiling: 18_000 * KB },
 ])
 
 export function* walk(directory: string): Generator<string> {

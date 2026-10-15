@@ -10,6 +10,7 @@ import {
   countWord,
   crateFor,
   crateUrl,
+  DEMO_SURFACES,
   demoSrc,
   extensionPending,
   FAMILY_SIZE,
@@ -182,8 +183,21 @@ describe('the link builders', () => {
     // Demos and posters carry eight characters of their own hash, so that a
     // corrected image is a new URL rather than one hidden behind a week-long
     // cache. The icons do not change and are not fingerprinted.
-    expect(demoSrc(tool)).toMatch(new RegExp(`^/demos/${tool.id}\\.[0-9a-f]{8}\\.gif$`))
+    expect(demoSrc(tool)).toMatch(new RegExp(`^/demos/${tool.id}\\.[0-9a-f]{8}\\.mp4$`))
     expect(posterSrc(tool)).toMatch(new RegExp(`^/posters/${tool.id}\\.[0-9a-f]{8}\\.jpg$`))
+  })
+
+  it('has a recording of every surface for every tool, each its own file', () => {
+    // DEMOS.md: each tool shows its editor, its command line and its MCP server.
+    for (const each of TOOLS) {
+      const sources = DEMO_SURFACES.map(surface => demoSrc(each, surface))
+      expect(
+        sources.every(source => source !== undefined),
+        each.id,
+      ).toBe(true)
+      expect(new Set(sources).size, each.id).toBe(DEMO_SURFACES.length)
+    }
+    expect(demoSrc(tool, 'cli')).toMatch(new RegExp(`^/demos/${tool.id}-cli\\.[0-9a-f]{8}\\.mp4$`))
   })
 
   it('references no asset that is not in public/', () => {
