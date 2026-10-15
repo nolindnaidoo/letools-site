@@ -54,8 +54,12 @@ export type Step =
   | { readonly open: string }
 
 export type Take = Readonly<{
-  /** The files copied into the workspace. The first is opened at start. */
-  files: readonly string[]
+  /**
+   * The files copied into the workspace. The first is opened at start. One
+   * given as `{ from, to }` is renamed on the way, so an input such as a
+   * `.env` file can be committed under a name nothing ignores.
+   */
+  files: readonly (string | Readonly<{ from: string; to: string }>)[]
   /** Settings over the shared demo settings, for what only this tool needs. */
   settings?: Readonly<Record<string, unknown>>
   /** A selector that is on screen once the editor is ready to be filmed. */
@@ -165,7 +169,13 @@ async function recordEditor(repo: string, inputs: string, master: string): Promi
   for (const dir of [join(profile, 'User'), workspace, frames]) mkdirSync(dir, { recursive: true })
   const base = JSON.parse(readFileSync(join(ROOT, 'scripts/demo-editor-settings.json'), 'utf8'))
   writeFileSync(join(profile, 'User/settings.json'), JSON.stringify({ ...base, ...take.settings }))
-  for (const file of take.files) cpSync(join(inputs, file), join(workspace, file))
+  const placed = take.files.map(file =>
+    typeof file === 'string' ? { from: file, to: file } : file,
+  )
+  for (const file of placed) {
+    mkdirSync(dirname(join(workspace, file.to)), { recursive: true })
+    cpSync(join(inputs, file.from), join(workspace, file.to), { recursive: true })
+  }
   execFileSync(
     join(app, 'Resources/app/bin/code'),
     [
@@ -184,7 +194,7 @@ async function recordEditor(repo: string, inputs: string, master: string): Promi
     executablePath: join(app, 'MacOS/Code'),
     args: [
       workspace,
-      join(workspace, take.files[0] ?? ''),
+      join(workspace, placed[0]?.to ?? ''),
       `--user-data-dir=${profile}`,
       `--extensions-dir=${extensions}`,
       // The inputs import what is not installed. Those errors are about nothing the tool does.
