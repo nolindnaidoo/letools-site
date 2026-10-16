@@ -442,7 +442,7 @@ export const TOOLS: readonly Tool[] = Object.freeze([
     name: 'DecisionLint',
     category: 'check',
     summary:
-      "Lint the questions you send to a decision model, TypeSafe's Jev, OpenAI's Decisions API (gpt-6-luna) or any platform that serves one, as you type, with no API key and no network calls. An optional command asks the model itself to check a file",
+      "Lint Jev and Luna questions before they are sent: the questions you write for TypeSafe's Jev, OpenAI's Decisions API (gpt-6-luna) or any platform that serves one, as you type, with no API key and no network calls. An optional command asks the model itself to check a file",
     mcpTool: 'lint_text',
     cliPackage: 'decisionlint',
     openVsxNamespace: PUBLISHER,
