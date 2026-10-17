@@ -179,9 +179,11 @@ export const CLI_SHARED = [
  * here may differ or lack the file.
  */
 export const CLI_SHARED_WITH_EXCEPTIONS: Record<string, readonly string[]> = {
-  // scrape-le fetches URLs rather than walking a tree, so it has no ignore
-  // rules, and its parity run renders pages, which needs one setting more.
-  'src/cli/ignoreRules.ts': ['scrape-le'],
+  // scrape-le fetches URLs rather than walking a tree, and i18n-le walks up
+  // to a manifest and reads a catalogue set rather than a tree of files, so
+  // neither has ignore rules. scrape-le's parity run renders pages, which
+  // needs one setting more.
+  'src/cli/ignoreRules.ts': ['i18n-le', 'scrape-le'],
   '.github/workflows/release-cli.yml': ['scrape-le'],
 }
 
