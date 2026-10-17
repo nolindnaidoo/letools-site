@@ -383,12 +383,19 @@ deliberately not compared, which today is DecisionLint. A test holds `REPOS`,
 `EXTENSION_PENDING` and `OUTSIDE_FLEET` against the registry, so a tool is in
 exactly one of them.
 
-`check-fleet` holds **three** lists and the distinction matters: `SHARED`
+`check-fleet` holds **four** lists and the distinction matters: `SHARED`
 across the sixteen extension repos, `CRATE_ONLY_SHARED` across the crate-only
 ones (none today: they share `.gitattributes`, the commit hook, dependabot and CodeQL
 config with *each other* and not with the extension repos), and `ALL_SHARED` across all
 sixteen — `.editorconfig`, `scripts/check-agent-files.py` and the
-`dependabot-auto-merge.yml` workflow.
+`dependabot-auto-merge.yml` workflow. `CLI_SHARED` and
+`CLI_SHARED_WITH_EXCEPTIONS` run across the repos that ship an npm command line,
+found by their `cli/package.json`: the drain on exit, the OS-error wording, the
+ignore rules, `build-cli.js` and `release-cli.yml`. Each port copies that
+plumbing from the last, and six published command lines once cut off stderr
+because each had copied the same bug. A new port joins the comparison the day
+it gains a `cli/`, so copy those files from an existing port unchanged. A fix
+to any of them is a fix to every port.
 `ci-crate.yml` and `release-crate.yml` are deliberately per-repo and outside
 every list: the crates stand on their own, and a job one needs and another does
 not is the point rather than a failure.

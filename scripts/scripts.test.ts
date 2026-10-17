@@ -19,6 +19,7 @@ import {
 import {
   ALL_SHARED,
   CRATE_ONLY_SHARED,
+  cliRepos,
   EXTENSION_PENDING,
   fingerprint,
   main as fleetMain,
@@ -190,6 +191,11 @@ describe('check-fleet', () => {
   it('reports a file missing from a repo', () => {
     const problems = problemsIn('ci.yml', prints({ a: 'h1', b: null }), [])
     expect(problems.some(problem => problem.includes('missing in b'))).toBe(true)
+  })
+
+  it('lets a documented exception lack the file', () => {
+    // scrape-le has no ignore rules: it fetches rather than walks.
+    expect(problemsIn('ignoreRules.ts', prints({ a: 'h1', b: 'h1', c: null }), ['c'])).toEqual([])
   })
 
   it("writes the repo's own name out before comparing", () => {
@@ -727,6 +733,14 @@ describe('the filesystem readers', () => {
     const root = fakeBuild({ 'ci.yml': 'shared' })
     expect(hash(join(root, 'ci.yml'), 'colors-le')).toBe(sha1('shared'))
     expect(hash(join(root, 'absent.yml'), 'colors-le')).toBeNull()
+  })
+
+  it('compares command-line files only where a cli/ package exists', () => {
+    const root = join(scratch, 'cli-fleet')
+    mkdirSync(join(root, 'colors-le', 'cli'), { recursive: true })
+    writeFileSync(join(root, 'colors-le', 'cli', 'package.json'), '{}')
+    mkdirSync(join(root, 'dates-le'), { recursive: true })
+    expect(cliRepos(root)).toEqual(['colors-le'])
   })
 
   it('fingerprints one file across every repo in the family', () => {

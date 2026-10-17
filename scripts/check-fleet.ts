@@ -155,6 +155,39 @@ export const SHARED = [
 ] as const
 
 /**
+ * Files every npm command line shares, compared across the repos that ship
+ * one: those with a `cli/package.json`.
+ *
+ * Each port copies its plumbing from the one before, so a bug in it reaches
+ * every repo and used to be fixed only in the newest. Six published command
+ * lines cut off the end of stderr because each had copied an exit that
+ * waited on stdout alone. A repo joins the comparison the day it gains a
+ * command line, so a new port fails here until it carries these files.
+ */
+export const CLI_SHARED = [
+  'src/cli/exit.ts',
+  'src/cli/exit.test.ts',
+  'src/cli/ioError.ts',
+  'scripts/build-cli.js',
+] as const
+
+/**
+ * Command-line files shared except for documented exceptions. A repo listed
+ * here may differ or lack the file.
+ */
+export const CLI_SHARED_WITH_EXCEPTIONS: Record<string, readonly string[]> = {
+  // scrape-le fetches URLs rather than walking a tree, so it has no ignore
+  // rules, and its parity run renders pages, which needs one setting more.
+  'src/cli/ignoreRules.ts': ['scrape-le'],
+  '.github/workflows/release-cli.yml': ['scrape-le'],
+}
+
+/** The fleet repos that ship an npm command line. */
+export function cliRepos(root: string, repos: readonly string[] = REPOS): readonly string[] {
+  return repos.filter(repo => existsSync(join(root, repo, 'cli', 'package.json')))
+}
+
+/**
  * Files that are shared except for documented, deliberate exceptions.
  * Anything not listed here is a regression, not a decision.
  */
@@ -222,7 +255,7 @@ export function problemsIn(
 
   for (const [repo, digest] of prints) {
     if (digest === null) {
-      missing.push(repo)
+      if (!allowed.includes(repo)) missing.push(repo)
       continue
     }
     groups.set(digest, [...(groups.get(digest) ?? []), repo])
@@ -264,6 +297,13 @@ export function main(
   for (const file of ALL_SHARED) {
     problems.push(...problemsIn(file, fingerprint(root, file, everyRepo), []))
   }
+  const withCli = cliRepos(root)
+  for (const file of CLI_SHARED) {
+    problems.push(...problemsIn(file, fingerprint(root, file, withCli), []))
+  }
+  for (const [file, allowed] of Object.entries(CLI_SHARED_WITH_EXCEPTIONS)) {
+    problems.push(...problemsIn(file, fingerprint(root, file, withCli), allowed))
+  }
 
   if (problems.length > 0) {
     process.stderr.write('Fleet drift detected:\n')
@@ -281,7 +321,9 @@ export function main(
   process.stdout.write(
     `Fleet check passed: ${count} shared files consistent across ${REPOS.length} extension ` +
       `repos, ${CRATE_ONLY_SHARED.length} across the ${pending.length} crate-only ` +
-      `ones, and ${ALL_SHARED.length} across all ${REPOS.length + pending.length}.\n`,
+      `ones, ${ALL_SHARED.length} across all ${REPOS.length + pending.length}, and ` +
+      `${CLI_SHARED.length + Object.keys(CLI_SHARED_WITH_EXCEPTIONS).length} across the ` +
+      `${withCli.length} with an npm command line.\n`,
   )
   return 0
 }
