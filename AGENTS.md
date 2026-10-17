@@ -390,10 +390,11 @@ config with *each other* and not with the extension repos), and `ALL_SHARED` acr
 sixteen — `.editorconfig`, `scripts/check-agent-files.py` and the
 `dependabot-auto-merge.yml` workflow. `CLI_SHARED` and
 `CLI_SHARED_WITH_EXCEPTIONS` run across the repos that ship an npm command line,
-found by their `cli/package.json`: the drain on exit, the OS-error wording, the
-ignore rules, `build-cli.js` and `release-cli.yml`. Each port copies that
-plumbing from the last, and six published command lines once cut off stderr
-because each had copied the same bug. A new port joins the comparison the day
+found by their `cli/package.json`: `output.ts` (a closed pipe, a slow reader,
+the drain on exit), the OS-error wording, the ignore rules, `build-cli.js`,
+`check-cli-pipes.ts` and `release-cli.yml`. Each port copies that plumbing from
+the last, and six published command lines once cut off stderr because each had
+copied the same bug. A new port joins the comparison the day
 it gains a `cli/`, so copy those files from an existing port unchanged. A fix
 to any of them is a fix to every port.
 `ci-crate.yml` and `release-crate.yml` are deliberately per-repo and outside

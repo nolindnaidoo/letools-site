@@ -161,14 +161,17 @@ export const SHARED = [
  * Each port copies its plumbing from the one before, so a bug in it reaches
  * every repo and used to be fixed only in the newest. Six published command
  * lines cut off the end of stderr because each had copied an exit that
- * waited on stdout alone. A repo joins the comparison the day it gains a
+ * waited on stdout alone, and all seven crashed on a closed pipe. A repo joins the comparison the day it gains a
  * command line, so a new port fails here until it carries these files.
  */
 export const CLI_SHARED = [
-  'src/cli/exit.ts',
-  'src/cli/exit.test.ts',
+  // stdout and stderr as the crate treats them: a closed pipe, a slow
+  // reader, and the exit after both have drained.
+  'src/cli/output.ts',
+  'src/cli/output.test.ts',
   'src/cli/ioError.ts',
   'scripts/build-cli.js',
+  'scripts/check-cli-pipes.ts',
 ] as const
 
 /**
