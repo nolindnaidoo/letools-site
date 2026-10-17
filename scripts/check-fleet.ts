@@ -15,7 +15,7 @@
  *   bun scripts/check-fleet.ts /tmp/fleet   # workflow's shallow clones
  */
 import { createHash } from 'node:crypto'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
 export const REPOS = [
@@ -187,6 +187,33 @@ export const CLI_SHARED_WITH_EXCEPTIONS: Record<string, readonly string[]> = {
   '.github/workflows/release-cli.yml': ['scrape-le'],
 }
 
+/**
+ * A directory several repos carry whole: the transcriptions of
+ * jsonc-parser, saphyr, toml, rust-ini and csv, with their reference test.
+ * Every repo that has it must hold the same files, byte for byte, because a
+ * parser fixed in one repo and not another is two answers to one document.
+ */
+export const PARSERS_DIR = 'src/parsers'
+
+/** The fleet repos that carry the shared parsers. */
+export function parserRepos(root: string, repos: readonly string[] = REPOS): readonly string[] {
+  return repos.filter(repo => existsSync(join(root, repo, PARSERS_DIR)))
+}
+
+/** Every file under a directory, as paths relative to it, sorted. */
+export function filesUnder(dir: string): readonly string[] {
+  const out: string[] = []
+  const visit = (relative: string) => {
+    for (const name of readdirSync(join(dir, relative))) {
+      const path = relative === '' ? name : `${relative}/${name}`
+      if (statSync(join(dir, path)).isDirectory()) visit(path)
+      else out.push(path)
+    }
+  }
+  visit('')
+  return out.sort()
+}
+
 /** The fleet repos that ship an npm command line. */
 export function cliRepos(root: string, repos: readonly string[] = REPOS): readonly string[] {
   return repos.filter(repo => existsSync(join(root, repo, 'cli', 'package.json')))
@@ -308,6 +335,15 @@ export function main(
   }
   for (const [file, allowed] of Object.entries(CLI_SHARED_WITH_EXCEPTIONS)) {
     problems.push(...problemsIn(file, fingerprint(root, file, withCli), allowed))
+  }
+  // The union of every copy's files, so one a repo lacks reads as missing.
+  const withParsers = parserRepos(root)
+  const parserFiles = new Set(
+    withParsers.flatMap(repo => filesUnder(join(root, repo, PARSERS_DIR))),
+  )
+  for (const file of [...parserFiles].sort()) {
+    const path = `${PARSERS_DIR}/${file}`
+    problems.push(...problemsIn(path, fingerprint(root, path, withParsers), []))
   }
 
   if (problems.length > 0) {

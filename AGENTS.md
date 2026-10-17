@@ -383,7 +383,7 @@ deliberately not compared, which today is DecisionLint. A test holds `REPOS`,
 `EXTENSION_PENDING` and `OUTSIDE_FLEET` against the registry, so a tool is in
 exactly one of them.
 
-`check-fleet` holds **four** lists and the distinction matters: `SHARED`
+`check-fleet` holds **four** lists and one directory and the distinction matters: `SHARED`
 across the sixteen extension repos, `CRATE_ONLY_SHARED` across the crate-only
 ones (none today: they share `.gitattributes`, the commit hook, dependabot and CodeQL
 config with *each other* and not with the extension repos), and `ALL_SHARED` across all
@@ -397,6 +397,13 @@ the last, and six published command lines once cut off stderr because each had
 copied the same bug. A new port joins the comparison the day
 it gains a `cli/`, so copy those files from an existing port unchanged. A fix
 to any of them is a fix to every port.
+`PARSERS_DIR`, `src/parsers/`, is compared whole across every repo that
+carries it: the transcriptions of jsonc-parser, saphyr, toml, rust-ini and csv,
+and `reference/`, the pinned crates' own answers that `parsers.test.ts` holds
+them to. units-le, numbers-le, string-le, paths-le and urls-le carry it today.
+Every file must exist in every copy with the same bytes. Change it in one repo,
+rerun `bun src/parsers/reference/generate.ts` there if a parser changed, and
+copy the directory to the rest.
 `ci-crate.yml` and `release-crate.yml` are deliberately per-repo and outside
 every list: the crates stand on their own, and a job one needs and another does
 not is the point rather than a failure.

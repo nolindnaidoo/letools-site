@@ -20,6 +20,9 @@ import {
   ALL_SHARED,
   CRATE_ONLY_SHARED,
   cliRepos,
+  filesUnder,
+  PARSERS_DIR,
+  parserRepos,
   EXTENSION_PENDING,
   fingerprint,
   main as fleetMain,
@@ -741,6 +744,33 @@ describe('the filesystem readers', () => {
     writeFileSync(join(root, 'colors-le', 'cli', 'package.json'), '{}')
     mkdirSync(join(root, 'dates-le'), { recursive: true })
     expect(cliRepos(root)).toEqual(['colors-le'])
+  })
+
+  it('holds every copy of the shared parsers to the same files and bytes', () => {
+    const root = join(scratch, 'parser-fleet')
+    const write = (repo: string, file: string, content: string) => {
+      const full = join(root, repo, PARSERS_DIR, file)
+      mkdirSync(join(full, '..'), { recursive: true })
+      writeFileSync(full, content)
+    }
+    write('colors-le', 'yaml/load.ts', 'one')
+    write('dates-le', 'yaml/load.ts', 'one')
+    write('dates-le', 'csv.ts', 'only here')
+    expect(parserRepos(root)).toEqual(['colors-le', 'dates-le'])
+    expect(filesUnder(join(root, 'dates-le', PARSERS_DIR))).toEqual(['csv.ts', 'yaml/load.ts'])
+    const missing = problemsIn(
+      `${PARSERS_DIR}/csv.ts`,
+      fingerprint(root, `${PARSERS_DIR}/csv.ts`, parserRepos(root)),
+      [],
+    )
+    expect(missing).toEqual([`${PARSERS_DIR}/csv.ts: missing in colors-le`])
+    write('colors-le', 'yaml/load.ts', 'drifted')
+    const drift = problemsIn(
+      `${PARSERS_DIR}/yaml/load.ts`,
+      fingerprint(root, `${PARSERS_DIR}/yaml/load.ts`, parserRepos(root)),
+      [],
+    )
+    expect(drift).toHaveLength(1)
   })
 
   it('fingerprints one file across every repo in the family', () => {
