@@ -15,7 +15,7 @@
  *   bun scripts/check-fleet.ts /tmp/fleet   # workflow's shallow clones
  */
 import { createHash } from 'node:crypto'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
 export const REPOS = [
@@ -155,6 +155,76 @@ export const SHARED = [
 ] as const
 
 /**
+ * Files every npm command line shares, compared across the repos that ship
+ * one: those with a `cli/package.json`.
+ *
+ * Each port copies its plumbing from the one before, so a bug in it reaches
+ * every repo and used to be fixed only in the newest. Six published command
+ * lines cut off the end of stderr because each had copied an exit that
+ * waited on stdout alone, and all seven crashed on a closed pipe. A repo joins the comparison the day it gains a
+ * command line, so a new port fails here until it carries these files.
+ */
+export const CLI_SHARED = [
+  // stdout and stderr as the crate treats them: a closed pipe, a slow
+  // reader, and the exit after both have drained.
+  'src/cli/output.ts',
+  'src/cli/output.test.ts',
+  'src/cli/ioError.ts',
+  'scripts/build-cli.js',
+  'scripts/check-cli-pipes.ts',
+] as const
+
+/**
+ * Command-line files shared except for documented exceptions. A repo listed
+ * here may differ or lack the file.
+ */
+export const CLI_SHARED_WITH_EXCEPTIONS: Record<string, readonly string[]> = {
+  // scrape-le fetches URLs rather than walking a tree, and i18n-le walks up
+  // to a manifest and reads a catalogue set rather than a tree of files, so
+  // neither has ignore rules. scrape-le's parity run renders pages, which
+  // needs one setting more.
+  'src/cli/ignoreRules.ts': ['i18n-le', 'scrape-le'],
+  '.github/workflows/release-cli.yml': ['scrape-le'],
+  // The crate MCP server's framing. string-le's server answers a malformed
+  // frame with a parse error and caps a frame's size, on both binaries, so
+  // its npm side keeps its own reader.
+  'src/cli/frames.ts': ['string-le'],
+  'src/cli/frames.test.ts': ['string-le'],
+}
+
+/**
+ * A directory several repos carry whole: the transcriptions of
+ * jsonc-parser, saphyr, toml, rust-ini and csv, with their reference test.
+ * Every repo that has it must hold the same files, byte for byte, because a
+ * parser fixed in one repo and not another is two answers to one document.
+ */
+export const PARSERS_DIR = 'src/parsers'
+
+/** The fleet repos that carry the shared parsers. */
+export function parserRepos(root: string, repos: readonly string[] = REPOS): readonly string[] {
+  return repos.filter(repo => existsSync(join(root, repo, PARSERS_DIR)))
+}
+
+/** Every file under a directory, as paths relative to it, sorted. */
+export function filesUnder(dir: string): readonly string[] {
+  const out: string[] = []
+  const visit = (relative: string) => {
+    for (const name of readdirSync(join(dir, relative))) {
+      const path = relative === '' ? name : `${relative}/${name}`
+      if (statSync(join(dir, path)).isDirectory()) visit(path)
+      else out.push(path)
+    }
+  }
+  visit('')
+  return out.sort()
+}
+
+/** The fleet repos that ship an npm command line. */
+export function cliRepos(root: string, repos: readonly string[] = REPOS): readonly string[] {
+  return repos.filter(repo => existsSync(join(root, repo, 'cli', 'package.json')))
+}
+
+/**
  * Files that are shared except for documented, deliberate exceptions.
  * Anything not listed here is a regression, not a decision.
  */
@@ -222,7 +292,7 @@ export function problemsIn(
 
   for (const [repo, digest] of prints) {
     if (digest === null) {
-      missing.push(repo)
+      if (!allowed.includes(repo)) missing.push(repo)
       continue
     }
     groups.set(digest, [...(groups.get(digest) ?? []), repo])
@@ -264,6 +334,22 @@ export function main(
   for (const file of ALL_SHARED) {
     problems.push(...problemsIn(file, fingerprint(root, file, everyRepo), []))
   }
+  const withCli = cliRepos(root)
+  for (const file of CLI_SHARED) {
+    problems.push(...problemsIn(file, fingerprint(root, file, withCli), []))
+  }
+  for (const [file, allowed] of Object.entries(CLI_SHARED_WITH_EXCEPTIONS)) {
+    problems.push(...problemsIn(file, fingerprint(root, file, withCli), allowed))
+  }
+  // The union of every copy's files, so one a repo lacks reads as missing.
+  const withParsers = parserRepos(root)
+  const parserFiles = new Set(
+    withParsers.flatMap(repo => filesUnder(join(root, repo, PARSERS_DIR))),
+  )
+  for (const file of [...parserFiles].sort()) {
+    const path = `${PARSERS_DIR}/${file}`
+    problems.push(...problemsIn(path, fingerprint(root, path, withParsers), []))
+  }
 
   if (problems.length > 0) {
     process.stderr.write('Fleet drift detected:\n')
@@ -281,7 +367,9 @@ export function main(
   process.stdout.write(
     `Fleet check passed: ${count} shared files consistent across ${REPOS.length} extension ` +
       `repos, ${CRATE_ONLY_SHARED.length} across the ${pending.length} crate-only ` +
-      `ones, and ${ALL_SHARED.length} across all ${REPOS.length + pending.length}.\n`,
+      `ones, ${ALL_SHARED.length} across all ${REPOS.length + pending.length}, and ` +
+      `${CLI_SHARED.length + Object.keys(CLI_SHARED_WITH_EXCEPTIONS).length} across the ` +
+      `${withCli.length} with an npm command line.\n`,
   )
   return 0
 }
