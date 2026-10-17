@@ -185,6 +185,11 @@ export const CLI_SHARED_WITH_EXCEPTIONS: Record<string, readonly string[]> = {
   // needs one setting more.
   'src/cli/ignoreRules.ts': ['i18n-le', 'scrape-le'],
   '.github/workflows/release-cli.yml': ['scrape-le'],
+  // The crate MCP server's framing. string-le's server answers a malformed
+  // frame with a parse error and caps a frame's size, on both binaries, so
+  // its npm side keeps its own reader.
+  'src/cli/frames.ts': ['string-le'],
+  'src/cli/frames.test.ts': ['string-le'],
 }
 
 /**

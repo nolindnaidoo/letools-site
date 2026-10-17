@@ -392,7 +392,8 @@ sixteen — `.editorconfig`, `scripts/check-agent-files.py` and the
 `CLI_SHARED_WITH_EXCEPTIONS` run across the repos that ship an npm command line,
 found by their `cli/package.json`: `output.ts` (a closed pipe, a slow reader,
 the drain on exit), the OS-error wording, the ignore rules, `build-cli.js`,
-`check-cli-pipes.ts` and `release-cli.yml`. Each port copies that plumbing from
+`check-cli-pipes.ts` (which also feeds both MCP servers malformed frames),
+`frames.ts` (the crate server's framing) and `release-cli.yml`. Each port copies that plumbing from
 the last, and six published command lines once cut off stderr because each had
 copied the same bug. A new port joins the comparison the day
 it gains a `cli/`, so copy those files from an existing port unchanged. A fix
