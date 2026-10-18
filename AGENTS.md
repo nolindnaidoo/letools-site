@@ -303,7 +303,14 @@ bun run e2e             # axe, keyboard, and the palette, against the real expor
 
 **`verify:deploy` is the Vercel build command.** A failing gate fails the
 build, so a broken one never reaches production and the previous deployment
-keeps serving. CI runs the same steps individually, so a failure names itself
+keeps serving.
+
+**Production is rebuilt every Sunday** by `weekly-rebuild.yml`, which posts to
+a Vercel deploy hook kept in the `VERCEL_DEPLOY_HOOK` repository secret. The
+download counts are measured only at build time, so without it they freeze at
+the last push. The hook rebuilds what is already on `main`, through the same
+gate. A run with the secret unset fails rather than passing having done
+nothing. CI runs the same steps individually, so a failure names itself
 in the job list. The two mean the same thing on purpose: they used to not, and
 a green badge told you less than it appeared to.
 
