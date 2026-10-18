@@ -1,0 +1,35 @@
+# Rebuilds production from main once a week, so the download counts that
+# next.config.ts measures at build time do not go stale between pushes.
+#
+# A deploy hook rebuilds the commit already on main: no commit, no push, and
+# the same verify:deploy gate decides whether the build is promoted.
+name: Weekly rebuild
+
+on:
+  schedule:
+    # Sundays, early UTC.
+    - cron: "41 4 * * 0"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: weekly-rebuild
+  cancel-in-progress: true
+
+jobs:
+  rebuild:
+    name: Trigger the Vercel deploy hook
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Call the hook
+        env:
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$VERCEL_DEPLOY_HOOK" ]; then
+            echo "::error::The VERCEL_DEPLOY_HOOK secret is not set, so nothing was rebuilt."
+            exit 1
+          fi
+          curl --fail-with-body --silent --show-error --max-time 30 --retry 2 \
+            -X POST "$VERCEL_DEPLOY_HOOK"
