@@ -26,6 +26,7 @@
     "e2e:ui": "playwright test --ui",
     "check:ovsx-links": "bun scripts/check-openvsx-links.ts",
     "rank:ovsx": "bun scripts/rank-openvsx.ts",
+    "sim:ovsx": "bun scripts/simulate-openvsx.ts",
     "check:locales": "bun scripts/check-locales.ts",
     "check:fleet": "bun scripts/check-fleet.ts",
     "check:doc-paths": "bun scripts/check-doc-paths.ts",
