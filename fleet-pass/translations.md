@@ -21,8 +21,8 @@ palette says nothing about the runtime strings.
 Read in full: `package.json`, `package.nls.json`, every
 `src/i18n/package.nls.*.json`, `l10n/bundle.l10n.json`, every
 `l10n/bundle.l10n.*.json`, `test/integration/l10n.test.ts`, `.vscodeignore`,
-the `copy:i18n` and `clean:i18n` scripts, and every source file that appears
-in the INV-8 table.
+the `copy:i18n` and `clean:i18n` scripts. The source files in the INV-8 table
+were read under INV-1 and are answered from that read.
 
 **Every value in every locale file is read.** That is each key times each
 locale, for both mechanisms. A catalogue that was skimmed is `not done`.
@@ -31,6 +31,10 @@ locale, for both mechanisms. A catalogue that was skimmed is `not done`.
 |---|---|---|---|
 | Manifest | `package.nls.json` | `src/i18n/package.nls.*.json`, copied to the root at prepublish | VS Code, replacing `%key%` in `package.json` |
 | Runtime | `l10n/bundle.l10n.json` | `l10n/bundle.l10n.*.json` | `vscode.l10n.t()`, enabled by `"l10n"` in `package.json` |
+
+The hunt in this step: L10N-5, L10N-9, L10N-13. The catalogue read under
+L10N-13 is every value in every locale, and no mechanical check replaces it.
+The rest are answered by the commands under each check and the INV-8 table.
 
 ## Checks: nothing is missing
 

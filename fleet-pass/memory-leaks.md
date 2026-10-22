@@ -18,13 +18,17 @@ server for a whole agent session, so a small leak per call is a real one.
 
 ## Scope
 
-Re-read in full: the extension entry point, every file that appears in the
+In scope, read under INV-1: the extension entry point, every file that appears in the
 INV-5 table, every command and provider file, the MCP transport and server,
 and in the crate the discovery, scanning and server modules.
 
 Every row of INV-5 gets an answer. There is no sampling.
 
 ## Checks
+
+The hunt in this step: LEAK-5, LEAK-6, LEAK-7, LEAK-10, LEAK-11, LEAK-12. Each
+is driven in full. The rest are answered from the step 1 read and the INV-5
+table.
 
 **LEAK-1 (`E`). Every disposable has an owner.** For each row of INV-5 that
 VS Code returns as a `Disposable`, name where it is pushed to

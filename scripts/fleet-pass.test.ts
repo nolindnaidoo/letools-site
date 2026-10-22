@@ -35,6 +35,24 @@ describe('fleet pass documents', () => {
     expect(linked.filter(name => !STEPS.includes(name ?? ''))).toEqual([])
   })
 
+  it("holds the README's hunt table to each document's hunt line", () => {
+    // The table says which checks are driven in full; each document says the
+    // same under its Checks heading. Two copies of one list drift, so the
+    // README is read against the documents, and every id named exists.
+    const table = [...README.matchAll(/^\| ([a-z-]+) \| ([A-Z0-9-]+(?:, [A-Z0-9-]+)*) \|$/gm)]
+    expect(table.length).toBe(6)
+    for (const [, step, ids] of table) {
+      const doc = read(`${step}.md`)
+      const line = doc.match(/The hunt in this step: ([\s\S]*?)\./)?.[1] ?? ''
+      const inDoc = [...line.matchAll(/[A-Z0-9]+-\d+/g)].map(match => match[0]).sort()
+      const inTable = (ids ?? '').split(', ').sort()
+      // The errors document adds the two server-driving runs the README names
+      // below the table; the table carries the counted set.
+      expect(inDoc.filter(id => inTable.includes(id))).toEqual(inTable)
+      for (const id of inDoc) expect(doc, `${step}.md names ${id}`).toContain(`**${id}`)
+    }
+  })
+
   it('has exactly one ledger row per fleet repo, and one per repo outside the fleet', () => {
     // A family repo is `<name>-le`; the one outside the family has no suffix.
     const rows = [...read('LEDGER.md').matchAll(/^\| ([a-z0-9]+(?:-le)?) \|/gm)].map(

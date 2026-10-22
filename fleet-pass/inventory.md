@@ -35,6 +35,14 @@ one to the end in this pass. Translation catalogues are excluded here because
 `translations.md` reads them. Fixtures and snapshots are read when the test
 that owns them is read.
 
+This is the one read. Keep the checks of steps 2 to 7 open beside it, and as
+each file goes by write into INV-5 to INV-8 what it holds and, against the
+file, anything a later check asks about that the tables do not carry: a
+lookup table indexed by caller text, a sort, a cast on untrusted input, a
+progress indicator and the paths out of its command, a string a user sees that
+no `l10n.t()` wraps. Steps 2 to 7 answer from these notes and from runs, and
+reopen a file only to settle a particular check.
+
 Any tracked file under those roots that the filter drops and no later step
 reads is a hole. List what the filter removed and say which step covers each.
 

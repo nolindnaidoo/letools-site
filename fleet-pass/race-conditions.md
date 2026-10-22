@@ -18,7 +18,7 @@ something changed while the function was waiting.
 
 ## Scope
 
-Re-read in full: every file that appears in the INV-6 table, the extension
+In scope, read under INV-1: every file that appears in the INV-6 table, the extension
 entry point, every file holding module-level mutable state from INV-5, the MCP
 transport, and in the crate any module that uses threads, shared state or the
 filesystem.
@@ -34,6 +34,10 @@ reproduction. A real race that only sleeping finds is still a finding, with the
 run that showed it recorded.
 
 ## Checks
+
+The hunt in this step: RACE-1, RACE-3, RACE-11. Each is driven with a
+controlled interleaving. The rest are answered from the step 1 read and the
+INV-6 table, and RACE-17 by the test runs it names.
 
 **RACE-1 (`E`). State read before an `await` is still valid after it.** For
 each row of INV-6: what the function read before the suspension (active

@@ -18,7 +18,7 @@ user invokes it.
 
 ## Scope
 
-Re-read in full: `package.json`, the extension entry point, every file under
+In scope, read under INV-1: `package.json`, the extension entry point, every file under
 the commands, providers, config and UI directories, `test/integration/`,
 `scripts/e2e-vsix.js`, `.vscodeignore`, the MCP server sources, `crate/src/`
 entry points and CLI, and `mcp/package.json`.
@@ -28,6 +28,10 @@ spawned server, the built binary. A unit test against the mock shows the logic.
 It does not show the feature.
 
 ## Checks
+
+The hunt in this step: FEAT-6, FEAT-12, FEAT-17, FEAT-18. Each is driven in
+full. The rest are answered from the step 1 read and the inventory tables, and
+a gate that already runs the check answers it.
 
 **FEAT-1 (`E`). Every command in the manifest is registered, and every
 registered command is in the manifest.** From INV-3. A real-host test asserts
