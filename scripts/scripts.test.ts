@@ -311,6 +311,8 @@ describe('check-doc-paths', () => {
     const root = mkdtempSync(join(scratch, 'docs-'))
     mkdirSync(join(root, 'demo-le'), { recursive: true })
     writeFileSync(join(root, 'demo-le', 'AGENTS.md'), doc)
+    // A manifest, so the repo counts as code and its docs are read.
+    writeFileSync(join(root, 'demo-le', 'package.json'), '{}')
     if (extra !== undefined) {
       const full = join(root, 'demo-le', extra)
       mkdirSync(join(full, '..'), { recursive: true })
@@ -325,6 +327,20 @@ describe('check-doc-paths', () => {
 
   it('passes when the reference resolves', () => {
     expect(docPathsMain(fakeDocs('see `notes/real.md`', 'notes/real.md'))).toBe(0)
+  })
+
+  it('does not read a repo that has no code yet', () => {
+    // A standard written before the code describes a layout still to come. A
+    // spec-only repo beside the fleet named two fixtures it will generate and
+    // turned the gate red for every other repo; it joins the check the day it
+    // gains a manifest or a crate.
+    const root = fakeDocs('see `notes/real.md`', 'notes/real.md')
+    mkdirSync(join(root, 'planned-le'), { recursive: true })
+    writeFileSync(join(root, 'planned-le', 'AGENTS.md'), 'later `fixtures/platforms.json`')
+    expect(docPathsMain(root)).toBe(0)
+    mkdirSync(join(root, 'planned-le', 'crate'), { recursive: true })
+    writeFileSync(join(root, 'planned-le', 'crate', 'Cargo.toml'), '[package]\n')
+    expect(docPathsMain(root)).toBe(1)
   })
 
   it('reports misuse when the directory holds no tool repos', () => {
