@@ -13,6 +13,11 @@
  * and the sections that drifted — "Hard rules", "Testing", "Layout" — are 15 or
  * 16 distinct bodies across 16 repos. The split would have moved the wrong 10%.
  *
+ * A repo that has no code yet is not read. Its standards describe a layout
+ * that is still to come, and a reference into it has nothing to resolve
+ * against; it joins the check the day it gains an extension manifest or a
+ * crate, which is when a wrong filename starts to mislead.
+ *
  * Run: bun run check:doc-paths [root]
  */
 import { spawnSync } from 'node:child_process'
@@ -125,6 +130,13 @@ export function isGenerated(token: string, repoRoot: string): boolean {
   return result.status === 0
 }
 
+/** Whether a repo has code for a reference to resolve against: an extension manifest or a crate. */
+export function hasCode(repoRoot: string): boolean {
+  return (
+    existsSync(join(repoRoot, 'package.json')) || existsSync(join(repoRoot, 'crate', 'Cargo.toml'))
+  )
+}
+
 /** Whether a reference resolves from where its document sits. */
 export function resolves(token: string, root: string, repo: string, docDir: string): boolean {
   const wanted = target(token)
@@ -152,10 +164,12 @@ export function main(root: string = process.argv[2] ?? '..'): number {
     process.stderr.write(`check-doc-paths: no *-le repos under ${root}\n`)
     return 1
   }
+  const planned = repos.filter(repo => !hasCode(join(root, repo)))
+  const withCode = repos.filter(repo => !planned.includes(repo))
 
   const problems: string[] = []
   let checked = 0
-  for (const repo of repos) {
+  for (const repo of withCode) {
     for (const doc of DOCS) {
       const path = join(root, repo, doc)
       if (!existsSync(path)) continue
@@ -180,8 +194,10 @@ export function main(root: string = process.argv[2] ?? '..'): number {
     return 1
   }
 
+  const skipped =
+    planned.length > 0 ? ` ${planned.join(', ')} has no code yet and was not read.` : ''
   process.stdout.write(
-    `Doc paths check passed: ${checked} references across ${repos.length} repos all resolve.\n`,
+    `Doc paths check passed: ${checked} references across ${withCode.length} repos all resolve.${skipped}\n`,
   )
   return 0
 }
