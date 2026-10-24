@@ -28,8 +28,8 @@ Every row of INV-7 gets an answer. There is no sampling.
 
 ## Checks
 
-The hunt in this step: ERR-1, ERR-4, ERR-7, ERR-12, ERR-14, ERR-17, and ERR-3
-and ERR-19 because they are runs against the built servers. Each is driven or
+The hunt in this step: ERR-1, ERR-4, ERR-12, ERR-14, ERR-19, and ERR-3
+because it is a run against the built servers. Each is driven or
 traced in full. The rest are answered from the step 1 read and the INV-7 table.
 
 **ERR-1. Every `catch` is classified.** For each one: what can be thrown into
@@ -137,8 +137,10 @@ separate test tables, so a row cannot drift across the line unnoticed.
 serving.** A loop that reads stdin as lines of text ends on the first byte that
 is not valid in its encoding, and every request after it goes unanswered. Feed
 each server a line of invalid bytes followed by a valid request, an invalid byte
-inside a JSON string, a line that is not JSON, a request without a method,
-without a version and with the wrong version, and a request whose id is null.
+inside a JSON string, a line led by a byte order mark, a line that is not JSON,
+a request without a method, without a version and with the wrong version, a
+request whose id is null, an `initialize` asking for another protocol version,
+and `notifications/initialized` sent with an id.
 Each is answered or deliberately ignored the same way by every server the repo
 ships, in the same words, and the process is still there for the request after
 it.

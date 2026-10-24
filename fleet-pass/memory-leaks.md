@@ -26,8 +26,8 @@ Every row of INV-5 gets an answer. There is no sampling.
 
 ## Checks
 
-The hunt in this step: LEAK-5, LEAK-6, LEAK-7, LEAK-10, LEAK-11, LEAK-12. Each
-is driven in full. The rest are answered from the step 1 read and the INV-5
+The hunt in this step: LEAK-3, LEAK-5, LEAK-6, LEAK-10, LEAK-11, LEAK-12.
+Each is driven in full. The rest are answered from the step 1 read and the INV-5
 table.
 
 **LEAK-1 (`E`). Every disposable has an owner.** For each row of INV-5 that
@@ -93,8 +93,11 @@ text argument is not a way around the file size limit the command line and the
 editor hold.
 
 **LEAK-12 (`M`). Memory is flat across many requests.** Drive the built server
-through a few thousand tool calls over one session, sampling resident memory,
-and assert it levels off. Record the command and the samples.
+through a few thousand tool calls over one session, one call in flight at a
+time, sampling resident memory, and assert it levels off. Record the command
+and the samples. Writing every request up front measures the pipe, not the
+server: replies the driver has not drained sit in the server's write queue
+and read as resident memory.
 
 ```bash
 node --expose-gc <driver script>   # the driver spawns dist/mcp-server.js and samples its RSS

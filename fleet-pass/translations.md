@@ -172,7 +172,10 @@ What cannot be judged with confidence in a given language is recorded as
 `unknown` for that key and locale. It is not passed.
 
 **L10N-14. Each value is in its own language and script.** No English left in
-part of a sentence, no value from another locale's file, no mixed scripts.
+part of a sentence, no value from another locale's file, no mixed scripts, and
+the locale's own punctuation where its script has one: an ASCII comma or colon
+joining the clauses of a Chinese or Japanese sentence is a value half in
+another script.
 `check:locales` covers the mechanical part, and reading every value covers the
 rest.
 

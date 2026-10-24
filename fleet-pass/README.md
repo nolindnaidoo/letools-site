@@ -74,7 +74,7 @@ turn.
 
 ## The hunt
 
-Three passes answered every check in every document. About half the checks
+Four passes answered every check in every document. About half the checks
 found something in no repo, and a smaller set found something in every repo
 it applied to. Those are the hunt: each is driven or traced in full, with a
 run or a controlled reproduction, before it is answered. Every other check is
@@ -85,16 +85,16 @@ lines.
 
 | Step | Found something in every pass it applied to |
 |---|---|
-| broken-features | FEAT-6, FEAT-12, FEAT-17, FEAT-18 |
-| bugs | BUG-2, BUG-5, BUG-7, BUG-8, BUG-11, BUG-13, BUG-15, BUG-18 |
-| errors | ERR-1, ERR-4, ERR-7, ERR-12, ERR-14, ERR-17 |
-| memory-leaks | LEAK-5, LEAK-6, LEAK-7, LEAK-10, LEAK-11, LEAK-12 |
-| race-conditions | RACE-1, RACE-3, RACE-11 |
+| broken-features | FEAT-6, FEAT-17, FEAT-18, FEAT-22 |
+| bugs | BUG-8, BUG-11, BUG-13, BUG-15, BUG-21 |
+| errors | ERR-1, ERR-4, ERR-12, ERR-14, ERR-19 |
+| memory-leaks | LEAK-3, LEAK-5, LEAK-6, LEAK-10, LEAK-11, LEAK-12 |
+| race-conditions | RACE-3, RACE-11 |
 | translations | L10N-5, L10N-9, L10N-13 |
 
 The checks that drive a built server with input the corpus never produces,
-ERR-3 and ERR-19 beside BUG-15 and ERR-14, are runs rather than reads and are
-in the hunt whatever their count. The close step updates this table from the
+ERR-3 beside BUG-15, ERR-14 and ERR-19, are runs rather than reads and are in
+the hunt whatever their count. The close step updates this table from the
 record.
 
 ## What counts

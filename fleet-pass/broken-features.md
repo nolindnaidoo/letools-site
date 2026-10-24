@@ -29,7 +29,7 @@ It does not show the feature.
 
 ## Checks
 
-The hunt in this step: FEAT-6, FEAT-12, FEAT-17, FEAT-18. Each is driven in
+The hunt in this step: FEAT-6, FEAT-17, FEAT-18, FEAT-22. Each is driven in
 full. The rest are answered from the step 1 read and the inventory tables, and
 a gate that already runs the check answers it.
 

@@ -8,7 +8,7 @@ is written by step 8, [close.md](close.md).
 
 | Repo | Status | Baseline commit | Record | Pull request | Date | Findings fixed | Carried |
 |---|---|---|---|---|---|---|---|
-| versions-le | not started | | | | | | |
+| versions-le | pull request open | `2b3b2562` | [records/versions-le.md](records/versions-le.md) | [nolindnaidoo/versions-le#39](https://github.com/nolindnaidoo/versions-le/pull/39) | 2026-10-24 | 23 | 1 |
 | colors-le | not started | | | | | | |
 | dates-le | not started | | | | | | |
 | envsync-le | not started | | | | | | |
@@ -26,4 +26,4 @@ is written by step 8, [close.md](close.md).
 | units-le | not started | | | | | | |
 | urls-le | not started | | | | | | |
 
-`versions-le` is first. The order after it is not fixed.
+The order of the remaining repos is not fixed.
