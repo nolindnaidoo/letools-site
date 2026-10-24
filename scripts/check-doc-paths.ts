@@ -132,7 +132,9 @@ export function isGenerated(token: string, repoRoot: string): boolean {
 
 /** Whether a repo has code for a reference to resolve against: an extension manifest or a crate. */
 export function hasCode(repoRoot: string): boolean {
-  return existsSync(join(repoRoot, 'package.json')) || existsSync(join(repoRoot, 'crate', 'Cargo.toml'))
+  return (
+    existsSync(join(repoRoot, 'package.json')) || existsSync(join(repoRoot, 'crate', 'Cargo.toml'))
+  )
 }
 
 /** Whether a reference resolves from where its document sits. */
@@ -192,7 +194,8 @@ export function main(root: string = process.argv[2] ?? '..'): number {
     return 1
   }
 
-  const skipped = planned.length > 0 ? ` ${planned.join(', ')} has no code yet and was not read.` : ''
+  const skipped =
+    planned.length > 0 ? ` ${planned.join(', ')} has no code yet and was not read.` : ''
   process.stdout.write(
     `Doc paths check passed: ${checked} references across ${withCode.length} repos all resolve.${skipped}\n`,
   )
