@@ -17,7 +17,7 @@ works, the tests are green, and the output is incorrect for some input.
 
 ## Scope
 
-Re-read in full: every non-test file that computes a result. That is the
+In scope, read under INV-1: every non-test file that computes a result. That is the
 engine directory (`src/detect/` or `src/extraction/`), analysis, conversion
 and report modules, the command files that orchestrate them, the MCP tool
 handlers, and every file under `crate/src/`. Read each file's tests and
@@ -28,6 +28,10 @@ what types, what ranges, what a caller can actually pass. Most checks below are
 that domain's edges.
 
 ## Checks
+
+The hunt in this step: BUG-2, BUG-5, BUG-7, BUG-8, BUG-11, BUG-13, BUG-15,
+BUG-18. Each is driven or traced in full. The rest are answered from the step 1
+read and the inventory tables.
 
 **BUG-1. Empty and minimal input.** For every public function and every MCP
 tool: empty string, whitespace only, a single character, a single element, an

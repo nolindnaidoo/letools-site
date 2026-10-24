@@ -25,6 +25,14 @@ the copies identical.
 > No guesses.
 <!-- read-rule:end -->
 
+**One read.** Step 1 reads every file once, from its first line to its last,
+with the checks of steps 2 to 7 beside it, and writes what each later step
+will need into the inventory tables as it goes. Steps 2 to 7 answer from that
+read and from runs. A file is reopened to settle a particular check, never
+re-read whole for each document in turn. The first three passes re-read a
+repo of about twenty-five thousand lines under each of six documents, and the
+re-reads found nothing the first read and the tables had not.
+
 ## Surfaces
 
 Every repo in the family carries four surfaces. Each document says which of its
@@ -59,10 +67,35 @@ Run the documents in this order. Each one writes into the pass record.
 | 7 | [translations.md](translations.md) | Missing, unloaded and incorrect translations |
 | 8 | [close.md](close.md) | Gates green, the pull request, the ledger row |
 
-Steps 2 to 7 are hunted one at a time. Finish a document before opening the
+Steps 2 to 7 are answered one at a time. Finish a document before opening the
 next. A defect noticed while working on a different document is written into
 the record under the document it belongs to and left until that document's
 turn.
+
+## The hunt
+
+Three passes answered every check in every document. About half the checks
+found something in no repo, and a smaller set found something in every repo
+it applied to. Those are the hunt: each is driven or traced in full, with a
+run or a controlled reproduction, before it is answered. Every other check is
+still answered, from the step 1 read and the inventory tables, with one line
+of evidence, and none is removed. Each document names its hunt under its
+`Checks` heading, and `scripts/fleet-pass.test.ts` holds this table to those
+lines.
+
+| Step | Found something in every pass it applied to |
+|---|---|
+| broken-features | FEAT-6, FEAT-12, FEAT-17, FEAT-18 |
+| bugs | BUG-2, BUG-5, BUG-7, BUG-8, BUG-11, BUG-13, BUG-15, BUG-18 |
+| errors | ERR-1, ERR-4, ERR-7, ERR-12, ERR-14, ERR-17 |
+| memory-leaks | LEAK-5, LEAK-6, LEAK-7, LEAK-10, LEAK-11, LEAK-12 |
+| race-conditions | RACE-1, RACE-3, RACE-11 |
+| translations | L10N-5, L10N-9, L10N-13 |
+
+The checks that drive a built server with input the corpus never produces,
+ERR-3 and ERR-19 beside BUG-15 and ERR-14, are runs rather than reads and are
+in the hunt whatever their count. The close step updates this table from the
+record.
 
 ## What counts
 
@@ -70,7 +103,7 @@ turn.
 
 | Answer | Requires |
 |---|---|
-| `pass` | The evidence: the command and its output, or the test that asserts it, named by file and test title |
+| `pass` | The evidence: the command and its output, or the test that asserts it, named by file and test title. A check that a gate run at BASE-5 answers is `pass` by that gate's command and output, once the gate's script has been read (FEAT-19, FEAT-21); the gate is not re-derived by hand |
 | `finding` | A reproduction that was run. See below |
 | `n/a` | The reason the check cannot apply to this repo, verified against the inventory |
 | `unknown` | What is needed to settle it. An `unknown` blocks the close step |
@@ -97,12 +130,18 @@ produce, adding that hook to the mock is part of the fix.
    A new test that passes without the fix proves nothing.
 3. A changed output updates its golden or snapshot in the same commit and gets
    a CHANGELOG line.
-4. A behaviour fix is never swept into sibling repos. If the same defect
-   probably exists elsewhere, add a check for it to the matching document here
-   so each later pass looks for it under the read rule.
-5. A fix inside a file that `check-fleet` holds byte-identical across the
-   family is the one exception. Copy it to every repo in the same pass and let
-   `bun run check:fleet ../` confirm no copy was missed.
+4. A fix in a file the family shares is copied, never re-found. Before fixing,
+   hash the file across the sibling checkouts with the repo's name written out
+   (`normalize()` in `scripts/check-fleet.ts`). Where the pre-fix bytes match
+   in other repos, the fix and its test go to each of them in the same pass,
+   one commit per repo, shown failing there too, and the file joins a list in
+   `check-fleet.ts` in the same `letools-site` change so the copies cannot
+   drift again. The first two fleet passes re-found twenty-nine findings in
+   shared files before this rule, each reproduced, fixed and tested twice.
+5. A fix in a repo's own code, its engine, its commands and its catalogues,
+   stays in that repo. If the same defect probably exists in a sibling's own
+   code, add a check for it to the matching document here so each later pass
+   looks for it.
 6. Something that looks wrong but may be compensated for downstream is recorded
    and raised, not patched.
 
@@ -123,3 +162,8 @@ A defect class found during a pass that no check here would have caught is
 added to the matching document in the same change that closes the pass. Add a
 check, never a story about the repo it came from, and never name a tool repo
 inside a check.
+
+The same change updates the hunt: a check that found something in this pass
+and every earlier one it applied to joins its document's hunt line and the
+table above, and one that has now passed in a repo it applied to leaves. The
+test holds the two in step.

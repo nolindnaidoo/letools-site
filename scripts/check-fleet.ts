@@ -241,6 +241,21 @@ export const SHARED_WITH_EXCEPTIONS: Record<string, readonly string[]> = {
   // the static require scan that guards it both admit one dependency.
   '.vscodeignore': ['scrape-le'],
   'scripts/check-bundle.js': ['scrape-le'],
+  // The workspace scanner is one file in every extension that reads a tree.
+  // Two fleet passes each found the same defect in it, an unreadable file
+  // counted as "not UTF-8 text", and fixed it one repo at a time before
+  // anything compared the copies. The five listed read no workspace tree:
+  // envsync-le and i18n-le walk to a manifest, numbers-le and versions-le
+  // read the open document, scrape-le fetches a page.
+  'src/workspace/scan.ts': ['envsync-le', 'i18n-le', 'numbers-le', 'scrape-le', 'versions-le'],
+  'src/workspace/scan.test.ts': ['envsync-le', 'i18n-le', 'numbers-le', 'scrape-le', 'versions-le'],
+  // The npm MCP server's stdio loop. Its missing frame limit was found by
+  // two passes in two repos and was in every other copy. string-le's server
+  // trims a line as its crate does and answers protocol frames in its
+  // crate's words; unicode-le escapes every reply as its crate does;
+  // versions-le refuses null arguments as its crate does. Each of those is
+  // the crate's contract, so each keeps its own copy.
+  'src/mcp/transport.ts': ['string-le', 'unicode-le', 'versions-le'],
 }
 
 /**

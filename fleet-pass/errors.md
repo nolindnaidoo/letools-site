@@ -18,7 +18,7 @@ failed check that reads exactly like a clean one.
 
 ## Scope
 
-Re-read in full: every file that appears in the INV-7 table, every command
+In scope, read under INV-1: every file that appears in the INV-7 table, every command
 file, every file that calls a `vscode` API, the error and notifier modules,
 `src/__mocks__/vscode.ts`, the MCP transport and tool handlers, and in the
 crate every file that returns a `Result`, reads the filesystem or sets an exit
@@ -27,6 +27,10 @@ code.
 Every row of INV-7 gets an answer. There is no sampling.
 
 ## Checks
+
+The hunt in this step: ERR-1, ERR-4, ERR-7, ERR-12, ERR-14, ERR-17, and ERR-3
+and ERR-19 because they are runs against the built servers. Each is driven or
+traced in full. The rest are answered from the step 1 read and the INV-7 table.
 
 **ERR-1. Every `catch` is classified.** For each one: what can be thrown into
 it, what it does with the cause, and what the user and the caller learn. An

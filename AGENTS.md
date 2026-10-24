@@ -359,12 +359,21 @@ in `vercel.json`.
 ## Auditing a tool repo
 
 [`fleet-pass/`](./fleet-pass/README.md) is the review procedure for the tool
-repos: one repo at a time, one document per defect class, every file re-read
-under each, and a pull request at the end. `fleet-pass/LEDGER.md` records which
-repos have had a pass. It lives here, not in each repo, because sixteen copies
-of a procedure drift. Read `fleet-pass/README.md` before auditing or fixing any
-tool in the family. `scripts/fleet-pass.test.ts` holds the read rule identical
-across the documents and the ledger against `REPOS`.
+repos: one repo at a time, one read of every file, one document per defect
+class answered from that read, and a pull request at the end.
+`fleet-pass/LEDGER.md` records which repos have had a pass. It lives here, not
+in each repo, because sixteen copies of a procedure drift. Read
+`fleet-pass/README.md` before auditing or fixing any tool in the family.
+`scripts/fleet-pass.test.ts` holds the read rule identical across the
+documents, the hunt table in the README to each document's hunt line, and the
+ledger against `REPOS`.
+
+**A fix in a shared file is swept, not re-found.** The first two fleet passes
+found twenty-nine of their fifty-nine findings in files that are byte-identical
+across the family once the repo's name is normalised out, and re-discovered
+each from scratch. Those files are now held by `check-fleet` (`scan.ts`,
+`transport.ts`), and a fix in one goes to every copy in the same pass. The
+rule is in the README under **Fixing**.
 
 ## Demos
 
@@ -415,6 +424,12 @@ copy the directory to the rest.
 `ci-crate.yml` and `release-crate.yml` are deliberately per-repo and outside
 every list: the crates stand on their own, and a job one needs and another does
 not is the point rather than a failure.
+Two extension source files are held with exceptions: `src/workspace/scan.ts`
+and its test across the eleven repos that scan a workspace tree, and
+`src/mcp/transport.ts` across the thirteen whose stdio loop is the family's.
+`SHARED_WITH_EXCEPTIONS` names the repos that lack the file or keep their own
+version, and why. Both were found carrying the same defect in repo after repo
+by the fleet passes before anything compared them.
 
 **Never name a sibling repo inside a fleet-shared file.** `check-fleet` calls
 `normalize()` before hashing, which writes the repo's *own* name out — that is
