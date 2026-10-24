@@ -29,8 +29,8 @@ that domain's edges.
 
 ## Checks
 
-The hunt in this step: BUG-2, BUG-5, BUG-7, BUG-8, BUG-11, BUG-13, BUG-15,
-BUG-18. Each is driven or traced in full. The rest are answered from the step 1
+The hunt in this step: BUG-8, BUG-11, BUG-13, BUG-15, BUG-21. Each is
+driven or traced in full. The rest are answered from the step 1
 read and the inventory tables.
 
 **BUG-1. Empty and minimal input.** For every public function and every MCP
@@ -87,7 +87,9 @@ anything a machine reads back.
 **BUG-8. Paths.** Separators on Windows, a trailing slash, a root path, a path
 containing spaces or characters that are special in globs, case-folding
 filesystems, and URIs whose scheme is not `file`. Any path derived by string
-slicing is tested with each.
+slicing is tested with each. A list setting of glob patterns handed to one
+API call as a single brace group is driven with a comma and a brace inside
+one pattern, in the real host: the group reads them as its own syntax.
 
 **BUG-9. Casts where untrusted input enters typed code.** Every `as` cast,
 non-null `!`, and `any` is read. One sitting on user input, parsed JSON, a
@@ -133,8 +135,9 @@ line.
 
 **BUG-15 (`M` `C`). Agreement outside the corpus.** Where the extension and the
 crate implement the same engine, feed both the edge inputs from BUG-1 to BUG-8,
-a document cut off mid-value, and a document nested deeper than a call stack
-allows, and compare. Agreement on a shared defect is still a defect. Parity
+a document cut off mid-value, a document nested deeper than a call stack
+allows, and a key or path with more segments than the reference parser
+follows, and compare. Agreement on a shared defect is still a defect. Parity
 means both are right, not that both copy the same quirk. A parser that
 recovers on one side and gives up on the other, or that overflows the stack on
 one side and returns nothing on the other, is a disagreement the corpus and

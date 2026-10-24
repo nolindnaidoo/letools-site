@@ -35,8 +35,8 @@ run that showed it recorded.
 
 ## Checks
 
-The hunt in this step: RACE-1, RACE-3, RACE-11. Each is driven with a
-controlled interleaving. The rest are answered from the step 1 read and the
+The hunt in this step: RACE-3, RACE-11. Each is driven with a controlled
+interleaving. The rest are answered from the step 1 read and the
 INV-6 table, and RACE-17 by the test runs it names.
 
 **RACE-1 (`E`). State read before an `await` is still valid after it.** For
