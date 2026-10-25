@@ -256,7 +256,7 @@ Commands (9, every title a `%key%`, category `%manifest.command.category%`):
 | `envsync-le.clearAllIgnored` | `manifest.command.clear-all-ignored.title` |
 | `envsync-le.help` | `manifest.command.help.title` |
 
-Menus: `explorer/context` → `compareSelected` and `ignoreFile`, both `when: resourceFilename =~ /^\.env\.|\.env$/`, groups `dotsync@1`, `dotsync@2`. `resourceFilename` exists at the 1.101 floor. The clause admits `.env.x` and `x.env` but not a bare `.env` (`^\.env\.` needs a dot after; `\.env$` needs a character before): the plain `.env` file gets no context-menu entry. Recorded under FEAT-4 as a note, not a defect: the clause is the manifest's deliberate shape and the commands reach `.env` through the palette and the picker.
+Menus: `explorer/context` → `compareSelected` and `ignoreFile`, both `when: resourceFilename =~ /^\.env\.|\.env$/`, groups `dotsync@1`, `dotsync@2`. `resourceFilename` exists at the 1.101 floor. The clause admits `.env`, `.env.x` and `x.env`: `\.env$` matches a bare `.env` as well as a name that ends in it. The record first read it as excluding a bare `.env`; that reading was wrong and is corrected here.
 
 Configuration (12 properties under `envsync-le`):
 
@@ -386,7 +386,7 @@ Every property has a consumer and every key read is declared. The adapter all of
 | status bar | `$(file) N`; tooltips `All dotenv files are in sync`, `Dotenv files out of sync - click for details`, `Error checking dotenv files - click for settings` | `l10n.t()`; the third said settings where the click opens details (`envsync-le-bugs-4`) |
 | quick picks | placeholders ×4, `Currently ignored` | `l10n.t()`; labels are paths |
 | progress | `Comparing selected files...` | `l10n.t()` |
-| the markdown report | `# envsync-le Sync Report`, `Checked files:`, `Status:`, `Missing Keys`, `Compared to:`, `other files`, `Parse / Read Errors` | English by design (L10N-18): a document read by tests and people, the same in every locale; the README now says so |
+| the markdown report | `# envsync-le Sync Report`, `Checked files:`, `Status:`, `Missing Keys`, `Compared to:`, `other files`, `Parse / Read Errors` | English at the pass, by design; the follow-up (nolindnaidoo/envsync-le#58) put the headings through `l10n.t()` so a German host could read them |
 | the help document | ~60 lines | English by design (carried, as the family carries it) |
 | telemetry output channel | event lines | machine |
 | manifest | 32 `%key%` values | `package.nls.json` and 12 catalogues |
@@ -462,7 +462,7 @@ Files reopened for this step: `package.json`, `src/extension.ts`, the commands, 
 | FEAT-1 | E | pass | INV-3 matches both ways; `test/integration/extension.test.ts` "registers every declared command" with `getCommands(true)` |
 | FEAT-2 | E | pass | `extension.test.ts` through the real wiring asserts an effect per command: a report document, a toast, a configuration write, a built-in executed; integration asserts the report's content and the help document in a real host |
 | FEAT-3 | E | pass | Shapes read from the handlers: `showIssues`, `clearTemplate`, `clearAllIgnored`, `help`, `openSettings` take none; `compareSelected` `(uri?, uris?)` and `setTemplate`/`ignoreFile`/`stopIgnoring` `(uri?)`, from the palette (nothing) and the explorer (the clicked resource, and the selection for `compareSelected`). Each shape has a test in `extension.test.ts` or `commands.test.ts`. `ignoreFile` from a multi-selection ignores the clicked file only; recorded, the manifest offers no multi-select contract |
-| FEAT-4 | E | pass | Two entries, one clause, `resourceFilename` exists at 1.101. The clause excludes a bare `.env` (INV-2 note); the palette and picker reach it |
+| FEAT-4 | E | pass | Two entries, one clause, `resourceFilename` exists at 1.101. The clause admits `.env`, `.env.x` and `x.env` (INV-2) |
 | FEAT-5 | E | n/a | no keybindings |
 | FEAT-6 | E | finding | Every setting but one had a consumer test showing a changed effect: `enabled` (`detector.test.ts` disabled report), `watchPatterns` (`adapters.test.ts` rebuild), `excludePatterns` (watcher skip, `heuristics.test.ts`), `notificationLevel` (notifier ×3), `statusBar.enabled` (toggle), `caseSensitive` (`comparator.test.ts`), `telemetryEnabled` (channel), `comparisonMode` manual and template (`detector.test.ts`), `compareOnlyFiles`, `templateFile`, `temporaryIgnore` (`extension.test.ts`). `debounceMs` was read back only (`envsync-le-features-6`) |
 | FEAT-7 | E | pass | `config.test.ts` "config defaults parity with package.json" walks every declared property through `KEY_MAP` and fails on one the map lacks |
@@ -599,7 +599,7 @@ Scope read in full: `package.json`, `package.nls.json`, the 12 `src/i18n/package
 | L10N-6 | E | pass | `l10n.test.ts` "never calls l10n.t() at module scope"; `grep -rnE '^(export )?(const\|let) .*l10n\.t\('` → none |
 | L10N-7 | E | pass | `l10n.test.ts` "every call hands l10n.t() a string literal"; `grep 'l10n\.t(`'` → none |
 | L10N-8 | E | pass | `unzip -l release/envsync-le-2.4.5.vsix`: `package.nls.json`, 12 `package.nls.*.json`, 12 `l10n/bundle.l10n.*.json`; `git status` clean after `package`, so `clean:i18n` took back every copy |
-| L10N-9 | E | finding | `envsync-le-translations-3`, carried: no test shows a translated string in a real non-English host. The runtime half has no surface the API can read back here: the report and the help page are English by design and the toasts, tooltips and pickers cannot be read; the manifest half is not localized for a dev-loaded extension (the last two passes recorded the same). What would settle it: a German host run that reads a command title off an installed VSIX, or a localized report |
+| L10N-9 | E | finding | `envsync-le-translations-3`, carried at the pass and closed by the follow-up (nolindnaidoo/envsync-le#58): `test/locale/german-host.test.ts` reads `# envsync-le Sync-Bericht` and `## Fehlende Schlüssel` off a report in a host launched with `--locale=de` and the German language pack. At the pass: no test showed a translated string in a real non-English host. The runtime half has no surface the API can read back here: the report and the help page are English by design and the toasts, tooltips and pickers cannot be read; the manifest half is not localized for a dev-loaded extension (the last two passes recorded the same). What would settle it: a German host run that reads a command title off an installed VSIX, or a localized report |
 | L10N-10 | E | pass | the placeholder loop → no output, before and after the new keys |
 | L10N-11 | E | pass | runtime: no value identical to English; manifest: `manifest.command.category` (`EnvSync-LE`) and `manifest.settings.title` (`envsync-le`) in all twelve, product names |
 | L10N-12 | E | pass | `EnvSync-LE`, `envsync-le`, `dotenv`, `.env`, `$(file)` (code, not in a catalogue), `{0}`/`{1}`, `Unignore File`'s translated title used in the new key, checked by search in every locale |
@@ -638,22 +638,22 @@ Scope read in full: `package.json`, `package.nls.json`, the 12 `src/i18n/package
 | envsync-le-races-3 | race-conditions | No test started a command twice at once | RACE-3 | `6e990cb` | `races.test.ts` ×4 | test-gap |
 | envsync-le-translations-1 | translations | Ten strings English in every locale; `Yes`/`No` compared as literals; two toasts bypassed the UI port | `fail/translations-1.log`: the test named all ten sites | `67d9cde` | `src/l10n.test.ts` ×7; nine keys in 13 bundles | the ten sites listed |
 | envsync-le-translations-2 | translations | 41 values said something other than their source; `pt-br` manifest in European Portuguese | the full read, L10N-13/14/16 rows | `7fcca9f` | the catalogues; `check:locales`, the placeholder loop, `l10n.test.ts` parity | n/a: catalogue values |
-| envsync-le-translations-3 | translations | No test shows a translated string in a real host | L10N-9 | carried | | |
+| envsync-le-translations-3 | translations | No test shows a translated string in a real host | L10N-9 | follow-up nolindnaidoo/envsync-le#58 | `test/locale/german-host.test.ts` ×2, run in a real German host | test-gap |
 
-Every commit on the branch is one of the above, or `70552d0` (formatting the pass's own tests). Every new test that holds a fix was run with the fix absent and its failure is in `fail/` beside the record's evidence in the session scratchpad; the words are in the table.
+Every commit on the branch is one of the above, or `70552d0` (formatting the pass's own tests). The follow-up branch, nolindnaidoo/envsync-le#58, closes the carried items the table below marks. Every new test that holds a fix was run with the fix absent and its failure is in `fail/` beside the record's evidence in the session scratchpad; the words are in the table.
 
 ## Carried and unknown
 
 | Id or check | What is open | What would settle it |
 |---|---|---|
-| envsync-le-translations-3 (L10N-9) | No test shows a translated string in a real non-English host; the runtime half has no readable surface here and the manifest half is not localized for a dev-loaded extension | A `--locale=de` launch that reads a command title off an installed VSIX, or a decision to localize the report's headings so a German host run can read them, as the last pass did |
-| RACE-3 / RACE-4, the ignore commands | `ignoreFile` and `stopIgnoring` read `temporaryIgnore` and write it; two runs started within one host write would lose one. The mock writes synchronously and cannot show it; a queue is a design decision | The owner's call on serialising the three ignore commands through one promise chain, with a test whose `update` the test resolves by hand |
-| FEAT-18, `DotenvFile.lastModified` | Set by a `getFileStats` call per file and read by nothing but the goldens; the stat is a failure point (a file gone between read and stat drops the file with a named error) | Removing the field changes `SyncReport`'s shape and the goldens; the owner's call |
-| ERR-12, `config.update` | The seven try/catch arms around `config.update` run in no test: the mock's `update` cannot reject | A `_setConfigUpdateError` hook and one test per arm |
-| LEAK-12, a driver in the repo | The three servers were driven from the scratchpad; the repo has no `check:mcp-memory` script | Adding the last pass's `scripts/check-mcp-memory.js` shape, as versions-le did |
-| LEAK-12, write backpressure | `transport.ts` and `src/cli/mcp.ts` ignore `write()`'s return; a client that never drains holds replies in the write queue (measured as resident memory in the last pass) | The owner's call; a slow-reader test |
-| FEAT-19, `scripts/` | Not type-checked; `tsconfig.json` includes `src/**/*` only | A `tsconfig.scripts.json` or an `include` entry |
-| INV-8, the help page and the report | English by design; the README now says so | A decision to localize either |
+| envsync-le-translations-3 (L10N-9) | No test shows a translated string in a real non-English host; the runtime half has no readable surface here and the manifest half is not localized for a dev-loaded extension | Closed in nolindnaidoo/envsync-le#58: the report's headings are localized and a German host reads them. The manifest half still has no test, for the reason every pass has recorded |
+| RACE-3 / RACE-4, the ignore commands | `ignoreFile` and `stopIgnoring` read `temporaryIgnore` and write it; two runs started within one host write would lose one. The mock writes synchronously and cannot show it; a queue is a design decision | Closed in nolindnaidoo/envsync-le#58: the three commands take turns at the list, and two tests hold writes with `_holdConfigUpdates()` and lose a file without the queue |
+| FEAT-18, `DotenvFile.lastModified` | Set by a `getFileStats` call per file and read by nothing but the goldens; the stat is a failure point (a file gone between read and stat drops the file with a named error) | Closed in nolindnaidoo/envsync-le#58: the field, the stat and the port method are gone, and the goldens regenerated |
+| ERR-12, `config.update` | The seven try/catch arms around `config.update` run in no test: the mock's `update` cannot reject | Closed in nolindnaidoo/envsync-le#58: `_setConfigUpdateError` and `_setShowDocumentError`, one test per arm |
+| LEAK-12, a driver in the repo | The three servers were driven from the scratchpad; the repo has no `check:mcp-memory` script | Closed in nolindnaidoo/envsync-le#58: `bun run check:mcp-memory`, 57 MB flat from 1,000 to 3,000 calls |
+| LEAK-12, write backpressure | `transport.ts` and `src/cli/mcp.ts` ignore `write()`'s return; a client that never drains holds replies in the write queue (measured as resident memory in the last pass) | Closed in nolindnaidoo/envsync-le#58: both servers stop reading while the pipe is full, with a slow-reader test each |
+| FEAT-19, `scripts/` | Not type-checked; `tsconfig.json` includes `src/**/*` only | Still open: `tsconfig.json` is fleet-shared, so this is a sweep across the family, not one repo's change |
+| INV-8, the help page | English by design; the README says so. The report's headings were localized in nolindnaidoo/envsync-le#58 | A decision to localize the help page |
 | `cargo audit` | Not installed here; CI's `audit` job | the pull request's CI (CLOSE-9) |
 
 No `unknown`: every check has an answer per surface.

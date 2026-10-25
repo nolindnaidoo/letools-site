@@ -11,7 +11,7 @@ is written by step 8, [close.md](close.md).
 | decisionlint | merged | `84dc063c` | [records/decisionlint.md](records/decisionlint.md) | [nolindnaidoo/decisionlint#30](https://github.com/nolindnaidoo/decisionlint/pull/30) | 2026-10-14 | 22 | 0 |
 | paths-le | merged | `0cb6ef02` | [records/paths-le.md](records/paths-le.md) | [nolindnaidoo/paths-le#51](https://github.com/nolindnaidoo/paths-le/pull/51) | 2026-10-11 | 25 | 0 |
 | string-le | merged | `5554c397` | [records/string-le.md](records/string-le.md) | [nolindnaidoo/string-le#53](https://github.com/nolindnaidoo/string-le/pull/53) | 2026-10-13 | 34 | 1 |
-| envsync-le | merged | `4d95f569` | [records/envsync-le.md](records/envsync-le.md) | [nolindnaidoo/envsync-le#57](https://github.com/nolindnaidoo/envsync-le/pull/57) | 2026-10-25 | 23 | 1 |
+| envsync-le | merged | `4d95f569` | [records/envsync-le.md](records/envsync-le.md) | [nolindnaidoo/envsync-le#57](https://github.com/nolindnaidoo/envsync-le/pull/57) | 2026-10-25 | 24 | 0 |
 | scrape-le | not started | | | | | | |
 | numbers-le | not started | | | | | | |
 | urls-le | not started | | | | | | |
