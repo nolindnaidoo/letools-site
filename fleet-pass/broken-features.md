@@ -67,7 +67,11 @@ skip a new one.
 
 **FEAT-8 (`E`). A setting changed while the extension is running takes effect
 as documented**, without a reload unless the description says a reload is
-needed.
+needed. The host's `getConfiguration()` returns a snapshot, so an adapter that
+keeps the object it was handed at activation reads that moment for the rest
+of the session. A unit mock whose configuration reads live hides this, so the
+mock hands out a snapshot too, and the check is driven in a real host with a
+setting changed after activation.
 
 **FEAT-9 (`E`). Every activation event activates the extension.** For each
 event, a workspace that matches it and one that does not. Confirm the first
