@@ -26,8 +26,8 @@ Every row of INV-5 gets an answer. There is no sampling.
 
 ## Checks
 
-The hunt in this step: LEAK-3, LEAK-5, LEAK-6, LEAK-10, LEAK-11, LEAK-12.
-Each is driven in full. The rest are answered from the step 1 read and the INV-5
+The hunt in this step: LEAK-5, LEAK-6, LEAK-10, LEAK-11. Each is driven in
+full. The rest are answered from the step 1 read and the INV-5
 table.
 
 **LEAK-1 (`E`). Every disposable has an owner.** For each row of INV-5 that

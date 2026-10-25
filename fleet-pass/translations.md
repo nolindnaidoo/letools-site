@@ -163,7 +163,9 @@ find where the string is shown, then read each locale's value with that context
 in mind. Short and ambiguous strings are where machine translation fails: a
 column ordinal `Index` rendered as "table of contents", a verb rendered as a
 noun, a button rendered as a sentence, a `{0}` that holds a count rendered as
-though it held a name, a `{1}` that holds a label rendered as a second count.
+though it held a name, a `{1}` that holds a label rendered as a second count,
+a domain word with a homonym rendered as the other sense, such as `keys`
+as the keys on a keyboard or `agent` as a sales agent.
 For every placeholder, know what it carries before judging the sentence around
 it. Record every value that does not fit its context, with the key, the
 locale, the value and the reason.
@@ -175,7 +177,9 @@ What cannot be judged with confidence in a given language is recorded as
 part of a sentence, no value from another locale's file, no mixed scripts, and
 the locale's own punctuation where its script has one: an ASCII comma or colon
 joining the clauses of a Chinese or Japanese sentence is a value half in
-another script.
+another script. A regional variant is a language of its own here: a catalogue
+for one region written in another region's vocabulary is a value from another
+locale, and the language check passes it.
 `check:locales` covers the mechanical part, and reading every value covers the
 rest.
 

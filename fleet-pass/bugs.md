@@ -29,8 +29,8 @@ that domain's edges.
 
 ## Checks
 
-The hunt in this step: BUG-8, BUG-11, BUG-13, BUG-15, BUG-21. Each is
-driven or traced in full. The rest are answered from the step 1
+The hunt in this step: BUG-11, BUG-13, BUG-15. Each is driven or traced in
+full. The rest are answered from the step 1
 read and the inventory tables.
 
 **BUG-1. Empty and minimal input.** For every public function and every MCP
@@ -136,8 +136,9 @@ line.
 **BUG-15 (`M` `C`). Agreement outside the corpus.** Where the extension and the
 crate implement the same engine, feed both the edge inputs from BUG-1 to BUG-8,
 a document cut off mid-value, a document nested deeper than a call stack
-allows, and a key or path with more segments than the reference parser
-follows, and compare. Agreement on a shared defect is still a defect. Parity
+allows, a key or path with more segments than the reference parser
+follows, a numeric argument written as `1e20` or `5.0`, a mode named without
+the argument it needs, and an entry of the wrong shape, and compare. Agreement on a shared defect is still a defect. Parity
 means both are right, not that both copy the same quirk. A parser that
 recovers on one side and gives up on the other, or that overflows the stack on
 one side and returns nothing on the other, is a disagreement the corpus and

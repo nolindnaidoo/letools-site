@@ -93,7 +93,9 @@ grep -rnE 'as Error\b|catch \((e|err|error)\)' src --include='*.ts' --exclude='*
 **ERR-9. Shortfalls are visible.** A loop that skips an item on failure and
 continues must surface the count and the items skipped in its output. A record
 that exists only in `console.*` or the extension host log is invisible to the
-user.
+user. A cap on a search's results is a shortfall too: ask the search for one
+more than will be read, and when it comes back, the report says the
+comparison is partial.
 
 ```bash
 grep -rnE 'console\.(log|warn|error|debug)' src --include='*.ts' --exclude='*.test.ts'

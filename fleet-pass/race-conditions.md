@@ -35,8 +35,7 @@ run that showed it recorded.
 
 ## Checks
 
-The hunt in this step: RACE-3, RACE-11. Each is driven with a controlled
-interleaving. The rest are answered from the step 1 read and the
+The hunt in this step: RACE-3. It is driven with a controlled interleaving. The rest are answered from the step 1 read and the
 INV-6 table, and RACE-17 by the test runs it names.
 
 **RACE-1 (`E`). State read before an `await` is still valid after it.** For
@@ -137,6 +136,14 @@ bun run test && bun run test && bun run test
 bunx vitest run --pool=threads --sequence.shuffle
 grep -rnE 'setTimeout|Date\.now|new Date\(\)|useFakeTimers' src test --include='*.test.ts'
 ```
+
+**RACE-18 (`E`). A debounced run that finds one in flight runs once more
+after it.** A watcher that collapses a burst of events into one check and
+refuses to start a second while one is running holds two policies in one, and
+the refusal drops the event that arrived during the check: the state after the
+last edit is never read. Drive it: start a check, fire a change while it is
+suspended, let it finish, and assert that a second check runs. A test that
+pins only the refusal pins half the policy.
 
 ## Done when
 
