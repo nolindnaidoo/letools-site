@@ -1,6 +1,8 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { byDownloads } from '../lib/popularity'
+import { TOOLS } from '../lib/tools'
 import { OUTSIDE_FLEET, REPOS } from './check-fleet'
 
 const DIR = join(import.meta.dirname, '..', 'fleet-pass')
@@ -59,5 +61,16 @@ describe('fleet pass documents', () => {
       match => match[1],
     )
     expect([...rows].sort()).toEqual([...REPOS, ...OUTSIDE_FLEET].sort())
+  })
+
+  it("keeps the ledger rows in the navigation's order, which is the order of passes", () => {
+    // Passes go most downloaded first, the order the site's tools menu shows.
+    // One pass was taken out of turn because the ledger said so in prose; the
+    // rows now carry the order and this holds them to the same function the
+    // menu uses, on the download floor rather than a build's measurement.
+    const rows = [...read('LEDGER.md').matchAll(/^\| ([a-z0-9]+(?:-le)?) \|/gm)].map(
+      match => match[1],
+    )
+    expect(rows).toEqual(byDownloads(TOOLS, tool => tool.id, {}).map(tool => tool.id))
   })
 })
