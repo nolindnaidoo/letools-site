@@ -124,6 +124,11 @@ the working tree.
 launches the host in a non-English locale and asserts one manifest string and
 one runtime string in that language. If no such test exists, that is a
 `test-gap` finding. Parity of files does not show that either mechanism loads.
+An extension whose results go only to a notification, the status bar and an
+output channel writes nothing a test can read back; the launch still goes in,
+asserting the host's language, activation and the bundle at the path the
+manifest names, and the record carries the string half as open with what
+would settle it.
 
 ## Checks: what loads is correct
 

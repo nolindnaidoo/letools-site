@@ -52,7 +52,10 @@ parse produces a diagnostic with a code, a severity and a message that says
 which malformation occurred. Zero findings with zero diagnostics on a file that
 was never read is the silent miss. **Verify by running the MCP server on a
 malformed document, not by reading the code.** Use the repo's existing
-diagnostic code spelling. Do not introduce another.
+diagnostic code spelling. Do not introduce another. Where the format has no
+malformed state, because its standard has every unreadable line ignored, the
+record says so and names the standard; an empty rule set is then the answer,
+not a default, and the test that feeds garbage is titled for that.
 
 **ERR-4. Every label on a failure is true.** Read each error message against
 every cause that can reach it. A `catch` around a read and a decode that
@@ -146,6 +149,15 @@ and `notifications/initialized` sent with an id.
 Each is answered or deliberately ignored the same way by every server the repo
 ships, in the same words, and the process is still there for the request after
 it.
+
+**ERR-20 (`N` `C`). A reader that closes a pipe is survived.** A reader that
+closes stdout early, as `| head` does, or stderr, is a write failure on the
+tool's side, and a write to stderr that fails is where a crate panics:
+`eprintln!` panics on it, so every refusal under such a reader exits 101
+with a message nobody saw. Drive both pipes closed, in a process test, on a
+refusal path that needs no network, and read the exit code. Every write to
+stderr goes through one helper that drops a failed write; stdout keeps the
+documented refusal.
 
 **ERR-15 (`C`). No panic on input.** Each `unwrap`, `expect`, `panic!`,
 `unreachable!` and indexing expression from INV-7 is read. One reachable from

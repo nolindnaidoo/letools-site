@@ -119,6 +119,9 @@ repository that contains the files it reads, not only the fixtures.
 **FEAT-17 (all). Every claim is backed.** Each row of INV-10 is matched to the
 test or the run that demonstrates it. An unbacked claim is a finding. The fix
 is either the missing behaviour or the removed sentence, and the owner chooses.
+A list of vendors, formats or signals inside a setting description or a help
+page is a claim too, in every locale: match each name to the corpus or the
+table the code reads, and hold it there with a test that walks that table.
 
 **FEAT-18 (all). Nothing is declared and dead.** Settings with no consumer,
 commands with no registration, exported functions with no caller, locale keys
