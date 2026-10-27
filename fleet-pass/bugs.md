@@ -29,7 +29,7 @@ that domain's edges.
 
 ## Checks
 
-The hunt in this step: BUG-11, BUG-13, BUG-15. Each is driven or traced in
+The hunt in this step: BUG-11, BUG-15. Each is driven or traced in
 full. The rest are answered from the step 1
 read and the inventory tables.
 
@@ -54,7 +54,11 @@ whether each bound is inclusive and test the element on each side of it.
 a file with no trailing newline, a lone `\r`, tabs, characters outside the
 Basic Multilingual Plane, combining characters, and text that is not valid
 UTF-8. Positions and columns reported to the user are checked against a
-document containing each.
+document containing each. Digits and letters from another script too: a
+digit from another script beside ASCII digits, which `\d` reads as a digit in
+Rust and not in JavaScript, so a run splits on one side and not the other;
+and a header or label test written as `[A-Za-z]`, which reads a row in
+Japanese or Cyrillic as data.
 
 **BUG-5. Ordering.** Every `sort`, `localeCompare`, comparator and
 "first match wins" loop. A bare `sort()` orders by UTF-16 code unit and
