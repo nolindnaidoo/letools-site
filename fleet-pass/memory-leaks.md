@@ -32,7 +32,10 @@ table.
 
 **LEAK-1 (`E`). Every disposable has an owner.** For each row of INV-5 that
 VS Code returns as a `Disposable`, name where it is pushed to
-`context.subscriptions` or explicitly disposed. One created inside a command
+`context.subscriptions` or explicitly disposed. What is pushed is the object
+that owns every timer and listener the resource has, not the bare item
+beneath it: a wrapper that cancels a pending timer in its own `dispose` does
+nothing at deactivation if the subscription holds the item it wraps. One created inside a command
 handler, a loop or a callback is created once per call, so it must be disposed
 per call, not handed to the subscription list to pile up until deactivation.
 
