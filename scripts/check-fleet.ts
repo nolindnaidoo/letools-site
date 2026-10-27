@@ -257,7 +257,14 @@ export const SHARED_WITH_EXCEPTIONS: Record<string, readonly string[]> = {
   // escapes every reply as its crate does; versions-le refuses null arguments
   // as its crate does. Each of those is the crate's contract, so each keeps
   // its own copy.
-  'src/mcp/transport.ts': ['envsync-le', 'numbers-le', 'scrape-le', 'string-le', 'unicode-le', 'versions-le'],
+  'src/mcp/transport.ts': [
+    'envsync-le',
+    'numbers-le',
+    'scrape-le',
+    'string-le',
+    'unicode-le',
+    'versions-le',
+  ],
 }
 
 /**
