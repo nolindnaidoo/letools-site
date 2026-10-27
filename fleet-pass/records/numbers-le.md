@@ -12,6 +12,7 @@ test for each.
 | Baseline commit | `7aece032` (`7aece03250dd58a2451aeaf597a6363e4777225a`) |
 | Started | 2026-10-26 |
 | Pull request | [nolindnaidoo/numbers-le#64](https://github.com/nolindnaidoo/numbers-le/pull/64) |
+| Carried items closed | 2026-10-27, on the owner's instruction: the seven rows the first close carried, each a finding below |
 
 ## Step 0: Baseline
 
@@ -41,7 +42,7 @@ before the parity runs that followed; the final run rebuilt both profiles.
 | `E` | `bun install --frozen-lockfile` | exit 0 | exit 0 | |
 | `E` | `bun run lint` | exit 0 | exit 0 | biome 2.5.15 against a 2.5.7 schema prints two deserialize notes; neither fails the gate |
 | `E` | `bun run typecheck` | exit 0 | exit 0 | covers `src/` and `vitest.config.ts`; `test/` is checked by `tsconfig.it.json` in `test:integration` |
-| `E` | `bun run test:coverage` | exit 0 | exit 0 | baseline 34 files, 470 tests; 79.11 / 70.78 / 85.93 / 80.73. Close 37 files, 518 tests; 80.22 / 71.77 / 86.52 / 81.79 |
+| `E` | `bun run test:coverage` | exit 0 | exit 0 | baseline 34 files, 470 tests; 79.11 / 70.78 / 85.93 / 80.73. First close 37 files, 518 tests; after the carried items 525 tests, 81.24 / 72.38 / 89.20 / 82.72 |
 | `E` | `bun run build` | exit 0 | exit 0 | |
 | `E` | `bun run check:bundle` | exit 0 | exit 0 | static scan and runtime load of `dist/extension.js` |
 | `M` | `bun run build:mcp:prod` | exit 0 | exit 0 | |
@@ -49,7 +50,7 @@ before the parity runs that followed; the final run rebuilt both profiles.
 | `N` | `bun run build:npm` | exit 0 | exit 0 | `numbers-le-mcp` |
 | `N` | `bun run check:npm-package` | exit 0 | exit 0 | |
 | `E` | `bun run package` | exit 0 | exit 0 | `release/numbers-le-2.7.1.vsix`; `clean:i18n` left no copied catalogue |
-| `E` | `bun run coverage:readme:check` | exit 1 | exit 0 | README said 460 cases across 33 files; the run had 470 across 34: `numbers-le-broken-features-1`. Regenerated twice (`9d6a78e`, `8550495`), the second time on the finished branch |
+| `E` | `bun run coverage:readme:check` | exit 1 | exit 0 | README said 460 cases across 33 files; the run had 470 across 34: `numbers-le-broken-features-1`. Regenerated three times (`9d6a78e`, `8550495`, `3bc4f79`), the last after the carried items |
 | `E` | `bun run lint:commits` | exit 0 | exit 0 | 0 commits at baseline; every commit conforms at close |
 | `E` | `python3 scripts/check-agent-files.py` | exit 0 | exit 0 | |
 | `E` | `bun run benchmark` | exit 0 | exit 0 | pure |
@@ -57,19 +58,19 @@ before the parity runs that followed; the final run rebuilt both profiles.
 | `C N` | one-version job shell (`ci-crate.yml`) | exit 0 | exit 0 | `crate/Cargo.toml` = `cli/package.json` = 2.7.1 |
 | `C` | `cargo fmt --all --check` | exit 0 | exit 0 | |
 | `C` | `cargo clippy --all-targets -- -D warnings` | exit 0 | exit 0 | |
-| `C` | `cargo test --locked` | exit 0 | exit 0 | baseline 225 unit, 2 corpus, 19 contracts, 3 budget, 8 hazards, 6 platform, 3 scenarios (the gated ones skipped by name); close 236 unit, 9 hazards |
+| `C` | `cargo test --locked` | exit 0 | exit 0 | baseline 225 unit, 2 corpus, 19 contracts, 3 budget, 8 hazards, 6 platform, 3 scenarios (the gated ones skipped by name); close 240 unit, 20 contracts, 9 hazards |
 | `C` | `cargo build --locked` | exit 0 | exit 0 | |
 | `C` | MSRV check (`RUSTUP_TOOLCHAIN=1.88 cargo check`) | exit 0 | exit 0 | |
 | `C` | policy: no inline `#[allow(` | exit 0 | exit 0 | |
 | `C` | policy: `extract/` has no filesystem call | exit 0 | exit 0 | |
 | `C` | policy: no doc holds the surfaces equal | exit 0 | exit 0 | |
 | `C` | `cargo llvm-cov`, 70% floor on `extract/` | exit 0 | exit 0 | every module ≥ 92% at baseline |
-| `E M C` | `bun scripts/check-extraction-parity.ts` | exit 0 | exit 0 | the corpus under the extension and both servers; 21 shared-tool cases at close, 18 at baseline |
+| `E M C` | `bun scripts/check-extraction-parity.ts` | exit 0 | exit 0 | the corpus under the extension and both servers; 24 shared-tool cases at close, 18 at baseline; a refusal's `-32602` code held beside its words |
 | `C` | `cargo build --locked --release` | exit 0 | exit 0 | |
 | `E C` | `differential-extraction.ts`, seed 20260812 | exit 0 | exit 0 | 2,585 generated documents, both sides agree |
 | `M C` | `check-mcp-definition.ts` | exit 0 | exit 0 | `extract_numbers` defined identically |
 | `N` | `bun run build:cli` | exit 0 | exit 0 | |
-| `N C` | `bun run check:cli-parity` | exit 0 | exit 0 | 60 commands and 56 MCP lines at close (50 at baseline: four `maxResults` spellings and two scan refusals joined) |
+| `N C` | `bun run check:cli-parity` | exit 0 | exit 0 | 60 commands and 61 MCP lines at close (50 at baseline: four `maxResults` spellings, two scan refusals and five wrong-typed or undeclared arguments joined) |
 | `N C` | `bun run check:cli-pipes` | exit 0 | exit 0 | 3 closed-pipe cases and 18 malformed frames, both binaries alike |
 | `N` | `bun run build:cli:prod` | exit 0 | exit 0 | |
 | `N` | `bun run check:cli-package` | exit 0 | exit 0 | installs from the tarball, runs as `numbers-le` |
@@ -84,7 +85,7 @@ before the parity runs that followed; the final run rebuilt both profiles.
 | `C` | crate package list | exit 0 | exit 0 | corpus present in the tarball; no agent file in it |
 | `C` | both changelogs carry the version | exit 0 | exit 0 | |
 | `C` | `cargo publish --dry-run` | exit 0 | exit 0 | |
-| `E` | `bun run test:integration` | exit 0 | exit 0 | 9 host tests at baseline; at close 9 in English, 1 installing the German language pack and 3 on the German host |
+| `E` | `bun run test:integration` | exit 0 | exit 0 | 9 host tests at baseline; at close 9 in English, 1 installing the German language pack and 4 on the German host, one reading the help document back in German |
 | `E` | `bun run test:e2e-vsix` | exit 0 | exit 0 | installs the built VSIX into a clean profile, drives it, spawns the MCP server |
 
 ## Step 1: Inventory
@@ -286,7 +287,7 @@ runtime bundles and `package.nls.json`.
 | command | `numbers-le.postProcess.sort` | `%manifest.command.sort.title%` | palette |
 | command | `numbers-le.openSettings` | `%manifest.command.settings.title%` | palette |
 | command | `numbers-le.help` | `%manifest.command.help.title%` | palette |
-| menu | `editor/context` → `numbers-le.extractNumbers` | | `when: editorLangId =~ /^(json\|jsonc\|yaml\|csv\|toml\|ini\|dotenv\|env)$/`, group `1_modification@1`; the fourteen source languages the extension activates on get the palette only (carried, below) |
+| menu | `editor/context` → `numbers-le.extractNumbers` | | `when: editorLangId =~ /^(json\|jsonc\|yaml\|csv\|toml\|ini\|dotenv\|env)$/`, group `1_modification@1`; the fourteen source languages the extension activates on get the palette only (an owner decision, below) |
 | menu | `commandPalette` | | all five commands, no `when` |
 | keybindings | none | | |
 | configuration | 16 properties under `numbers-le.` | every description a `%key%` | listed under INV-4 |
@@ -335,7 +336,7 @@ runtime bundles and `package.nls.json`.
 | rating state | `globalState`, written before each ask | persists by design | one record |
 | `TEXT_NUMBER_RE` (`g`, module level) | module load | never | used only through `matchAll`, which clones it (BUG-6) |
 | extension MCP server: tool table, input buffer | `createResponder`; per frame | process end; per frame, 16 MiB ceiling | one tool; 16 MiB plus the pending chunk |
-| npm command line / crate | per run: the walk's file list, per-file reports, the MCP loop's frame | run end; per frame, 16 MiB ceiling at close (none at baseline: `numbers-le-errors-5`) | the tree's file count; 16 MiB |
+| npm command line / crate | per run: the walk's file list, its link count, per-file reports, the MCP loop's frame | run end; per frame, 16 MiB ceiling at close (none at baseline: `numbers-le-errors-5`) | the tree's file count; 16 MiB |
 | crate `testing.rs` `COUNTER` | tests only | | |
 
 ### INV-6. Suspension points
@@ -369,7 +370,10 @@ runtime bundles and `package.nls.json`.
 | `mcp/transport.ts` ×3 | a tool that threw; bad JSON; a frame over the limit | `isError`; `-32700` | pass |
 | `cli/mcp.ts`, `cli/frames.ts`, `cli/run.ts` ×2, `cli/scan.ts` ×2, `cli/walk.ts` ×2, `cli/ioError.ts` ×2, `cli/ignoreRules.ts` | the crate's surface: a tool that threw, a frame that is not JSON, an unreadable path, a parse failure, an ignore file that will not read | the crate's words, held by parity | the frame was dropped: `numbers-le-errors-5` |
 | crate `mcp/mod.rs` `serve` | a frame that is not UTF-8 or not JSON | dropped without a word | `numbers-le-errors-5` |
-| crate `walk.rs`, npm `walk.ts` | a FIFO, a socket, a device | dropped without a word | `numbers-le-errors-7` |
+| crate `walk.rs`, npm `walk.ts` | a FIFO, a socket, a device; a symbolic link | dropped without a word | `numbers-le-errors-7`; the link counted, `numbers-le-errors-8` |
+| crate `mcp/mod.rs`, npm `cli/mcp.ts` | a wrong-typed optional argument; an argument the schema does not declare | read as absent; accepted | `numbers-le-errors-9` |
+| crate `mcp/mod.rs`, npm `cli/mcp.ts` | a report with a `skipped` diagnostic, in the scan tool's envelope | `ok: true`, `diagnostics: []` | `numbers-le-bugs-6` |
+| npm `cli/output.ts` | the stream answering that the pipe is full | nothing | `numbers-le-errors-10` |
 | crate `expect` ×74 across 10 files | serialization of values the crate built, test helpers, constant patterns, a cursor already peeked, `try_from` on bounds the branch proves | nothing: none reachable from input | pass (ERR-15); the fuzz and hazard suites agree |
 
 ### INV-8. User-visible strings, by channel
@@ -382,7 +386,7 @@ runtime bundles and `package.nls.json`.
 | quick picks | `prompts.ts`, `sort.ts` | labels and placeholders `l10n.t()`; the file-type pick's format names are never-translate | the column pick carries its index (`5976ff7`) |
 | input box and its validator | `prompts.ts` | `l10n.t()` | |
 | modal dialogs and their buttons | `largeOutput.ts`, `ratingPrompt.ts` | `l10n.t()`, bound and compared by reference | |
-| help document | `commands/help.ts` | English | carried (below) |
+| help document | `commands/help.ts` | English | every sentence `l10n.t()`, 88 keys (`numbers-le-translations-5`); the German host reads it back |
 | output channel | `telemetry.ts` | English, machine-shaped | L10N-18: a log a user pastes |
 | manifest | `package.json` | `%key%` throughout | |
 | MCP, CLI, crate | `src/mcp`, `src/cli`, `crate/` | English, machine-read | L10N-18/19: deliberately not localized |
@@ -392,10 +396,10 @@ runtime bundles and `package.nls.json`.
 | Interface | Shape | Held by |
 |---|---|---|
 | MCP tool `extract_numbers` (`M` `N` `C`) | `{content, format?, filename?, dedupe?, maxResults?}` → `{ok, data: {numbers, fileType}, diagnostics, meta}` | `crate/fixtures/mcp-extract-numbers.json` on all three (21 cases at close); `check-mcp-definition.ts` |
-| MCP tool `numbers_le_scan` (`N` `C`) | `path` or `paths`, `format?`, `dedupe?`, `hidden?`, `ignored?` → reports, counts, diagnostics | `check-cli-parity.ts` 56 lines; crate `mcp::tests` |
-| JSON-RPC framing, three servers | newline-delimited, 16 MiB ceiling, parse errors in one wording | `mcp.test.ts`, `cli.test.ts`, `frames.test.ts`, crate `mcp::tests`, `check-cli-pipes.ts` (`numbers-le-errors-5`) |
+| MCP tool `numbers_le_scan` (`N` `C`) | `path` or `paths`, `format?`, `dedupe?`, `hidden?`, `ignored?`, `additionalProperties: false` → reports, `numbers`, `binaryFiles`, `symbolicLinks`, diagnostics naming each skipped file | `check-cli-parity.ts` 61 lines; crate `mcp::tests` |
+| JSON-RPC framing, three servers | newline-delimited, 16 MiB ceiling, parse errors in one wording; a schema violation `-32602` in one wording, a run-time failure `isError` | `mcp.test.ts`, `cli.test.ts`, `frames.test.ts`, crate `mcp::tests`, `check-cli-pipes.ts` (`numbers-le-errors-5`); the corpus and `check-cli-parity.ts` (`numbers-le-errors-9`) |
 | report JSON Lines (`N` `C`) | `{file, format, numbers[{value, notation, line?, column?}], diagnostics, summary}` | `check-cli-parity.ts`, `contracts.rs`, `hazards.rs` |
-| exit codes (`N` `C`) | 0 numbers, 1 none, 2 malformed question; `--strict` 2 on any unread input | `contracts.rs`, `hazards.rs`, `cli.test.ts` |
+| exit codes (`N` `C`) | 0 numbers, 1 none, 2 malformed question; `--strict` 2 on any unread input; stderr counts binary files skipped and links not followed | `contracts.rs`, `hazards.rs`, `cli.test.ts` |
 | flags (`N` `C`) | `--dedupe`, `--format`, `--values`, `--strict`, `--stdin`, `--hidden`, `--no-ignore`, `mcp`, `--version`, `--help` | `usage.ts` ↔ `FLAGS` test; parity |
 | npm packages | `numbers-le-mcp` (bin `numbers-le-mcp`), `numbers-le` (bin `numbers-le`) | `check:npm-package`, `check:cli-package`; the versions job holds `package.json`, `mcp/package.json`, `server.json`, `cli/package.json` and `crate/Cargo.toml` to 2.7.1 |
 
@@ -423,13 +427,14 @@ runtime bundles and `package.nls.json`.
 | `help.test.ts` (new) | the help document | none existed: the document was held by nothing (`broken-features-4`) |
 | `prompts.test.ts`, `ui.test.ts` | prompts, notifier, status bar | no non-Latin header (`bugs-2`); no translated label (`translations-1`); the status bar tests asserted nothing (`broken-features-3`) |
 | `formats.*.test.ts`, `heuristics.test.ts`, `positions.test.ts`, `characterization.test.ts` | the engine | two tests accepted any answer (`broken-features-3`); no Unicode-digit case (`bugs-5`) |
-| `mcp.test.ts`, `cli.test.ts`, `frames.test.ts`, crate `mcp::tests` | the three servers | each tested its own words (`errors-5`); the dotenv family untested (`bugs-4`); a non-string path entry untested (`errors-4`) |
+| `mcp.test.ts`, `cli.test.ts`, `frames.test.ts`, crate `mcp::tests` | the three servers | each tested its own words (`errors-5`); the dotenv family untested (`bugs-4`); a non-string path entry untested (`errors-4`); a wrong-typed optional argument untested (`errors-9`); the scan envelope's diagnostics untested on an unreadable file (`bugs-6`) |
 | `config.test.ts` | defaults against the manifest | |
 | `l10n.test.ts` (integration), `src/l10n.test.ts` (new) | catalogues; source against bundle | nothing held source to bundle (`translations-2`) |
 | `lifecycle.test.ts` (new) | activation to deactivation | none existed (`memory-leaks-1`) |
 | `test/locale/`, `test/locale-setup/` (new) | a German host | none existed (`translations-3`) |
 | crate `contracts.rs`, `hazards.rs`, `platform.rs`, `coverage_matrix.rs`, `budget.rs`, `scenarios.rs` | exit codes, inputs, platforms, formats, time | the FIFO case asserted survival only (`errors-7`) |
 | `sort.test.ts` | dedupe and sort | tested a function nothing called (`broken-features-6`) |
+| `output.test.ts` (fleet copy) | the stdout and stderr wrapper | nothing asserted the backpressure answer (`errors-10`) |
 
 ## Step 2: Broken features
 
@@ -443,7 +448,7 @@ Re-read for this step: `package.json`, `src/extension.ts`, `src/commands/*`,
 | FEAT-1 | E | pass | `test/integration/extension.test.ts` "registers every declared command" with `getCommands(true)`; `lifecycle.test.ts` reads five registered |
 | FEAT-2 | E | pass | the host runs extract on a JSON file and reads the results document, dedupe into a new document, and the MCP provider's definition (`extension.test.ts`); sort, openSettings and help against the mock with their effects (`commands.test.ts`, `help.test.ts`); the installed VSIX drives help and the server (`e2e-vsix.js`) |
 | FEAT-3 | E | pass | every handler is `guarded(async () => …)` and ignores its arguments; the context menu's URI and the status bar's none both reach the same body |
-| FEAT-4 | E | pass | one entry, `editor/context` when `editorLangId` matches the eight config formats; `=~` is a context-key operator in the 1.101 floor. The fourteen source languages have the palette only: carried for the owner (below) |
+| FEAT-4 | E | pass | one entry, `editor/context` when `editorLangId` matches the eight config formats; `=~` is a context-key operator in the 1.101 floor. The fourteen source languages have the palette only: an owner decision (below) |
 | FEAT-5 | E | n/a | no keybindings |
 | FEAT-6 | E | finding | every setting had a consumer; two had no consumer test: `numbers-le-broken-features-5` |
 | FEAT-7 | E | pass | `config.test.ts` "covers every declared setting" walks the manifest against `CONFIG_DEFAULTS` |
@@ -482,11 +487,11 @@ Re-read for this step: `src/extraction/**`, `src/parsers/**`, `src/utils/*`,
 | BUG-8 | all | pass | `detectFileType` takes the basename on both separators; `.env.local` and `app.env` resolved differently on the extension (`numbers-le-bugs-4`, fixed); the crate's `platform.rs` holds `/` in every reported path on Windows |
 | BUG-9 | E | pass | the casts in `src/` are on the mock, on `Record<string, unknown>` narrowing after an `Object.hasOwn` check (`cli/mcp.ts`), on `ALIASES[format] as FileType` after a `has` check, and on sorted tuples; none sits on untrusted input without a check |
 | BUG-10 | all | finding | two file-type resolvers (`extraction/extract.ts`, `mcp/fileType.ts`) and a third table in `cli/format.ts`: `numbers-le-bugs-4` folds them into one; `readMaxResults` in two files reads one rule now (`bugs-3`); the fifteen duplicated names the grep lists are the crate-mirroring `cli/` functions beside the extension's, held equal by parity |
-| BUG-11 | N C | finding, carried | `scan.ts` and `scan.rs` carry an `isIncomplete` / incomplete branch with severity `error` that no reader produces: a dead arm on both sides, mirrored by parity. Raised, not patched (below) |
+| BUG-11 | N C | finding | `scan.ts` and `scan.rs` carried an `isIncomplete` / incomplete branch on a severity no reader produces, mirrored by parity; the same severity fed the scan tool's envelope filter, so a locked file left `ok: true` and empty `diagnostics`: `numbers-le-bugs-6` |
 | BUG-12 | all | pass | every result is `Object.freeze`d; options are `readonly`; `onValues` copies |
 | BUG-13 | E | pass | every sentence shown about a result was read against what the module establishes: the counts are the final lists, "Positions are not available for this file type" is reachable only for the five formats that place none (the JSON "disagreement" branch cannot fire: the extractor and the span scan agree on every document that parses, `fail/` probe), and the three false successes are under ERR-5 |
 | BUG-14 | all | n/a | no previews of sensitive values |
-| BUG-15 | M N C | finding | the probe (`logs/probes/shared.jsonl`) fed all three servers the edges: `maxResults` as `2.0`, `1e3`, `1E20`, `1e400`; `.env.local` by filename; `٣5`; `..json`; `constructor`; a BOM before each format; a repeated key; an unknown argument; `format: 7`; `dedupe: "yes"`. Three disagreements: `numbers-le-bugs-3`, `-4`, `-5`. Agreement on a shared defect: a `paths` entry of the wrong shape dropped by both command-line servers: `numbers-le-errors-4`. Two shared silences carried under ERR-14 (below) |
+| BUG-15 | M N C | finding | the probe (`logs/probes/shared.jsonl`) fed all three servers the edges: `maxResults` as `2.0`, `1e3`, `1E20`, `1e400`; `.env.local` by filename; `٣5`; `..json`; `constructor`; a BOM before each format; a repeated key; an unknown argument; `format: 7`; `dedupe: "yes"`. Three disagreements: `numbers-le-bugs-3`, `-4`, `-5`. Agreement on a shared defect: a `paths` entry of the wrong shape dropped by both command-line servers (`numbers-le-errors-4`), a wrong-typed optional argument read as absent and an undeclared one accepted by all three (`numbers-le-errors-9`) |
 | BUG-16 | C | pass | no `as` cast that truncates (`try_from` throughout, `usize` from `u64` clamped at the ceiling); `str` sliced on char boundaries from the lexer's own indices; the fuzz and the 1 MiB-line hazard hold it |
 | BUG-17 | all | pass | each root invariant names its test; `crate/AGENTS.md` hard rules each name a test or a gate; the six added this pass name theirs |
 | BUG-18 | M | pass | `ALIASES` is a `Map`; `constructor` and `__proto__` tried through format, filename and extension (`mcp.test.ts`), and through the probe on all three servers (#16, #17) |
@@ -510,14 +515,14 @@ Re-read for this step: INV-7's files, every command, `src/__mocks__/vscode.ts`,
 | ERR-6 | E | pass | the one `void` is `ratingPrompt.recordSuccess()`, which catches inside; no `.then` without a catch |
 | ERR-7 | E | pass | every handler is `guarded(...)`, held by `guard.test.ts` reading the source |
 | ERR-8 | E | finding | two `instanceof Error` guards swallowed a thrown string (`errors-1`); `errorMessage` existed for this and had no caller (`broken-features-6`) |
-| ERR-9 | E N C | finding | a `paths` entry of the wrong shape vanished from the scan: `numbers-le-errors-4`; a FIFO vanished from the walk: `numbers-le-errors-7`; the binary-file count and the unlocated count are on stderr and in the envelope (pass) |
+| ERR-9 | E N C | finding | a `paths` entry of the wrong shape vanished from the scan: `numbers-le-errors-4`; a FIFO vanished from the walk: `numbers-le-errors-7`; a symbolic link was passed over uncounted: `numbers-le-errors-8`; a skipped file was missing from the scan envelope's diagnostics: `numbers-le-bugs-6`; the binary-file count and the unlocated count are on stderr and in the envelope (pass) |
 | ERR-10 | E | pass | the three direct `showWarningMessage` calls are modal dialogs awaiting a choice (`largeOutput.ts` ×2) and the column-index warning that returns a value the user then sees applied (`prompts.ts`); `ratingPrompt.ts` bypasses on purpose, as its comment says |
 | ERR-11 | E | pass | a dismissed file-type pick, column pick, index box, sort pick or dialog returns quietly (`extract.test.ts`, `prompts.test.ts`, `commands.test.ts` "does nothing when the quick pick is dismissed") |
 | ERR-12 | E | finding | the mock could not fail `openTextDocument`, `showTextDocument`, `clipboard.writeText`, `editor.edit` or `fs.stat`, and had no bundle for `l10n.t`: `numbers-le-errors-1`, `-6`, `translations-1` add `_failOpenTextDocument`, `_failShowTextDocument`, `_failClipboardWrite`, `_refuseEdits`, `_failFsStat`, `_translate` |
 | ERR-13 | E | finding | two tests accepted any answer: `numbers-le-broken-features-3` |
-| ERR-14 | M | finding | three servers, three wordings for an unknown method, an unknown tool and a nameless call: `numbers-le-errors-5`. Two deliberate divergences stay, as in the scrape-le pass: a wrong-typed tool argument is an `isError` result (`maxResults: 2.5`), and `format: 7` or `dedupe: "yes"` are read as absent on all three servers; carried for the owner (below) |
+| ERR-14 | M | finding | three servers, three wordings for an unknown method, an unknown tool and a nameless call: `numbers-le-errors-5`. A wrong-typed tool argument was an `isError` result, a wrong-typed optional one was read as absent, and `additionalProperties: false` sat unenforced: `numbers-le-errors-9`, on the owner's decision; a schema violation is `-32602` on all three servers now and a path that is not there stays `isError` |
 | ERR-15 | C | pass | the 74 `expect`/`panic!` sites read (INV-7): serialization of values the crate built, test helpers, constant patterns, `try_from` on bounds the branch proves, a `chars.next()` after `peek`; none reachable from input, and the 319 s fuzz and the hazard suite agree |
-| ERR-16 | N C | finding | permission denied, a symlink loop, a directory under a file's extension, a long path and an undecodable file each named (`hazards.rs`); a FIFO vanished: `numbers-le-errors-7`. A symbolic link is never followed, by design, and is the one entry still passed over without a line (carried) |
+| ERR-16 | N C | finding | permission denied, a symlink loop, a directory under a file's extension, a long path and an undecodable file each named (`hazards.rs`); a FIFO vanished: `numbers-le-errors-7`; a symbolic link, never followed by design, was passed over without a line: counted now, `numbers-le-errors-8` |
 | ERR-17 | N E | pass | no `\|\| true`, no `continue-on-error`; the three `2>/dev/null` are in shells whose exit code is read |
 | ERR-18 | E | pass | the only indicator is `withProgress`, which ends on every path, and the prompts happen before it |
 | ERR-19 | M | finding | `logs/probes/shared-*.out` and the 18 frames of `check:cli-pipes`: the extension's server echoed the client's version and answered a null id; the other two dropped a non-JSON and a non-UTF-8 frame and held a frame of any size: `numbers-le-errors-5` |
@@ -589,11 +594,11 @@ keys per locale at baseline, 57 and 33 at close.
 | L10N-2 | E | pass | both loops print no DRIFT; the integration test holds both mechanisms, `src/l10n.test.ts` the runtime one |
 | L10N-3 | E | pass | twelve locales in both; `check:locales ../` from the site |
 | L10N-4 | E | pass at baseline | every `l10n.t()` string was in the bundle and every key called; `src/l10n.test.ts` holds it now, and refused the ten new keys until their calls existed (`fail/translations-2.log`) |
-| L10N-5 | E | finding | eleven literals handed to the status bar, the notifier or a `writeResult` message: `numbers-le-translations-2`. Deliberately not translated: `$(symbol-number) Numbers-LE`, the file-type pick's format names, the help document (carried) and the telemetry log |
+| L10N-5 | E | finding | eleven literals handed to the status bar, the notifier or a `writeResult` message: `numbers-le-translations-2`; the help document English in every locale: `numbers-le-translations-5`. Deliberately not translated: `$(symbol-number) Numbers-LE`, the file-type pick's format names, format names and setting keys inside the help document, and the telemetry log |
 | L10N-6 | E | pass | no call at module scope (`src/l10n.test.ts` "never calls l10n.t() at module scope") |
 | L10N-7 | E | pass | every call hands a literal (`src/l10n.test.ts`) |
 | L10N-8 | E | pass | the VSIX listing carries 12 `package.nls.*.json` and 13 `l10n/bundle.l10n*.json`; `clean:i18n` left none in the tree |
-| L10N-9 | E | finding | no host ran in any locale but English: `numbers-le-translations-3` adds the German launches; the runtime-string half is carried (below) |
+| L10N-9 | E | finding | no host ran in any locale but English: `numbers-le-translations-3` adds the German launches; the runtime-string half: `numbers-le-translations-5` localizes the help document and the German host reads `# Numbers-LE Hilfe & Dokumentation` back. A manifest string cannot be read back through the API; the catalogue parity test is that half |
 | L10N-10 | E | pass | every locale's placeholders equal the source's (the script in the pass log, before and after `translations-4`) |
 | L10N-11 | E | pass | runtime: `Index {0}` in de and fr, the same word in both; manifest: `Numbers-LE` (the category) in all twelve, and in zh-cn only after `translations-4` restored it |
 | L10N-12 | E | finding | zh-cn translated the product name in the category and the settings title; es translated it in the tooltip: in `numbers-le-translations-4`. Codicons, `CSV`, `JSON`, `VS Code`, `Numbers-LE` elsewhere intact |
@@ -602,7 +607,7 @@ keys per locale at baseline, 57 and 33 at close.
 | L10N-15 | E | pass | `Extracted {0}`, `Removed {0} duplicates ({1} …)`, `Sorted {0} numbers` read in each locale for 1 and many; the CJK locales carry no plural; `{0} documents` likewise |
 | L10N-16 | E | finding | "number" was `Nummer`/`numéro`/`番号`/`번호`/`номер`/`nomor` in the bundle beside `Zahl`/`nombre`/`数値`/`숫자`/`число`/`angka` in the manifest: in `translations-4` |
 | L10N-17 | E | finding | `findColumnIndex` compared the picked label to the English `(Column N)`: `numbers-le-translations-1`; dialog labels are bound and compared by reference; the sort pick returns its `value` |
-| L10N-18 | all | pass | the results document, the clipboard, the MCP replies, the CLI output and the telemetry log are English and stable across locales; the repo documents the report surfaces as machine-read |
+| L10N-18 | all | pass | the results document, the clipboard, the MCP replies, the CLI output and the telemetry log are English and stable across locales; the repo documents the report surfaces as machine-read. The help document is prose for a person and is localized (`translations-5`) |
 | L10N-19 | C M | pass | the crate, the npm command line and both MCP servers produce no localized text (`grep -rn l10n src/cli src/mcp crate/src` → none) |
 
 ## Findings
@@ -633,32 +638,35 @@ keys per locale at baseline, 57 and 33 at close.
 | numbers-le-translations-2 | translations | eleven strings English in every locale | `fail/translations-2.log` | `bc6826e` | `src/l10n.test.ts` ×7 | 2 red: 10 dead keys, 11 literals |
 | numbers-le-translations-3 | translations | no host ran in any locale but English | read | `7d39ed3` | `test/locale/german-host.test.ts` ×3, `test/locale-setup/…` ×1 | test-gap |
 | numbers-le-translations-4 | translations | 155 catalogue values did not fit their place | the catalogue read | `1aba67a` | the corrected catalogues; the placeholder script before and after; `src/l10n.test.ts` key parity | n/a (a wrong value's test is the corrected catalogue) |
+| numbers-le-bugs-6 | bugs | a dead "incomplete" exit arm on both command lines, and the scan tool's envelope silent on a file it could not read, both on a severity no report carries | `fail/bugs-6.log` | `895a4c5` | crate `the_scan_tool_names_an_unreadable_file_in_its_diagnostics`; `cli.test.ts` "names an unreadable file in the envelope diagnostics" | `left: Null right: "unreadable"`; `expected [] to deeply equal [ { code: 'unreadable', … } ]` |
+| numbers-le-errors-8 | errors | a symbolic link met in a walk was passed over without a line on both command lines | `fail/errors-8.log` | `1bd4d02` | crate `walk.rs` `a_symbolic_link_is_counted_and_never_followed`, `contracts.rs` `a_symbolic_link_is_counted_not_followed_and_not_silent`, `mcp::tests` `the_scan_tool_counts_a_symbolic_link…`; `cli.test.ts` ×3; the link in the parity tree | `no field symlinks on type walk::Walked`; 2 red |
+| numbers-le-errors-9 | errors | a schema violation was an `isError` result, a wrong-typed optional argument was read as absent, `additionalProperties: false` was unenforced, on all three servers | `logs/probes/shared-*.out` #22–#24, #27 | `9f3965a` | `mcp.test.ts` "refuses an argument that does not fit the schema…", `cli.test.ts` ×2, crate `an_argument_that_does_not_fit_the_schema_is_a_protocol_error`, `a_path_that_is_not_there_is_a_tool_failure…`; three corpus cases; parity +5 lines | the probe: `ok=true ft=unknown` for `format: 7` on all three |
+| numbers-le-errors-10 | errors | the npm command line's stdout wrapper answered nothing where the stream answers whether the pipe is full; envsync-le's copy answered it and the fleet check held the other fifteen as drifted | `fail/errors-10.log` | `feae58e`… `feaeb37` | `output.test.ts` "answers false when the pipe is full…", "answers false once stdout has failed…"; the same test in every fleet repo | 2 red: `expected undefined to be true` |
+| numbers-le-translations-5 | translations | the help document was English in every locale, and no runtime string had been shown in a real host in another language | read; the German host | `ff28262` | `test/locale/german-host.test.ts` "writes the help document in German"; `src/l10n.test.ts` on the 88 keys | the guard: 88 strings not in the bundle until the keys existed; the host test is a test-gap |
 
 ## Carried and unknown
 
 | Id or check | What is open | What would settle it |
 |---|---|---|
-| L10N-9, the runtime half | a German host shows activation, the commands and the bundle's path, but no runtime string: the results document holds numbers only, and every string goes to a notification, the status bar or a quick pick | a command that returns its result, or a localized help document, by the owner's choice |
-| L10N-5 / L10N-18, the help document | `commands/help.ts` is English in every locale | an owner decision: it is 90 lines of Markdown by twelve |
-| ERR-14, wrong-typed arguments | `maxResults: 2.5` is an `isError` result, not `-32602`, on all three servers, as `crate/SPEC.md` decides; `format: 7` and `dedupe: "yes"` are read as absent on all three (`shared-*.out` #22–#24), which is a silence rather than either answer | an owner decision on refusing a wrong-typed argument, then the same change on all three servers and the fixture |
-| ERR-14, `additionalProperties: false` | all three servers accept an argument the schema does not declare (`shared-*.out` #27) | an owner decision on refusing unknown arguments |
-| BUG-11, the incomplete branch | `src/cli/scan.ts` and `crate/src/scan.rs` carry an "incomplete" diagnostic arm with severity `error` that no reader produces, on both sides | an owner decision: remove it on both sides in one change, or name the reader that will produce it |
-| ERR-16, symbolic links | a symbolic link met in a walk is never followed, by design, and is passed over without a line on both command lines | a count on stderr and in the scan envelope, as binary files are counted, as its own change on both sides |
+The first close carried eight rows. On the owner's instruction, seven were closed on 2026-10-27, each as a finding above: `numbers-le-translations-5` (the help document and the runtime half of the German host), `numbers-le-errors-9` (wrong-typed arguments and `additionalProperties`), `numbers-le-bugs-6` (the incomplete branch), `numbers-le-errors-8` (symbolic links) and `numbers-le-errors-10` (the fleet's `output.ts`).
+
+| Id or check | What is open | What would settle it |
+|---|---|---|
 | FEAT-4, the context menu | `editor/context` offers Extract on the eight config formats; the fourteen source languages the extension activates on get the palette only | an owner decision on the menu's `when` clause |
-| CLOSE-5, `check:fleet` | `src/cli/output.ts` drifts: envsync-le's `stdout` returns the stream's boolean for backpressure (nolindnaidoo/envsync-le#58), the other fifteen return nothing. Red on the site's `main` before this pass, carried from the scrape-le pass; untouched here | the backpressure change copied to the fifteen as its own fleet change, or an exception in `check-fleet.ts` |
+| CLOSE-5, `check:fleet` | `src/cli/output.ts` now matches envsync-le's here, and the same two files are copied to the other fourteen repos in fifteen pull requests (one per repo, envsync-le's carrying the test alone): colors-le#64, dates-le#59, i18n-le#41, ids-le#42, ips-le#40, paths-le#69, regex-le#58, scrape-le#60, secrets-le#60, string-le#66, unicode-le#47, units-le#47, urls-le#58, versions-le#41, envsync-le#61. The gate reads red until they merge | merging the fifteen |
 
 ## Step 8: Close
 
 | Check | Answer | Evidence |
 |---|---|---|
 | CLOSE-1 | pass | every check above has an answer; no `not done`, no `unknown` |
-| CLOSE-2 | pass | 24 findings fixed with commit and test; 7 items carried above |
+| CLOSE-2 | pass | 29 findings fixed with commit and test; 2 items carried above, one an owner decision and one waiting on fifteen pull requests |
 | CLOSE-3 | pass | `fail/*.log` for every fix; the test-gap rows say so |
-| CLOSE-4 | pass | the Final column above, from `gates.sh final` on `8550495` |
+| CLOSE-4 | pass | the Final column above, from `gates.sh final` on `8550495` and `gates.sh final2` on `3bc4f79` after the carried items, every gate exit 0 but `cargo audit`, not run here |
 | CLOSE-5 | see note | from `letools-site`: `check:locales ../` (every string in its own language across 16), `check:doc-paths ../` (953 references resolve), `check:registry` (17 tools) green. `check:fleet ../` is red on `src/cli/output.ts`, envsync-le differing from the other 15, as it was before this pass and on the site's `main`; numbers-le's own `transport.ts`, `frames.ts` and `frames.test.ts` are listed as its own copies in `check-fleet.ts` in this change and report no drift |
 | CLOSE-6 | pass | CHANGELOG lines for every behaviour change in both changelogs; invariants in `AGENTS.md`; the README section regenerated by its script |
-| CLOSE-7 | pass | `git log main..HEAD --format='%ae %s'`: 25 commits, all the noreply address; `lint:commits` conforms; the diff holds no probe, log or scratch file |
+| CLOSE-7 | pass | `git log main..HEAD --format='%ae %s'`: 31 commits, all the noreply address; `lint:commits` conforms; the diff holds no probe, log or scratch file |
 | CLOSE-8 | pass | [nolindnaidoo/numbers-le#64](https://github.com/nolindnaidoo/numbers-le/pull/64): the findings table, the carried list, what was verified; no attribution |
-| CLOSE-9 | pass | every check on the pull request green on the first run at `8550495`: `ci.yml` on three operating systems with the versions and registry identity; `ci-crate.yml` test, hazards, platform, scenarios and cli-parity on three, budget, fuzz (6 m 22 s), msrv, coverage, differential, parity, coverage-matrix, policy, one version, commit messages and audit; CodeQL on actions and TypeScript. 35 passed, the Dependabot auto-merge skipped as it is on every non-Dependabot branch |
+| CLOSE-9 | pass | every check on the pull request green on the first run at `8550495`, and again on the first run at `3bc4f79` with the carried items closed: `ci.yml` on three operating systems with the versions and registry identity; `ci-crate.yml` test, hazards, platform, scenarios and cli-parity on three, budget, fuzz (6 m 22 s), msrv, coverage, differential, parity, coverage-matrix, policy, one version, commit messages and audit; CodeQL on actions and TypeScript. 35 passed, the Dependabot auto-merge skipped as it is on every non-Dependabot branch |
 | CLOSE-10 | pass | the ledger row and this record in one `letools-site` change |
-| CLOSE-11 | pass | `bugs.md` BUG-4 gains the digit-and-letter sentence (a digit from another script beside ASCII digits; a `[A-Za-z]` header test); BUG-13 leaves the hunt, having passed here, in `bugs.md` and the README table; "Seven passes" |
+| CLOSE-11 | pass | `bugs.md` BUG-4 gains the digit-and-letter sentence (a digit from another script beside ASCII digits; a `[A-Za-z]` header test); BUG-13 leaves the hunt, having passed here, in `bugs.md` and the README table; "Seven passes". The carried items added no class: each was already a check |
