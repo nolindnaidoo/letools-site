@@ -74,7 +74,7 @@ turn.
 
 ## The hunt
 
-Six passes answered every check in every document. About half the checks
+Seven passes answered every check in every document. About half the checks
 found something in no repo, and a smaller set found something in every repo
 it applied to. Those are the hunt: each is driven or traced in full, with a
 run or a controlled reproduction, before it is answered. Every other check is
@@ -86,7 +86,7 @@ lines.
 | Step | Found something in every pass it applied to |
 |---|---|
 | broken-features | FEAT-6, FEAT-17, FEAT-18, FEAT-22 |
-| bugs | BUG-11, BUG-13, BUG-15 |
+| bugs | BUG-11, BUG-15 |
 | errors | ERR-1, ERR-4, ERR-12, ERR-14, ERR-19 |
 | memory-leaks | LEAK-5, LEAK-6, LEAK-10, LEAK-11 |
 | race-conditions | RACE-3 |
