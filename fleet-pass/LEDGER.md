@@ -13,7 +13,7 @@ is written by step 8, [close.md](close.md).
 | string-le | merged | `5554c397` | [records/string-le.md](records/string-le.md) | [nolindnaidoo/string-le#53](https://github.com/nolindnaidoo/string-le/pull/53) | 2026-10-13 | 34 | 1 |
 | envsync-le | merged | `4d95f569` | [records/envsync-le.md](records/envsync-le.md) | [nolindnaidoo/envsync-le#57](https://github.com/nolindnaidoo/envsync-le/pull/57) | 2026-10-25 | 24 | 0 |
 | scrape-le | merged | `c377fe24` | [records/scrape-le.md](records/scrape-le.md) | [nolindnaidoo/scrape-le#59](https://github.com/nolindnaidoo/scrape-le/pull/59) | 2026-10-26 | 28 | 0 |
-| numbers-le | pull request open | `7aece032` | [records/numbers-le.md](records/numbers-le.md) | [nolindnaidoo/numbers-le#64](https://github.com/nolindnaidoo/numbers-le/pull/64) | 2026-10-27 | 29 | 2 |
+| numbers-le | merged | `7aece032` | [records/numbers-le.md](records/numbers-le.md) | [nolindnaidoo/numbers-le#64](https://github.com/nolindnaidoo/numbers-le/pull/64) | 2026-10-27 | 29 | 1 |
 | urls-le | not started | | | | | | |
 | colors-le | not started | | | | | | |
 | dates-le | not started | | | | | | |
