@@ -74,7 +74,7 @@ turn.
 
 ## The hunt
 
-Seven passes answered every check in every document. About half the checks
+Eight passes answered every check in every document. About half the checks
 found something in no repo, and a smaller set found something in every repo
 it applied to. Those are the hunt: each is driven or traced in full, with a
 run or a controlled reproduction, before it is answered. Every other check is
