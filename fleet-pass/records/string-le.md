@@ -596,7 +596,7 @@ Every fix is one commit on `fix/fleet-pass`, named by its finding id in the comm
 | Id or check | What is open | What would settle it |
 |---|---|---|
 | BUG-15, FEAT-12, fixed | The nesting divergence was carried at the first close and fixed on the owner's decision (`string-le-bugs-11`) | Done |
-| INV-10 | The README's generated Testing section ends "CI fails if this section drifts"; the coverage gate was dropped in `c5f12aa` and the sentence comes from the fleet-shared `scripts/coverage-readme.js` | A fleet change to the shared script, then the 16-repo copy |
+| INV-10, fixed | The README's generated Testing section ended "CI fails if this section drifts"; the coverage gate was dropped in `c5f12aa` and the sentence came from the fleet-shared `scripts/coverage-readme.js`. Fixed in the shared script and regenerated in all sixteen repos by the fleet sweep of 2026-10-30, after urls-le's pass carried it a second time | Done |
 | INV-10, fixed | `ui/ratingPrompt.ts` keyed the Open VSX review page on publisher `offensiveedge` (`string-le-features-8`, fixed after the first close on the owner's decision: the host decides). The file is family-wide and held by hand | Copy the family file to the sibling repos as its own change |
 | FEAT-4 | Menus and code actions cover seven of the twenty-one language ids the engine reads | A product decision |
 | L10N-5 | The help document's body is English in every locale | A product decision: translate the page or state that it is English |

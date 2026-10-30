@@ -135,6 +135,15 @@ export const SHARED = [
   // so a copy that drifts publishes a package claiming a version it is not.
   'scripts/build-mcp.js',
   'scripts/build-npm.js',
+  // The extension MCP server's stdio loop: the handshake, the frame limit,
+  // the parse errors, a null id read as a notification, backpressure from a
+  // slow client. Its missing frame limit was found by two passes in two
+  // repos; then three passes each fixed the rest in their own repo and
+  // joined an exception list here, which left seven versions of the file
+  // across sixteen repos. What a repo's crate needs of its own, such as
+  // unicode-le escaping every reply, sits in the repo's own files around
+  // this one, never in it.
+  'src/mcp/transport.ts',
   // The six agent instruction files, and the test inside each repo that holds
   // them to one document. That test is the within-repo half; this list is the
   // across-repo half, and neither implies the other — ten identical copies of
@@ -185,26 +194,15 @@ export const CLI_SHARED_WITH_EXCEPTIONS: Record<string, readonly string[]> = {
   // needs one setting more.
   'src/cli/ignoreRules.ts': ['i18n-le', 'scrape-le'],
   '.github/workflows/release-cli.yml': ['scrape-le'],
-  // The crate MCP server's framing. string-le's, envsync-le's, scrape-le's,
-  // numbers-le's, urls-le's and versions-le's servers answer a malformed
-  // frame with a parse error and cap a frame's size, on both binaries, so
-  // each npm side keeps its own reader.
-  'src/cli/frames.ts': [
-    'envsync-le',
-    'numbers-le',
-    'scrape-le',
-    'string-le',
-    'urls-le',
-    'versions-le',
-  ],
-  'src/cli/frames.test.ts': [
-    'envsync-le',
-    'numbers-le',
-    'scrape-le',
-    'string-le',
-    'urls-le',
-    'versions-le',
-  ],
+  // The crate MCP server's framing, reproduced for the npm command line:
+  // the frame limit, the parse errors, a null id read as a notification.
+  // Three passes each fixed it in their own repo and joined an exception
+  // list here, which left five versions of the file across fifteen repos;
+  // one sweep made them one copy, and this holds them there. string-le's
+  // `string-le mcp` runs the extension's transport itself, so it has no
+  // reader of its own.
+  'src/cli/frames.ts': ['string-le'],
+  'src/cli/frames.test.ts': ['string-le'],
 }
 
 /**
@@ -264,22 +262,6 @@ export const SHARED_WITH_EXCEPTIONS: Record<string, readonly string[]> = {
   // read the open document, scrape-le fetches a page.
   'src/workspace/scan.ts': ['envsync-le', 'i18n-le', 'numbers-le', 'scrape-le', 'versions-le'],
   'src/workspace/scan.test.ts': ['envsync-le', 'i18n-le', 'numbers-le', 'scrape-le', 'versions-le'],
-  // The npm MCP server's stdio loop. Its missing frame limit was found by
-  // two passes in two repos and was in every other copy. string-le's server
-  // trims a line as its crate does and answers protocol frames in its
-  // crate's words, and envsync-le's, scrape-le's, numbers-le's and urls-le's
-  // do the same; unicode-le escapes every reply as its crate does;
-  // versions-le refuses null arguments as its crate does. Each of those is
-  // the crate's contract, so each keeps its own copy.
-  'src/mcp/transport.ts': [
-    'envsync-le',
-    'numbers-le',
-    'scrape-le',
-    'string-le',
-    'unicode-le',
-    'urls-le',
-    'versions-le',
-  ],
 }
 
 /**

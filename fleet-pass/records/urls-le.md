@@ -736,12 +736,21 @@ in `final/44c`).
 
 ## Carried and unknown
 
+The first close carried seven rows. On the owner's instruction, two were
+closed on 2026-10-30 by a sweep across the fleet rather than by this pass:
+the README sentence, fixed once in the shared `scripts/coverage-readme.js`
+and regenerated in all sixteen repos (`7ac8bb2` here), and the npm frame
+reader's transient copies, fixed in the shared `src/cli/frames.ts`
+(`cbbd5c0` here, 975 MB resident after a 16 MiB line before, 82 MB after).
+The same sweep carried this repository's `src/mcp/transport.ts`,
+`src/cli/frames.ts` and `src/cli/frames.test.ts` to the other fifteen and
+emptied the fleet check's exception lists for them, so a later pass cannot
+re-find what this one fixed in those files.
+
 | Id or check | What is open | What would settle it |
 |---|---|---|
-| FEAT-17, "CI fails if this section drifts" | the README's generated Testing section says CI fails when it drifts; no workflow in this repo runs `coverage:readme:check`, and `CLAUDE.md` says so. The sentence is written by the fleet-shared `scripts/coverage-readme.js`, so it is false in every repo | one change to the shared script and its sixteen copies, or a CI step that runs the check |
 | FEAT-18, `readUtf8File` | exported by the fleet-shared `src/cli/ioError.ts` and called by colors-le alone | a fleet decision: move it to colors-le or leave the shared file whole |
 | FEAT-4, the context menus | `editor/context` and `explorer/context` are read from the manifest; no host test asserts where a menu entry appears | a host test that reads the menus, if the API ever exposes them |
-| LEAK-11, N on the way to the limit | the npm frame reader concatenates chunks until a newline, so a 16 MiB line costs about a gigabyte of transient garbage before it is refused; nothing is held past the limit. The reader is numbers-le's copy, byte for byte | collecting chunks and joining once at the newline, in the shared reader, for every repo that carries it |
 | RACE-8 | a status bar text write after dispose is reasoned safe from the host's ordering, not driven | a host test that deactivates while a command runs |
 | CLOSE-5, `check:locales ../` | red on numbers-le's main: "GitHub Issues" in its Japanese, Vietnamese and Chinese bundles, the same three this pass fixed here | three values in numbers-le |
 | `cargo audit` | not installed here; CI runs it | the pull request's `ci-crate.yml` run |
@@ -751,7 +760,7 @@ in `final/44c`).
 | Check | Answer | Evidence |
 |---|---|---|
 | CLOSE-1 | pass | every check in steps 0 to 7 has an answer above; no `not done`, no `unknown` |
-| CLOSE-2 | pass | 23 findings fixed with commit and test; 7 rows carried above, each with what would settle it |
+| CLOSE-2 | pass | 23 findings fixed with commit and test; 7 rows carried above at the first close, 5 after the sweep of 2026-10-30, each with what would settle it |
 | CLOSE-3 | pass | `fail/*.log` for every fix that a test could show failing; the two whose reproduction was a process name the probe log |
 | CLOSE-4 | pass | the Final column above: 47 of 49 gates exit 0 on `03e279c`, the two red ones green after the README regeneration and the ignore rule (`final/05b`, `final/44c`), and the 17 gates the last commits touch exit 0 on `8357f66` (`final2/`); `cargo audit` runs in CI only |
 | CLOSE-5 | see carried | from `letools-site`: `check:fleet ../` green with this repo on the exception lists for `src/mcp/transport.ts`, `src/cli/frames.ts` and `src/cli/frames.test.ts` (`fe7c827`); `check:doc-paths ../` green (955 references); `check:registry` green after the facts for the four earlier releases were synced (`e7ee664`); `check:locales ../` red on numbers-le's three "GitHub Issues" values alone, carried |

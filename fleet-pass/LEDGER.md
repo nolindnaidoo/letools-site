@@ -14,7 +14,7 @@ is written by step 8, [close.md](close.md).
 | envsync-le | merged | `4d95f569` | [records/envsync-le.md](records/envsync-le.md) | [nolindnaidoo/envsync-le#57](https://github.com/nolindnaidoo/envsync-le/pull/57) | 2026-10-25 | 24 | 0 |
 | scrape-le | merged | `c377fe24` | [records/scrape-le.md](records/scrape-le.md) | [nolindnaidoo/scrape-le#59](https://github.com/nolindnaidoo/scrape-le/pull/59) | 2026-10-26 | 28 | 0 |
 | numbers-le | merged | `7aece032` | [records/numbers-le.md](records/numbers-le.md) | [nolindnaidoo/numbers-le#64](https://github.com/nolindnaidoo/numbers-le/pull/64) | 2026-10-27 | 29 | 1 |
-| urls-le | pull request open | `d6104d26` | [records/urls-le.md](records/urls-le.md) | [nolindnaidoo/urls-le#60](https://github.com/nolindnaidoo/urls-le/pull/60) | 2026-10-29 | 23 | 7 |
+| urls-le | pull request open | `d6104d26` | [records/urls-le.md](records/urls-le.md) | [nolindnaidoo/urls-le#60](https://github.com/nolindnaidoo/urls-le/pull/60) | 2026-10-29 | 23 | 5 |
 | colors-le | not started | | | | | | |
 | dates-le | not started | | | | | | |
 | secrets-le | not started | | | | | | |
