@@ -15,7 +15,7 @@ is written by step 8, [close.md](close.md).
 | scrape-le | merged | `c377fe24` | [records/scrape-le.md](records/scrape-le.md) | [nolindnaidoo/scrape-le#59](https://github.com/nolindnaidoo/scrape-le/pull/59) | 2026-10-26 | 28 | 0 |
 | numbers-le | merged | `7aece032` | [records/numbers-le.md](records/numbers-le.md) | [nolindnaidoo/numbers-le#64](https://github.com/nolindnaidoo/numbers-le/pull/64) | 2026-10-27 | 29 | 1 |
 | urls-le | merged | `d6104d26` | [records/urls-le.md](records/urls-le.md) | [nolindnaidoo/urls-le#60](https://github.com/nolindnaidoo/urls-le/pull/60) | 2026-10-29 | 23 | 5 |
-| colors-le | not started | | | | | | |
+| colors-le | pull request open | `7f34b01a` | [records/colors-le.md](records/colors-le.md) | [nolindnaidoo/colors-le#67](https://github.com/nolindnaidoo/colors-le/pull/67) | | 20 | 7 |
 | dates-le | not started | | | | | | |
 | secrets-le | not started | | | | | | |
 | regex-le | not started | | | | | | |

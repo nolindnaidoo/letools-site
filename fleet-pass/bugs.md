@@ -190,6 +190,8 @@ document is recorded in the spec with the side that refuses it and held by the
 differential check in that direction, so a parser upgrade that changes its mind
 turns the build red rather than silently moving the line.
 
+**BUG-22. A rewrite never discards what it did not recognise.** A command that filters a document to the lines it recognises and writes the rest back is driven with a source file and with every shape the tool itself writes. It refuses or keeps them; it never empties the document.
+
 **BUG-17. The documented invariants hold.** Each item under the repo's
 "Invariants" and "Hard rules" headings is a claim. For each, name the test
 that fails if it is broken. An invariant with no such test is a `test-gap`

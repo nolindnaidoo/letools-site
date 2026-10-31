@@ -151,6 +151,8 @@ types that can hold the same sentence (doc comments in source, test headers,
 scripts) and run the grep over them. A sentence the job exists to refuse, in a
 file type the job does not read, is held by nothing.
 
+**FEAT-24 (all). Two lists of one vocabulary are held equal.** Where the extractor and a converter or validator each carry a list of the same names or notations, a test compares them, and whatever the extractor reports the other commands can read.
+
 **FEAT-20 (`E`). Skipped tests from BASE-8 are each explained or restored.**
 
 ## Running a development host by hand
