@@ -138,6 +138,16 @@ produce, adding that hook to the mock is part of the fix.
    `check-fleet.ts` in the same `letools-site` change so the copies cannot
    drift again. The first two fleet passes re-found twenty-nine findings in
    shared files before this rule, each reproduced, fixed and tested twice.
+   Joining an exception list instead is not an option this rule offers:
+   three later passes each fixed the MCP transport and the npm frame reader
+   in their own repo and listed themselves as exceptions, which left seven
+   versions of one file across sixteen repos and had the fourth pass carry
+   the same two fleet items again, until one sweep on 2026-10-30 copied
+   them everywhere. The same goes for a file the check cannot hold
+   byte-identical because it carries the repo's own tools, such as the
+   crate's MCP loop in `crate/src/mcp/mod.rs`: the port goes to every
+   crate in the same pass, and `check:cli-pipes` holds each crate to its
+   npm server.
 5. A fix in a repo's own code, its engine, its commands and its catalogues,
    stays in that repo. If the same defect probably exists in a sibling's own
    code, add a check for it to the matching document here so each later pass
