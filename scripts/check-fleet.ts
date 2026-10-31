@@ -189,8 +189,22 @@ export const CLI_SHARED_WITH_EXCEPTIONS: Record<string, readonly string[]> = {
   // numbers-le's, urls-le's and versions-le's servers answer a malformed
   // frame with a parse error and cap a frame's size, on both binaries, so
   // each npm side keeps its own reader.
-  'src/cli/frames.ts': ['envsync-le', 'numbers-le', 'scrape-le', 'string-le', 'urls-le', 'versions-le'],
-  'src/cli/frames.test.ts': ['envsync-le', 'numbers-le', 'scrape-le', 'string-le', 'urls-le', 'versions-le'],
+  'src/cli/frames.ts': [
+    'envsync-le',
+    'numbers-le',
+    'scrape-le',
+    'string-le',
+    'urls-le',
+    'versions-le',
+  ],
+  'src/cli/frames.test.ts': [
+    'envsync-le',
+    'numbers-le',
+    'scrape-le',
+    'string-le',
+    'urls-le',
+    'versions-le',
+  ],
 }
 
 /**
