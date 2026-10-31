@@ -186,11 +186,25 @@ export const CLI_SHARED_WITH_EXCEPTIONS: Record<string, readonly string[]> = {
   'src/cli/ignoreRules.ts': ['i18n-le', 'scrape-le'],
   '.github/workflows/release-cli.yml': ['scrape-le'],
   // The crate MCP server's framing. string-le's, envsync-le's, scrape-le's,
-  // numbers-le's and versions-le's servers answer a malformed frame with a
-  // parse error and cap a frame's size, on both binaries, so each npm side
-  // keeps its own reader.
-  'src/cli/frames.ts': ['envsync-le', 'numbers-le', 'scrape-le', 'string-le', 'versions-le'],
-  'src/cli/frames.test.ts': ['envsync-le', 'numbers-le', 'scrape-le', 'string-le', 'versions-le'],
+  // numbers-le's, urls-le's and versions-le's servers answer a malformed
+  // frame with a parse error and cap a frame's size, on both binaries, so
+  // each npm side keeps its own reader.
+  'src/cli/frames.ts': [
+    'envsync-le',
+    'numbers-le',
+    'scrape-le',
+    'string-le',
+    'urls-le',
+    'versions-le',
+  ],
+  'src/cli/frames.test.ts': [
+    'envsync-le',
+    'numbers-le',
+    'scrape-le',
+    'string-le',
+    'urls-le',
+    'versions-le',
+  ],
 }
 
 /**
@@ -253,16 +267,17 @@ export const SHARED_WITH_EXCEPTIONS: Record<string, readonly string[]> = {
   // The npm MCP server's stdio loop. Its missing frame limit was found by
   // two passes in two repos and was in every other copy. string-le's server
   // trims a line as its crate does and answers protocol frames in its
-  // crate's words, and envsync-le's, scrape-le's and numbers-le's do the same; unicode-le
-  // escapes every reply as its crate does; versions-le refuses null arguments
-  // as its crate does. Each of those is the crate's contract, so each keeps
-  // its own copy.
+  // crate's words, and envsync-le's, scrape-le's, numbers-le's and urls-le's
+  // do the same; unicode-le escapes every reply as its crate does;
+  // versions-le refuses null arguments as its crate does. Each of those is
+  // the crate's contract, so each keeps its own copy.
   'src/mcp/transport.ts': [
     'envsync-le',
     'numbers-le',
     'scrape-le',
     'string-le',
     'unicode-le',
+    'urls-le',
     'versions-le',
   ],
 }

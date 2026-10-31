@@ -161,7 +161,12 @@ translation.
 extension names, command ids, setting keys, codicons `$(...)`, URLs, file
 names, format names (JSON, YAML, CSV), standards and levels (`WCAG AA`,
 `AAA`), colour and code literals, and example patterns. Search each locale for
-each such token from the source and confirm it is unchanged.
+each such token from the source and confirm it is unchanged. Search the other
+way too: a codicon `$(...)` or a product name in a locale's value that the
+source value does not carry is the value of an older version of the string,
+left behind when the English was rewritten. Six of twelve bundles in one repo
+still showed a status bar icon the English had dropped, and three had rewritten
+the product name inside it.
 
 **L10N-13. Each value means the right thing in its place.** For every key,
 find where the string is shown, then read each locale's value with that context
