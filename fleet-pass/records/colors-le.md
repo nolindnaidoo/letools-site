@@ -260,7 +260,6 @@ Ids are not contiguous: bugs-5, bugs-6 and broken-features-5, -6 were merged int
 | L10N-13 | New translations have had no native review, and existing values were sampled, not read in full | Read every value |
 | BUG-11 | `SUPPORTED_LANGUAGES` lists `yml`, not a language id; crate `settle` is quadratic but passes scenarios | Separate small fix |
 | CLOSE-5 | `check:locales` is red on numbers-le only | The numbers-le pass |
-| CLOSE-9 | CI reported no checks when last read | Read CI on the pull request |
 
 ## Step 8: Close
 
@@ -274,6 +273,6 @@ Ids are not contiguous: bugs-5, bugs-6 and broken-features-5, -6 were merged int
 | CLOSE-6 | Yes | `AGENTS.md`, `crate/AGENTS.md`, `crate/SPEC.md`, changelogs |
 | CLOSE-7 | Yes | Commits listed in the pull request |
 | CLOSE-8 | Yes | #67 opened, nothing merged or released |
-| CLOSE-9 | **Open** | See Carried |
+| CLOSE-9 | Yes | No failed job on #67 |
 | CLOSE-10 | Yes | Ledger row |
 | CLOSE-11 | Yes | FEAT-24, BUG-22, ERR-21 added |
