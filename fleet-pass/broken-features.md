@@ -44,7 +44,9 @@ clipboard, a setting changed). "Executes without throwing" is not an effect.
 
 **FEAT-3 (`E`). Every command is invoked with every argument shape its entry
 points can pass.** A command reachable from the palette, a context menu and a
-status bar click receives different arguments from each. Read the handler and
+status bar click receives different arguments from each. An Explorer context
+menu hands over the entry that was clicked and the whole selection, so a
+handler that reads only the first serves one of several. Read the handler and
 list the shapes. Each has a test.
 
 **FEAT-4 (`E`). Every menu entry appears where it is declared and nowhere
