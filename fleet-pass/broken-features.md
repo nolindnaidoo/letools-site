@@ -44,7 +44,9 @@ clipboard, a setting changed). "Executes without throwing" is not an effect.
 
 **FEAT-3 (`E`). Every command is invoked with every argument shape its entry
 points can pass.** A command reachable from the palette, a context menu and a
-status bar click receives different arguments from each. Read the handler and
+status bar click receives different arguments from each. An Explorer context
+menu hands over the entry that was clicked and the whole selection, so a
+handler that reads only the first serves one of several. Read the handler and
 list the shapes. Each has a test.
 
 **FEAT-4 (`E`). Every menu entry appears where it is declared and nowhere
@@ -150,6 +152,8 @@ sentence.** Where CI greps documentation for a forbidden claim, list the file
 types that can hold the same sentence (doc comments in source, test headers,
 scripts) and run the grep over them. A sentence the job exists to refuse, in a
 file type the job does not read, is held by nothing.
+
+**FEAT-24 (all). Two lists of one vocabulary are held equal.** Where the extractor and a converter or validator each carry a list of the same names or notations, a test compares them, and whatever the extractor reports the other commands can read.
 
 **FEAT-20 (`E`). Skipped tests from BASE-8 are each explained or restored.**
 

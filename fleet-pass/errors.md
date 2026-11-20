@@ -182,6 +182,8 @@ or each path is driven and the indicator read back. One set before a dialog
 and reset only on the successful path stays up until the next run that
 happens to succeed.
 
+**ERR-21. A report states nothing it did not compute.** Every verdict, ratio and detected pattern in a generated report is traced to a calculation over the input. A hard-coded value, or a fallback that reads as a real answer, is a finding.
+
 **ERR-17 (`N` `E`). Build and release scripts fail loudly.** Every script under
 `scripts/` and every workflow step is read for `|| true`,
 `continue-on-error`, an unchecked `spawnSync` status, and a `catch` that exits

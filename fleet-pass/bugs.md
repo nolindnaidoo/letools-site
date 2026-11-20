@@ -190,6 +190,12 @@ document is recorded in the spec with the side that refuses it and held by the
 differential check in that direction, so a parser upgrade that changes its mind
 turns the build red rather than silently moving the line.
 
+**BUG-22. A rewrite never discards what it did not recognise.** A command that filters a document to the lines it recognises and writes the rest back is driven with a source file and with every shape the tool itself writes. It refuses or keeps them; it never empties the document.
+
+**BUG-23. Work that grows with one document's matches is timed on one dense document.** A linearity check over a tree of small files cannot see a cost in the square of the matches inside one file: a lookup of each match in a list of the ones before it fits under any tree budget. Time one document holding many matches at two sizes and read the ratio.
+
+**BUG-24. Two conversions of one value are compared over a grid, not at the corpus's values.** Where two surfaces each convert the same quantity, a colour model, a unit or a number format, a test compares them over a dense grid of inputs. Two formulas that agree on a handful of fixtures round a result that lands on .5 in different directions, and a match against an approved value then fails on one side only.
+
 **BUG-17. The documented invariants hold.** Each item under the repo's
 "Invariants" and "Hard rules" headings is a claim. For each, name the test
 that fails if it is broken. An invariant with no such test is a `test-gap`
