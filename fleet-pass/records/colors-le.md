@@ -307,10 +307,10 @@ The first twenty are the first walk, merged in #67; the rest are the second. Ids
 | CLOSE-2 | Yes | Findings and Carried above |
 | CLOSE-3 | Yes, bar the named ones | Each fix's test was run with the fix stashed, logs in `fail2/`; test gaps have no fix to stash; l10n-7 is not mechanical; the npm FIFO palette case blocks the old code and was shown hanging. From the first walk: l10n-5, l10n-6, broken-features-2 |
 | CLOSE-4 | Yes | 51 gates exit 0 on `eb7f504`; tree clean after |
-| CLOSE-5 | Yes, bar numbers-le | `check:fleet` and `check:doc-paths` pass; `check:locales` red on numbers-le's three "GitHub Issues" values only |
+| CLOSE-5 | Yes, bar numbers-le | `check:fleet` and `check:doc-paths` pass; `check:locales` red on numbers-le's three "GitHub Issues" values only; `check:registry` was red on decisionlint 1.1.1's facts, synced in the site change that carries this record |
 | CLOSE-6 | Yes | Changelog lines for each behaviour change; `AGENTS.md` and `crate/AGENTS.md` invariants name their tests (`eb7f504`); `crate/SPEC.md` |
 | CLOSE-7 | Yes | Every commit by the noreply address with a typed subject; `lint-commits` passes |
-| CLOSE-8 | Yes | #67 merged; #68 opened, not merged |
+| CLOSE-8 | Yes | #67 merged; #68 opened, then merged as `c8b07af` on 2026-11-20 |
 | CLOSE-9 | Yes | #68 on `eb7f504`: 34 passed, 1 skipped, and the Windows leg failed on two new tests, one calling grep, which that runner did not have, the other expecting the platform's path separator where a report uses `/`; fixed in `5778c81`, then 35 passed, 1 skipped |
 | CLOSE-10 | Yes | Ledger row |
 | CLOSE-11 | Yes | BUG-23 (one dense document is timed), BUG-24 (two conversions compared over a grid), and FEAT-3 names the Explorer's selection argument. The hunt is unchanged: no check found something here and in every earlier pass without already being in it |
